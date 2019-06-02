@@ -1,0 +1,15 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Compile docker image
+        run: make docker-build
+      - name: Compile in docker
+        run: docker-compose run --rm spider /bin/bash -c \
+          "cd spider && make all"
