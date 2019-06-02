@@ -1,0 +1,3 @@
+# spider
+
+Crawl GitHub APIs and store the discovered orgs, repos, commits...
