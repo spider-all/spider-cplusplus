@@ -30,3 +30,6 @@ message("System name: ${CMAKE_SYSTEM_NAME}")
 message("System processor: ${CMAKE_SYSTEM_PROCESSOR}")
 message("System host name: ${CMAKE_HOST_SYSTEM_NAME}")
 message("CXX Standard: ${CMAKE_CXX_STANDARD}")
+
+# find_package(RocksDB CONFIG REQUIRED)
+# target_link_libraries(main PRIVATE RocksDB::rocksdb RocksDB::rocksdb-shared)

@@ -2,6 +2,7 @@
 
 #include <httplib.h>
 
+#include <application.h>
 #include <config.hpp>
 #include <database.hpp>
 
@@ -10,7 +11,7 @@
 #define CPPHTTPLIB_ZLIB_SUPPORT
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
-class Server {
+class Server : Application {
 private:
   Config config;
   Database database;
