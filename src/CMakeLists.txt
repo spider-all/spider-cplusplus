@@ -15,7 +15,7 @@ find_package(CURL CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-add_executable(spider spider.cc)
+add_executable(spider cli.cc common.cc config.cc request.cc server.cc spider.cc)
 
 target_link_libraries(spider PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
 target_link_libraries(spider PRIVATE spdlog::spdlog)
