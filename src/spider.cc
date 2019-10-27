@@ -5,19 +5,15 @@
 
 #include <spdlog/spdlog.h>
 
-#include <cli.hpp>
-#include <config.hpp>
-#include <request.hpp>
-#include <server.hpp>
+#include <cli.h>
+#include <config.h>
+#include <request.h>
+#include <server.h>
 
 bool keep_running = true; // test keep running
-httplib::Server svr;
 
 void callback(int) {
   std::cout << std::endl; // output a new after CTRL+C
-  if (svr.is_running()) {
-    svr.stop();
-  }
   keep_running = false;
 }
 
@@ -42,18 +38,19 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   };
 
-  Request request(config, database);
+  Application *request = new Request(config, database);
 
   signal(SIGINT, callback);
 
-  code = request.startup();
+  code = request->startup();
   if (code != 0) {
     spdlog::error("Spider startup got error: {}", code);
     keep_running = false;
-  };
+  }
 
-  Server server(database);
-  code = server.startup();
+  Application *server = new Server(database);
+
+  code = server->startup();
   if (code != 0) {
     spdlog::error("Server startup got error: {}", code);
     keep_running = false;
@@ -63,8 +60,8 @@ int main(int argc, char *argv[]) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200)); // run loop
   }
 
-  request.teardown();
-  server.teardown();
+  request->teardown();
+  server->teardown();
   database.deinit();
 
   return EXIT_SUCCESS;
