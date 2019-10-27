@@ -10,6 +10,7 @@
 #include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
 
+#include <application.h>
 #include <common.hpp>
 #include <config.hpp>
 #include <database.hpp>
@@ -18,7 +19,7 @@
 
 #pragma once
 
-class Request {
+class Request : Application {
 private:
   Config config;
   Database database;
