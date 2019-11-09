@@ -6,7 +6,10 @@
 #include <spdlog/spdlog.h>
 
 #include <cli.h>
+#include <common.h>
 #include <config.h>
+#include <dbrk.h>
+#include <dbsq.h>
 #include <request.h>
 #include <server.h>
 
@@ -15,6 +18,15 @@ bool keep_running = true; // test keep running
 void callback(int) {
   std::cout << std::endl; // output a new line after CTRL+C
   keep_running = false;
+}
+
+Database *switcher(std::string type, std::string path) {
+  if (type == "sqlite3") {
+    return new DBSQ(path);
+  } else if (type == "rocksdb") {
+    return new DBRK(path);
+  }
+  return nullptr;
 }
 
 int main(int argc, char *argv[]) {
@@ -31,8 +43,9 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  Database database;
-  code = database.initialize(config.database_path);
+  Database *database = switcher(config.database_type, config.database_path);
+
+  code = database->initialize();
   if (code != 0) {
     spdlog::error("Initialize database with error: {}", code);
     return EXIT_FAILURE;
@@ -62,7 +75,7 @@ int main(int argc, char *argv[]) {
 
   request->teardown();
   server->teardown();
-  database.deinit();
+  database->deinit();
 
   return EXIT_SUCCESS;
 }

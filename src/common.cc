@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <common.h>
 
 bool end_with(std::string const &str, std::string const &suffix) {

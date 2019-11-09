@@ -13,11 +13,11 @@ find_package(sqlite3 CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(CURL CONFIG REQUIRED)
+# find_package(CURL CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-add_executable(spider cli.cc common.cc config.cc request.cc server.cc spider.cc)
+add_executable(spider cli.cc common.cc config.cc request.cc server.cc spider.cc dbsq.cc dbrk.cc)
 
 target_include_directories(spider PRIVATE inc)
 
@@ -27,7 +27,7 @@ target_link_libraries(spider PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 target_link_libraries(spider PRIVATE yaml-cpp)
 target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 target_link_libraries(spider PRIVATE sqlite3)
-target_link_libraries(spider PRIVATE CURL::libcurl)
+# target_link_libraries(spider PRIVATE CURL::libcurl)
 
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")

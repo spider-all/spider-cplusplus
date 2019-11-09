@@ -5,7 +5,8 @@ int Config::config(char *config_path) {
   crawler_entry_username = config["name"].as<std::string>();
   crawler_client_id      = config["client"]["id"].as<std::string>();
   crawler_client_secret  = config["client"]["secret"].as<std::string>();
-  database_path          = config["database"].as<std::string>();
+  database_path          = config["database"]["path"].as<std::string>();
+  database_type          = config["database"]["type"].as<std::string>();
 
   if (crawler_entry_username == "" || crawler_client_id == "" || crawler_client_secret == "") {
     spdlog::error("Config {0} have not the import value.", config_path);

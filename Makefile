@@ -15,7 +15,7 @@ release:
 
 .PHONY: clean
 clean:
-	$(RM) -r src/debug src/release 
+	$(RM) -r src/release 
 
 .PHONY: upgrade
 upgrade:

@@ -1,23 +1,6 @@
-#include <ctime>
-#include <iostream>
-#include <regex>
-#include <string>
-#include <thread>
-
-#include <curl/curl.h>
-#include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
-#include <sqlite3.h>
-#include <yaml-cpp/yaml.h>
-
-#include <application.h>
-#include <common.h>
-#include <config.h>
-#include <error.hpp>
-#include <model.hpp>
 #include <request.h>
 
-Request::Request(Config c, Database db) {
+Request::Request(Config c, Database *db) {
   config   = c;
   database = db;
 
@@ -26,7 +9,7 @@ Request::Request(Config c, Database db) {
 
 int Request::startup() {
   spdlog::info("Spider is running...");
-  int code = request("https://api.github.com/users/" + config.crawler_entry_username + url_suffix, request_type_userinfo);
+  int code = request("/users/" + config.crawler_entry_username + url_suffix, request_type_userinfo);
   if (code != 0) {
     return code;
   }
@@ -38,7 +21,7 @@ int Request::startup() {
     semaphore++;
     while (!stopping) {
 
-      std::string request_url = "https://api.github.com/users/" + config.crawler_entry_username + "/followers" + url_suffix + "&page=1";
+      std::string request_url = "/users/" + config.crawler_entry_username + "/followers" + url_suffix + "&page=1";
 
       int code = request(request_url, request_type_followers);
       if (code != 0) {
@@ -64,37 +47,18 @@ void Request::teardown() {
 }
 
 int Request::request(std::string url, enum request_type type) {
-  httplib::SSLClient cli("api.github.com", 443);
-  cli.set_ca_cert_path("./ca.crt");
-  cli.enable_server_certificate_verification(true);
-  auto res = cli.Get("/users/tosone?client_id=3d032602cc3318f720bf&client_secret=a215c90563c7c4cc10aa076defe59efcad961601");
-  httplib::Headers::iterator iter;
-  std::cout << res->body << std::endl;
-  for (iter = res->headers.begin(); iter != res->headers.end(); ++iter) {
-    std::cout << '\t' << iter->first
-              << '\t' << iter->second << '\n';
-  }
-  // std::cout << res->headers.contain("") << std::endl;
-  CURL *curl = curl_easy_init();
-  std::string body, header;
+  httplib::SSLClient client(url_prefix.c_str());
+  client.set_ca_cert_path("ca-bundle.crt");
+  client.enable_server_certificate_verification(true);
+  std::shared_ptr<httplib::Response> res = client.Get(url.c_str());
 
-  if (curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, USERAGENT.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, body_callback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
-    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, header_callback);
-    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header);
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-      spdlog::error("Request with error: {}", curl_easy_strerror(res));
-      curl_easy_cleanup(curl);
-      return REQUEST_ERROR;
-    }
-    curl_easy_cleanup(curl);
+  std::string header;
+  httplib::Headers::iterator iter = res->headers.find("Link");
+  if (iter != res->headers.end()) {
+    header = iter->second;
   }
 
-  if (body == "") {
+  if (res->body == "") {
     return REQUEST_ERROR;
   }
 
@@ -115,19 +79,19 @@ int Request::request(std::string url, enum request_type type) {
       }
       return true;
     };
-    content = nlohmann::json::parse(body, cb);
+    content = nlohmann::json::parse(res->body, cb);
   } catch (nlohmann::detail::parse_error &e) {
     spdlog::error("Request {} got error: {}", url.c_str(), e.what());
     return REQUEST_ERROR;
   }
 
-  github_user user;
+  user user;
   int code = 0;
 
   switch (type) {
   case request_type_followers:
     for (auto i : content) {
-      code = request("https://api.github.com/users/" + i["login"].get<std::string>() + url_suffix, request_type_userinfo);
+      code = request("/users/" + i["login"].get<std::string>() + url_suffix, request_type_userinfo);
       if (code != 0) {
         spdlog::error("Request userinfo with error: {}", code);
       }
@@ -158,7 +122,7 @@ int Request::request(std::string url, enum request_type type) {
     user.following    = content["following"].get<int>();
     user.followers    = content["followers"].get<int>();
 
-    code = database.create_user(user);
+    code = database->create_user(user);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }

@@ -4,6 +4,8 @@
 #include <string>
 #include <thread>
 
+#pragma once
+
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
 #include <curl/curl.h>
@@ -16,11 +18,8 @@
 #include <application.h>
 #include <common.h>
 #include <config.h>
+#include <database.h>
 #include <error.hpp>
-#include <model.hpp>
-#include <sqlite.hpp>
-
-#pragma once
 
 enum request_type {
   request_type_followers,
@@ -30,10 +29,12 @@ enum request_type {
 class Request : public Application {
 private:
   Config config;
-  Database database;
+  Database *database;
 
   int semaphore = 0; // 执行过程中的信号量
   bool stopping = false;
+
+  std::string url_prefix = "api.github.com";
 
   std::string url_suffix;
 
@@ -50,7 +51,7 @@ private:
   }
 
 public:
-  Request(Config c, Database db);
+  Request(Config c, Database *db);
 
   int startup();
 

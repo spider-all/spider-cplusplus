@@ -1,6 +1,6 @@
 #include <server.h>
 
-Server::Server(Database db) {
+Server::Server(Database *db) {
   database = db;
 }
 
