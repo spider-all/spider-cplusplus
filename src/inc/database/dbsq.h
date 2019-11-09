@@ -1,26 +1,18 @@
+#include <cassert>
 #include <iostream>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
+
+#include <SQLiteCpp/SQLiteCpp.h>
+#include <spdlog/spdlog.h>
 
 #pragma once
 
-struct github_user {
-  int64_t id;
-  std::string login;
-  std::string node_id;
-  std::string type;
-  std::string name;
-  std::string company;
-  std::string blog;
-  std::string location;
-  std::string email;
-  bool hireable;
-  std::string bio;
-  std::string created_at;
-  std::string updated_at;
-  int public_gists;
-  int public_repos;
-  int following;
-  int followers;
-};
+#include <database/database.h>
+#include <error.hpp>
+#include <model.h>
 
 const std::string CreateSentence[] = {
     "CREATE TABLE IF NOT EXISTS `users` ("
@@ -51,4 +43,13 @@ const std::string QuerySentence[] = {
     "`type` TEXT,"
     "`created_at` TEXT,"
     "`updated_at` TEXT);",
+};
+
+class DBSQ : public Database {
+public:
+  DBSQ(const std::string&);
+  ~DBSQ();
+  int initialize();
+  int create_user(user);
+  std::vector<std::string> list_users();
 };

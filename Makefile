@@ -1,27 +1,20 @@
-app_name                = spider
-docker_name             = $(app_name)
-docker_tag              = dev
-docker_container        = $(app_name)
+app_name         = spider
+docker_name      = $(app_name)
+docker_tag       = dev
+docker_container = $(app_name)
 
-pwd                     = $(shell pwd)
+pwd              = $(shell pwd)
 
-all: clean debug release
+all: clean release debug
 
-.PHONY: debug
-debug:
+release debug:
 	if [ ! -d src/$@ ]; then mkdir src/$@; fi
-	cd src/$@ && cmake -DCMAKE_TOOLCHAIN_FILE=${pwd}/../pkgs/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug .. && \
-	cmake --build .
-
-.PHONY: release
-release:
-	if [ ! -d src/$@ ]; then mkdir src/$@; fi
-	cd src/$@ && cmake -DCMAKE_TOOLCHAIN_FILE=${pwd}/../pkgs/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release .. && \
+	cd src/$@ && cmake -DCMAKE_BUILD_TYPE=$@ .. && \
 	cmake --build .
 
 .PHONY: clean
 clean:
-	$(RM) -r src/debug src/release 
+	$(RM) -r src/release src/debug
 
 .PHONY: upgrade
 upgrade:
@@ -37,4 +30,4 @@ docker-run:
 
 .PHONY: docker-exec
 docker-exec:
-	docker-compose exec $(docker_container) /usr/bin/fish
+	docker-compose exec $(docker_container) /bin/bash

@@ -1,30 +1,24 @@
-FROM buildpack-deps:curl
+FROM buildpack-deps:stable
 
-ARG VERSION=2019.09
-ARG DEPS="openssl zlib curl sqlite3 yaml-cpp cpp-httplib spdlog nlohmann-json rocksdb sqlite-orm"
+ARG VERSION=2020.06
+ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr \
+  boost-beast libpqxx hiredis[ssl] poco[mariadb,postgresql]"
 
 WORKDIR /app
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-  file git curl tar wget curl unzip fish locales build-essential \
-  tree vim bash-completion apt-utils man-db cmake && \
-  rm -rf /var/lib/apt/lists/*
-
-RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
-  echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
-
-RUN sed -i "s/bin\/bash/usr\/bin\/fish/" /etc/passwd
-
-RUN rm -f /etc/localtime && ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+VOLUME /app/spider
 
 ADD https://github.com/microsoft/vcpkg/archive/${VERSION}.tar.gz .
 
-VOLUME /app/spider
-
-RUN tar zxvf ${VERSION}.tar.gz && cd vcpkg-${VERSION} && ./bootstrap-vcpkg.sh && \
+RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
+  sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
+  apt-get update -y && apt-get install -y --no-install-recommends \
+  vim bash-completion bison flex cmake && \
+  rm -rf /var/lib/apt/lists/* && \
+  tar zxvf ${VERSION}.tar.gz && cd vcpkg-${VERSION} && ./bootstrap-vcpkg.sh && \
   ./vcpkg install ${DEPS} && \
   ./vcpkg list && ./vcpkg export ${DEPS} --raw --output=pkgs && \
   mv pkgs .. && cd .. && \
   rm -rf vcpkg-${VERSION} ${VERSION}.tar.gz pkgs.zip
 
-CMD /usr/bin/fish
+CMD ["/bin/bash"]
