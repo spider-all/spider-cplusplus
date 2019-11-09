@@ -1,15 +1,4 @@
-#include <iostream>
-#include <regex>
-#include <string>
-#include <thread>
-
-#include <curl/curl.h>
-#include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
-#include <yaml-cpp/yaml.h>
-
 #include <config.h>
-#include <error.hpp>
 
 int Config::config(char *config_path) {
   YAML::Node config      = YAML::LoadFile(config_path);

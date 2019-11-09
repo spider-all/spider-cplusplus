@@ -23,7 +23,6 @@
 # Compiled Static libraries
 *.lai
 *.la
-*.a
 *.lib
 
 # Executables
@@ -31,14 +30,11 @@
 *.out
 *.app
 
+*.db
+*.yaml
+core
+
 src/release/
 src/debug/
 .vscode/
-
-*.db
-core
-config.yaml
-src/spider
-
-# just for coding
 pkgs/

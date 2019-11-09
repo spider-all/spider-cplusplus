@@ -4,7 +4,10 @@
 #include <string>
 #include <thread>
 
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+
 #include <curl/curl.h>
+#include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <sqlite3.h>
@@ -13,9 +16,9 @@
 #include <application.h>
 #include <common.h>
 #include <config.h>
-#include <database.hpp>
 #include <error.hpp>
 #include <model.hpp>
+#include <sqlite.hpp>
 
 #pragma once
 
@@ -34,7 +37,7 @@ private:
 
   std::string url_suffix;
 
-    const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) "
+  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) "
                                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
   static size_t body_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     ((std::string *)userp)->append((char *)contents, size * nmemb);

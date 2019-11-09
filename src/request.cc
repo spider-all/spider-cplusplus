@@ -13,14 +13,14 @@
 #include <application.h>
 #include <common.h>
 #include <config.h>
-#include <database.hpp>
 #include <error.hpp>
 #include <model.hpp>
 #include <request.h>
 
 Request::Request(Config c, Database db) {
-  config     = c;
-  database   = db;
+  config   = c;
+  database = db;
+
   url_suffix = "?client_id=" + config.crawler_client_id + "&client_secret=" + config.crawler_client_secret;
 }
 
@@ -64,6 +64,17 @@ void Request::teardown() {
 }
 
 int Request::request(std::string url, enum request_type type) {
+  httplib::SSLClient cli("api.github.com", 443);
+  cli.set_ca_cert_path("./ca.crt");
+  cli.enable_server_certificate_verification(true);
+  auto res = cli.Get("/users/tosone?client_id=3d032602cc3318f720bf&client_secret=a215c90563c7c4cc10aa076defe59efcad961601");
+  httplib::Headers::iterator iter;
+  std::cout << res->body << std::endl;
+  for (iter = res->headers.begin(); iter != res->headers.end(); ++iter) {
+    std::cout << '\t' << iter->first
+              << '\t' << iter->second << '\n';
+  }
+  // std::cout << res->headers.contain("") << std::endl;
   CURL *curl = curl_easy_init();
   std::string body, header;
 

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_TOOLCHAIN_FILE ../pkgs/scripts/buildsystems/vcpkg.cmake)
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 project(spider)
@@ -16,6 +18,8 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 add_executable(spider cli.cc common.cc config.cc request.cc server.cc spider.cc)
+
+target_include_directories(spider PRIVATE inc)
 
 target_link_libraries(spider PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
 target_link_libraries(spider PRIVATE spdlog::spdlog)

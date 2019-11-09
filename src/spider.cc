@@ -13,7 +13,7 @@
 bool keep_running = true; // test keep running
 
 void callback(int) {
-  std::cout << std::endl; // output a new after CTRL+C
+  std::cout << std::endl; // output a new line after CTRL+C
   keep_running = false;
 }
 

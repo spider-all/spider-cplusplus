@@ -1,6 +1,16 @@
 #include <iostream>
+#include <regex>
+#include <string>
+#include <thread>
 
 #pragma once
+
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
+#include <yaml-cpp/yaml.h>
+
+#include <error.hpp>
 
 class Config {
 private:

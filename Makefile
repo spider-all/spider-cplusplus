@@ -5,18 +5,12 @@ docker_container        = $(app_name)
 
 pwd                     = $(shell pwd)
 
-all: clean debug release
-
-.PHONY: debug
-debug:
-	if [ ! -d src/$@ ]; then mkdir src/$@; fi
-	cd src/$@ && cmake -DCMAKE_TOOLCHAIN_FILE=${pwd}/../pkgs/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug .. && \
-	cmake --build .
+all: clean release
 
 .PHONY: release
 release:
 	if [ ! -d src/$@ ]; then mkdir src/$@; fi
-	cd src/$@ && cmake -DCMAKE_TOOLCHAIN_FILE=${pwd}/../pkgs/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release .. && \
+	cd src/$@ && cmake .. && \
 	cmake --build .
 
 .PHONY: clean

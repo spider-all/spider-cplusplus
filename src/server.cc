@@ -1,15 +1,4 @@
-#include <iostream>
-
-#include <httplib.h>
-
-#include <application.h>
-#include <config.h>
-#include <database.hpp>
-
 #include <server.h>
-
-#define CPPHTTPLIB_ZLIB_SUPPORT
-#define CPPHTTPLIB_OPENSSL_SUPPORT
 
 Server::Server(Database db) {
   database = db;

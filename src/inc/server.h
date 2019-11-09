@@ -1,9 +1,14 @@
-#include <httplib.h>
+#include <iostream>
 
 #pragma once
 
 #define CPPHTTPLIB_ZLIB_SUPPORT
-#define CPPHTTPLIB_OPENSSL_SUPPORT
+
+#include <httplib.h>
+#include <sqlite.hpp>
+
+#include <application.h>
+#include <config.h>
 
 class Server : public Application {
 private:
