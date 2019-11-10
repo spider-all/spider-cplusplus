@@ -1,6 +1,10 @@
-#include <database.h>
+#include <iostream>
+
+#include <rocksdb/db.h>
 
 #pragma once
+
+#include <database.h>
 
 class DBRK : public Database {
 public:

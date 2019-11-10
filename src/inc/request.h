@@ -4,16 +4,15 @@
 #include <string>
 #include <thread>
 
-#pragma once
-
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
-#include <curl/curl.h>
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
+
+#pragma once
 
 #include <application.h>
 #include <common.h>
@@ -28,6 +27,7 @@ enum request_type {
 
 class Request : public Application {
 private:
+  Common common;
   Config config;
   Database *database;
 

@@ -1,14 +1,14 @@
 #include <iostream>
 
-#pragma once
-
 #define CPPHTTPLIB_ZLIB_SUPPORT
 
-#include <database.h>
 #include <httplib.h>
+
+#pragma once
 
 #include <application.h>
 #include <config.h>
+#include <database.h>
 
 class Server : public Application {
 private:

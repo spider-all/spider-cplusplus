@@ -65,12 +65,12 @@ int Request::request(std::string url, enum request_type type) {
   nlohmann::json content;
 
   try {
-    nlohmann::json::parser_callback_t cb = [](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
+    nlohmann::json::parser_callback_t cb = [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
       if (event == nlohmann::json::parse_event_t::key) {
         std::string str = parsed.dump();
         str.erase(str.begin(), str.begin() + 1);
         str.erase(str.end() - 1, str.end());
-        if (end_with(str, "_url") or str == "url") {
+        if (common.end_with(str, "_url") or str == "url") {
           return false;
         }
       } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {

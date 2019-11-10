@@ -3,12 +3,11 @@
 #include <string>
 #include <thread>
 
-#pragma once
-
-#include <curl/curl.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <yaml-cpp/yaml.h>
+
+#pragma once
 
 #include <error.hpp>
 

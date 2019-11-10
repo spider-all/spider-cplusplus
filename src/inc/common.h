@@ -2,4 +2,7 @@
 
 #pragma once
 
-bool end_with(std::string const &, std::string const &);
+class Common {
+public:
+  bool end_with(std::string const &, std::string const &);
+};

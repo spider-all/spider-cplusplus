@@ -21,10 +21,17 @@ void callback(int) {
 }
 
 Database *switcher(std::string type, std::string path) {
+  Database *ret = nullptr;
   if (type == "sqlite3") {
-    return new DBSQ(path);
+    ret = new DBSQ(path);
   } else if (type == "rocksdb") {
-    return new DBRK(path);
+    ret = new DBRK(path);
+  }
+  if (ret == nullptr) {
+    return nullptr;
+  }
+  if (ret->code != 0) {
+    spdlog::error("Open database with error: {}", ret->code);
   }
   return nullptr;
 }
@@ -44,6 +51,9 @@ int main(int argc, char *argv[]) {
   }
 
   Database *database = switcher(config.database_type, config.database_path);
+  if (database == nullptr) {
+    return EXIT_FAILURE;
+  }
 
   code = database->initialize();
   if (code != 0) {

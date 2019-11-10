@@ -8,10 +8,6 @@ DBSQ::DBSQ(std::string path) {
 }
 
 int DBSQ::initialize() {
-  // if (sqlite3_open(path.c_str(), &db.sqlite) != SQLITE_OK) {
-  //   spdlog::error("Open database with error: {}", sqlite3_errmsg(db.sqlite));
-  //   return DATABASE_OPEN_ERROR;
-  // }
   char *zErrMsg = nullptr;
   for (auto sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
@@ -21,7 +17,6 @@ int DBSQ::initialize() {
       return DATABASE_SQL_ERROR;
     }
   }
-
   return EXIT_SUCCESS;
 }
 

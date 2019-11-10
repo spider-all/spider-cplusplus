@@ -1,6 +1,3 @@
-#include <iostream>
-#include <unistd.h>
-
 #include <cli.h>
 
 #define SPIDER_VERSION_MAJOR 1
