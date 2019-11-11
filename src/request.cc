@@ -52,10 +52,36 @@ int Request::request(std::string url, enum request_type type) {
   client.enable_server_certificate_verification(true);
   std::shared_ptr<httplib::Response> res = client.Get(url.c_str());
 
+  if (res->status == 403) {
+    std::this_thread::sleep_for(std::chrono::seconds(30));
+    spdlog::info("Wait for another 30s to request due to rate limit");
+    return request(url, type);
+  }
+
+  if (res->status != 200) {
+    spdlog::error("Got {} on request url: {}", res->status, url);
+    return EXIT_FAILURE;
+  }
+
   std::string header;
   httplib::Headers::iterator iter = res->headers.find("Link");
   if (iter != res->headers.end()) {
     header = iter->second;
+  }
+
+  httplib::Headers::iterator rate_limit_remaining_iter = res->headers.find("X-RateLimit-Remaining");
+  if (rate_limit_remaining_iter != res->headers.end()) {
+    rate_limit_remaining = std::stoi(rate_limit_remaining_iter->second);
+  }
+
+  httplib::Headers::iterator rate_limit_limit_iter = res->headers.find("X-RateLimit-Remaining");
+  if (rate_limit_limit_iter != res->headers.end()) {
+    rate_limit_limit = std::stoi(rate_limit_limit_iter->second);
+  }
+
+  httplib::Headers::iterator rate_limit_reset_iter = res->headers.find("X-RateLimit-Remaining");
+  if (rate_limit_reset_iter != res->headers.end()) {
+    rate_limit_reset = std::stoi(rate_limit_reset_iter->second);
   }
 
   if (res->body == "") {

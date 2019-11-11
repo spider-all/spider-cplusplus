@@ -31,6 +31,10 @@ private:
   Config config;
   Database *database;
 
+  int rate_limit_remaining;
+  int rate_limit_limit;
+  int rate_limit_reset;
+
   int semaphore = 0; // 执行过程中的信号量
   bool stopping = false;
 

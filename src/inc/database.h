@@ -1,7 +1,7 @@
 #include <iostream>
 
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <rocksdb/db.h>
-#include <sqlite3.h>
 
 #pragma once
 
@@ -10,8 +10,8 @@
 class Database {
 public:
   struct db {
-    sqlite3 *sqlite;
     rocksdb::DB *rocksdb;
+    SQLite::Database *sqlite;
   } db;
   int code = 0;
 

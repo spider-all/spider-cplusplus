@@ -33,7 +33,7 @@ Database *switcher(std::string type, std::string path) {
   if (ret->code != 0) {
     spdlog::error("Open database with error: {}", ret->code);
   }
-  return nullptr;
+  return ret;
 }
 
 int main(int argc, char *argv[]) {

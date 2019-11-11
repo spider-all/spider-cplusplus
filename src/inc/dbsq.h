@@ -4,8 +4,8 @@
 #include <string>
 #include <thread>
 
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <spdlog/spdlog.h>
-#include <sqlite3.h>
 
 #pragma once
 
