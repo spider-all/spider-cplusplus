@@ -50,11 +50,26 @@ int Request::request(std::string url, enum request_type type) {
   httplib::SSLClient client(url_prefix.c_str());
   client.set_ca_cert_path("ca-bundle.crt");
   client.enable_server_certificate_verification(true);
-  std::shared_ptr<httplib::Response> res = client.Get(url.c_str());
+  std::shared_ptr<httplib::Response> res = client.Get(url.c_str(), headers);
+
+  httplib::Headers::iterator rate_limit_remaining_iter = res->headers.find("X-RateLimit-Limit");
+  if (rate_limit_remaining_iter != res->headers.end()) {
+    rate_limit_remaining = std::stoi(rate_limit_remaining_iter->second);
+  }
+
+  httplib::Headers::iterator rate_limit_limit_iter = res->headers.find("X-RateLimit-Remaining");
+  if (rate_limit_limit_iter != res->headers.end()) {
+    rate_limit_limit = std::stoi(rate_limit_limit_iter->second);
+  }
+
+  httplib::Headers::iterator rate_limit_reset_iter = res->headers.find("X-RateLimit-Reset");
+  if (rate_limit_reset_iter != res->headers.end()) {
+    rate_limit_reset = std::stoi(rate_limit_reset_iter->second);
+  }
 
   if (res->status == 403) {
     std::this_thread::sleep_for(std::chrono::seconds(30));
-    spdlog::info("Wait for another 30s to request due to rate limit");
+    spdlog::info("Wait for another 30s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset);
     return request(url, type);
   }
 
@@ -67,21 +82,6 @@ int Request::request(std::string url, enum request_type type) {
   httplib::Headers::iterator iter = res->headers.find("Link");
   if (iter != res->headers.end()) {
     header = iter->second;
-  }
-
-  httplib::Headers::iterator rate_limit_remaining_iter = res->headers.find("X-RateLimit-Remaining");
-  if (rate_limit_remaining_iter != res->headers.end()) {
-    rate_limit_remaining = std::stoi(rate_limit_remaining_iter->second);
-  }
-
-  httplib::Headers::iterator rate_limit_limit_iter = res->headers.find("X-RateLimit-Remaining");
-  if (rate_limit_limit_iter != res->headers.end()) {
-    rate_limit_limit = std::stoi(rate_limit_limit_iter->second);
-  }
-
-  httplib::Headers::iterator rate_limit_reset_iter = res->headers.find("X-RateLimit-Remaining");
-  if (rate_limit_reset_iter != res->headers.end()) {
-    rate_limit_reset = std::stoi(rate_limit_reset_iter->second);
   }
 
   if (res->body == "") {
