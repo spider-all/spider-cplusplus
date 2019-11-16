@@ -3,6 +3,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <spdlog/spdlog.h>
@@ -50,4 +51,5 @@ public:
   int initialize();
   void deinit();
   int create_user(user);
+  std::vector<std::string> list_users();
 };

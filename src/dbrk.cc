@@ -15,3 +15,8 @@ void DBRK::deinit() {
   }
 }
 int DBRK::create_user(user user) { return EXIT_SUCCESS; }
+
+std::vector<std::string> DBRK::list_users() {
+  std::vector<std::string> users;
+  return users;
+}

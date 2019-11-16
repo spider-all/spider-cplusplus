@@ -37,7 +37,6 @@ int DBSQ::create_user(user user) {
   } else {
     create_sql = "INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   }
-  delete query;
 
   SQLite::Statement *create_st = new SQLite::Statement(*db.sqlite, create_sql);
 
@@ -58,12 +57,35 @@ int DBSQ::create_user(user user) {
   create_st->bind(15, user.public_repos);
   create_st->bind(16, user.following);
   create_st->bind(17, user.followers);
+
   if (query->hasRow()) {
     create_st->bind(18, user.id);
   }
-  create_st->exec();
+
+  delete query;
+
+  try {
+    create_st->exec();
+  } catch (const std::exception &e) {
+    spdlog::error("Insert user with error: {}", e.what());
+    return DATABASE_SQL_ERROR;
+  }
 
   delete create_st;
 
   return EXIT_SUCCESS;
+}
+
+std::vector<std::string> DBSQ::list_users() {
+  std::vector<std::string> users;
+  SQLite::Statement *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random()");
+  try {
+    while (query->executeStep()) {
+      std::string name = query->getColumn(0);
+      users.push_back(name);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query user with error: {}", e.what());
+  }
+  return users;
 }

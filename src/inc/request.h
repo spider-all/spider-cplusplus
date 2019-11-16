@@ -22,6 +22,7 @@
 
 enum request_type {
   request_type_followers,
+  request_type_following,
   request_type_userinfo,
 };
 
@@ -44,11 +45,7 @@ private:
 
   const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) "
                                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
-  httplib::Headers headers = {
-      {"Accept-Encoding", "gzip, deflate"},
-      {"Host", url_prefix},
-      {"User-Agent", USERAGENT},
-  };
+
   static size_t body_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     ((std::string *)userp)->append((char *)contents, size * nmemb);
     return size * nmemb;

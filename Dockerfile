@@ -1,7 +1,7 @@
 FROM buildpack-deps:curl
 
 ARG VERSION=2019.09
-ARG DEPS="openssl zlib yaml-cpp cpp-httplib spdlog nlohmann-json rocksdb[zstd] sqlitecpp"
+ARG DEPS="openssl zlib yaml-cpp cpp-httplib spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr"
 
 WORKDIR /app
 

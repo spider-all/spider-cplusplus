@@ -17,20 +17,64 @@ int Request::startup() {
     return EXIT_SUCCESS;
   }
 
+  semaphore++;
   std::thread followers_thread([=]() {
-    semaphore++;
+    spdlog::info("Followers thread starting...");
     while (!stopping) {
+      std::vector<std::string> users = database->list_users();
+      for (std::string u : users) {
 
-      std::string request_url = "/users/" + config.crawler_entry_username + "/followers" + url_suffix + "&page=1";
+        std::string request_url = "/users/" + u + "/followers" + url_suffix + "&page=1";
 
-      int code = request(request_url, request_type_followers);
-      if (code != 0) {
-        spdlog::error("Request url: {} with error: {}", request_url, code);
+        int code = request(request_url, request_type_followers);
+        if (code != 0) {
+          spdlog::error("Request url: {} with error: {}", request_url, code);
+        }
+        if (stopping) {
+          break;
+        }
       }
     }
+    spdlog::info("Followers thread stopped");
     semaphore--;
   });
   followers_thread.detach();
+
+  semaphore++;
+  std::thread followings_thread([=]() {
+    spdlog::info("Following thread starting...");
+    while (!stopping) {
+      std::vector<std::string> users = database->list_users();
+      for (std::string u : users) {
+        std::string request_url = "/users/" + u + "/following" + url_suffix + "&page=1";
+
+        int code = request(request_url, request_type_following);
+        if (code != 0) {
+          spdlog::error("Request url: {} with error: {}", request_url, code);
+        }
+        if (stopping) {
+          break;
+        }
+      }
+    }
+    spdlog::info("Following thread stopped");
+    semaphore--;
+  });
+  followings_thread.detach();
+
+  semaphore++;
+  std::thread info_thread([=]() {
+    spdlog::info("Info thread starting...");
+    while (!stopping) {
+      std::vector<std::string> users = database->list_users();
+      spdlog::info("Database have users: {}", users.size());
+      std::this_thread::sleep_for(std::chrono::seconds(10));
+    }
+    spdlog::info("Info thread stopped");
+    semaphore--;
+  });
+  info_thread.detach();
+
   return 0;
 }
 
@@ -48,24 +92,33 @@ void Request::teardown() {
 
 int Request::request(std::string url, enum request_type type) {
   httplib::SSLClient client(url_prefix.c_str());
-  client.set_ca_cert_path("ca-bundle.crt");
-  client.enable_server_certificate_verification(true);
-  std::shared_ptr<httplib::Response> res = client.Get(url.c_str(), headers);
-
-  httplib::Headers::iterator rate_limit_remaining_iter = res->headers.find("X-RateLimit-Limit");
-  if (rate_limit_remaining_iter != res->headers.end()) {
-    rate_limit_remaining = std::stoi(rate_limit_remaining_iter->second);
+  std::shared_ptr<httplib::Response> res;
+  try {
+    client.set_ca_cert_path("ca-bundle.crt");
+    client.enable_server_certificate_verification(true);
+    res = client.Get(url.c_str());
+  } catch (const std::exception &e) {
+    std::cerr << "100: " << e.what() << '\n';
   }
 
-  httplib::Headers::iterator rate_limit_limit_iter = res->headers.find("X-RateLimit-Remaining");
-  if (rate_limit_limit_iter != res->headers.end()) {
-    rate_limit_limit = std::stoi(rate_limit_limit_iter->second);
-  }
+  // try {
+  //   httplib::Headers::iterator rate_limit_remaining_iter = res->headers.find("X-RateLimit-Limit");
+  //   if (rate_limit_remaining_iter != res->headers.end()) {
+  //     rate_limit_remaining = std::stoi(rate_limit_remaining_iter->second);
+  //   }
 
-  httplib::Headers::iterator rate_limit_reset_iter = res->headers.find("X-RateLimit-Reset");
-  if (rate_limit_reset_iter != res->headers.end()) {
-    rate_limit_reset = std::stoi(rate_limit_reset_iter->second);
-  }
+  //   httplib::Headers::iterator rate_limit_limit_iter = res->headers.find("X-RateLimit-Remaining");
+  //   if (rate_limit_limit_iter != res->headers.end()) {
+  //     rate_limit_limit = std::stoi(rate_limit_limit_iter->second);
+  //   }
+
+  //   httplib::Headers::iterator rate_limit_reset_iter = res->headers.find("X-RateLimit-Reset");
+  //   if (rate_limit_reset_iter != res->headers.end()) {
+  //     rate_limit_reset = std::stoi(rate_limit_reset_iter->second);
+  //   }
+  // } catch (const std::exception &e) {
+  //   std::cerr << "error: " << e.what() << '\n';
+  // }
 
   if (res->status == 403) {
     std::this_thread::sleep_for(std::chrono::seconds(30));
@@ -74,8 +127,8 @@ int Request::request(std::string url, enum request_type type) {
   }
 
   if (res->status != 200) {
-    spdlog::error("Got {} on request url: {}", res->status, url);
-    return EXIT_FAILURE;
+    spdlog::error("Got {} on request url: {}, {}", res->status, url, res->body);
+    return REQUEST_ERROR;
   }
 
   std::string header;
@@ -113,8 +166,8 @@ int Request::request(std::string url, enum request_type type) {
 
   user user;
   int code = 0;
-
   switch (type) {
+  case request_type_following:
   case request_type_followers:
     for (auto i : content) {
       code = request("/users/" + i["login"].get<std::string>() + url_suffix, request_type_userinfo);
@@ -161,7 +214,9 @@ int Request::request(std::string url, enum request_type type) {
   std::smatch result;
   while (regex_search(header, result, pieces_regex)) {
     if (result.size() == 3 && result[2] == "next") {
-      return request(result[1], type);
+      std::string u = result[1];
+      u.erase(u.begin(), u.begin() + url_prefix.size() + std::string("https://").size());
+      return request(u, type);
     }
     header = result.suffix().str();
   };
