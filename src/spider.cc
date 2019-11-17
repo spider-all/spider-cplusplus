@@ -5,13 +5,13 @@
 
 #include <spdlog/spdlog.h>
 
+#include <application/request.h>
+// #include <application/server.h>
 #include <cli.h>
 #include <common.h>
 #include <config.h>
-#include <dbrk.h>
-#include <dbsq.h>
-#include <request.h>
-#include <server.h>
+#include <database/dbrk.h>
+#include <database/dbsq.h>
 
 bool keep_running = true; // test keep running
 
@@ -71,20 +71,20 @@ int main(int argc, char *argv[]) {
     keep_running = false;
   }
 
-  Application *server = new Server(config, database);
+  // Application *server = new Server(config, database);
 
-  code = server->startup();
-  if (code != 0) {
-    spdlog::error("Server startup got error: {}", code);
-    keep_running = false;
-  }
+  // code = server->startup();
+  // if (code != 0) {
+  //   spdlog::error("Server startup got error: {}", code);
+  //   keep_running = false;
+  // }
 
   while (keep_running) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200)); // run loop
   }
 
   delete request;
-  delete server;
+  // delete server;
   delete database;
 
   return EXIT_SUCCESS;

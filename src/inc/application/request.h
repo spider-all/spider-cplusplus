@@ -15,10 +15,10 @@
 
 #pragma once
 
-#include <application.h>
+#include <application/application.h>
 #include <common.h>
 #include <config.h>
-#include <database.h>
+#include <database/database.h>
 #include <error.hpp>
 
 enum request_type {

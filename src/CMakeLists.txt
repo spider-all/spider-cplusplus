@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fsanitize=address,signed-integer-
 
 project(spider)
 
-add_executable(spider cli.cc common.cc config.cc request.cc server.cc spider.cc dbsq.cc dbrk.cc)
+add_executable(spider spider.cc cli.cc common.cc config.cc application/request.cc application/server.cc database/dbsq.cc database/dbrk.cc)
 
 target_include_directories(spider PRIVATE inc)
 

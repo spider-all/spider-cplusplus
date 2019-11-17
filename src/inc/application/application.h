@@ -1,7 +1,7 @@
 #pragma once
 
 #include <config.h>
-#include <database.h>
+#include <database/database.h>
 
 class Application {
 public:

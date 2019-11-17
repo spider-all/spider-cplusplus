@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include <application.h>
+#include <application/application.h>
 #include <config.h>
-#include <database.h>
+#include <database/database.h>
 
 class Server : public Application {
 private:

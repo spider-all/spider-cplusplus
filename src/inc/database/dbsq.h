@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <database.h>
+#include <database/database.h>
 #include <error.hpp>
 #include <model.h>
 

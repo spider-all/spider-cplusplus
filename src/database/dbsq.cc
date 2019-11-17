@@ -1,4 +1,4 @@
-#include <dbsq.h>
+#include <database/dbsq.h>
 
 DBSQ::DBSQ(std::string path) {
   try {
