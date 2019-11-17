@@ -48,8 +48,8 @@ const std::string QuerySentence[] = {
 class DBSQ : public Database {
 public:
   DBSQ(std::string);
+  ~DBSQ();
   int initialize();
-  void deinit();
   int create_user(user);
   std::vector<std::string> list_users();
 };

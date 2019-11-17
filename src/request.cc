@@ -3,13 +3,25 @@
 Request::Request(Config c, Database *db) {
   config   = c;
   database = db;
+}
 
-  url_suffix = "?client_id=" + config.crawler_client_id + "&client_secret=" + config.crawler_client_secret;
+Request::~Request() {
+  stopping = true;
+  while (true) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(200)); // run loop
+    if (semaphore == 0) {
+      break;
+    }
+  }
+
+  spdlog::info("Spider running over...");
 }
 
 int Request::startup() {
   spdlog::info("Spider is running...");
-  int code = request("/users/" + config.crawler_entry_username + url_suffix, request_type_userinfo);
+  std::string request_url = url_prefix + "/users/" + config.crawler_entry_username;
+
+  int code = request(request_url, request_type_userinfo);
   if (code != 0) {
     return code;
   }
@@ -24,7 +36,7 @@ int Request::startup() {
       std::vector<std::string> users = database->list_users();
       for (std::string u : users) {
 
-        std::string request_url = "/users/" + u + "/followers" + url_suffix + "&page=1";
+        std::string request_url = url_prefix + "/users/" + u + "/followers";
 
         int code = request(request_url, request_type_followers);
         if (code != 0) {
@@ -46,7 +58,7 @@ int Request::startup() {
     while (!stopping) {
       std::vector<std::string> users = database->list_users();
       for (std::string u : users) {
-        std::string request_url = "/users/" + u + "/following" + url_suffix + "&page=1";
+        std::string request_url = url_prefix + "/users/" + u + "/following";
 
         int code = request(request_url, request_type_following);
         if (code != 0) {
@@ -68,7 +80,7 @@ int Request::startup() {
     while (!stopping) {
       std::vector<std::string> users = database->list_users();
       spdlog::info("Database have users: {}", users.size());
-      std::this_thread::sleep_for(std::chrono::seconds(10));
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     spdlog::info("Info thread stopped");
     semaphore--;
@@ -78,66 +90,35 @@ int Request::startup() {
   return 0;
 }
 
-void Request::teardown() {
-  stopping = true;
-  while (true) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(200)); // run loop
-    if (semaphore == 0) {
-      break;
-    }
-  }
-
-  spdlog::info("Spider running over...");
-}
-
 int Request::request(std::string url, enum request_type type) {
-  httplib::SSLClient client(url_prefix.c_str());
-  std::shared_ptr<httplib::Response> res;
-  try {
-    client.set_ca_cert_path("ca-bundle.crt");
-    client.enable_server_certificate_verification(true);
-    res = client.Get(url.c_str());
-  } catch (const std::exception &e) {
-    std::cerr << "100: " << e.what() << '\n';
-  }
+  cpr::Response response = cpr::Get(
+      cpr::Url{url},
+      cpr::Parameters{
+          {"client_id", config.crawler_client_id},
+          {"client_secret", config.crawler_client_secret},
+      },
+      cpr::Header{
+          {"accept", "application/json"},
+          {"Host", url_host},
+          {"User-Agent", USERAGENT},
+      });
 
-  // try {
-  //   httplib::Headers::iterator rate_limit_remaining_iter = res->headers.find("X-RateLimit-Limit");
-  //   if (rate_limit_remaining_iter != res->headers.end()) {
-  //     rate_limit_remaining = std::stoi(rate_limit_remaining_iter->second);
-  //   }
+  // rate_limit_limit     = std::stoi(response.header["X-RateLimit-Limit"]);
+  // rate_limit_reset     = std::stoi(response.header["X-RateLimit-Reset"]);
+  // rate_limit_remaining = std::stoi(response.header["X-RateLimit-Remaining"]);
 
-  //   httplib::Headers::iterator rate_limit_limit_iter = res->headers.find("X-RateLimit-Remaining");
-  //   if (rate_limit_limit_iter != res->headers.end()) {
-  //     rate_limit_limit = std::stoi(rate_limit_limit_iter->second);
-  //   }
-
-  //   httplib::Headers::iterator rate_limit_reset_iter = res->headers.find("X-RateLimit-Reset");
-  //   if (rate_limit_reset_iter != res->headers.end()) {
-  //     rate_limit_reset = std::stoi(rate_limit_reset_iter->second);
-  //   }
-  // } catch (const std::exception &e) {
-  //   std::cerr << "error: " << e.what() << '\n';
-  // }
-
-  if (res->status == 403) {
+  if (response.status_code == 403) {
     std::this_thread::sleep_for(std::chrono::seconds(30));
     spdlog::info("Wait for another 30s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset);
     return request(url, type);
   }
 
-  if (res->status != 200) {
-    spdlog::error("Got {} on request url: {}, {}", res->status, url, res->body);
+  if (response.status_code != 200) {
+    spdlog::error("Got {} on request url: {}, {}", response.status_code, url, response.text);
     return REQUEST_ERROR;
   }
 
-  std::string header;
-  httplib::Headers::iterator iter = res->headers.find("Link");
-  if (iter != res->headers.end()) {
-    header = iter->second;
-  }
-
-  if (res->body == "") {
+  if (response.text == "") {
     return REQUEST_ERROR;
   }
 
@@ -158,7 +139,7 @@ int Request::request(std::string url, enum request_type type) {
       }
       return true;
     };
-    content = nlohmann::json::parse(res->body, cb);
+    content = nlohmann::json::parse(response.text, cb);
   } catch (nlohmann::detail::parse_error &e) {
     spdlog::error("Request {} got error: {}", url.c_str(), e.what());
     return REQUEST_ERROR;
@@ -170,7 +151,7 @@ int Request::request(std::string url, enum request_type type) {
   case request_type_following:
   case request_type_followers:
     for (auto i : content) {
-      code = request("/users/" + i["login"].get<std::string>() + url_suffix, request_type_userinfo);
+      code = request(url_prefix + "/users/" + i["login"].get<std::string>(), request_type_userinfo);
       if (code != 0) {
         spdlog::error("Request userinfo with error: {}", code);
       }
@@ -212,11 +193,10 @@ int Request::request(std::string url, enum request_type type) {
 
   std::regex pieces_regex("<(https:\\/\\/api\\.github\\.com\\/[0-9a-z\\/\\?_=&]+)>;\\srel=\"(next|last|prev|first)\"");
   std::smatch result;
+  std::string header = response.header["Link"];
   while (regex_search(header, result, pieces_regex)) {
     if (result.size() == 3 && result[2] == "next") {
-      std::string u = result[1];
-      u.erase(u.begin(), u.begin() + url_prefix.size() + std::string("https://").size());
-      return request(u, type);
+      return request(result[1], type);
     }
     header = result.suffix().str();
   };

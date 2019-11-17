@@ -9,8 +9,8 @@
 class DBRK : public Database {
 public:
   DBRK(std::string);
+  ~DBRK();
   int initialize();
-  void deinit();
   int create_user(user);
   std::vector<std::string> list_users();
 };

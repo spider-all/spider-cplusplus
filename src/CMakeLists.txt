@@ -35,6 +35,12 @@ target_link_libraries(spider PRIVATE RocksDB::rocksdb RocksDB::rocksdb-shared)
 find_package(SQLiteCpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE SQLiteCpp)
 
+find_package(cpr CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE cpr)
+
+find_package(CURL CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE CURL::libcurl)
+
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")
 message("System processor: ${CMAKE_SYSTEM_PROCESSOR}")

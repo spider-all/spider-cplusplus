@@ -9,6 +9,12 @@ DBSQ::DBSQ(std::string path) {
   }
 }
 
+DBSQ::~DBSQ() {
+  if (db.sqlite != nullptr) {
+    delete db.sqlite;
+  }
+}
+
 int DBSQ::initialize() {
   for (std::string sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
@@ -20,12 +26,6 @@ int DBSQ::initialize() {
     }
   }
   return EXIT_SUCCESS;
-}
-
-void DBSQ::deinit() {
-  if (db.sqlite != nullptr) {
-    delete db.sqlite;
-  }
 }
 
 int DBSQ::create_user(user user) {
@@ -87,5 +87,8 @@ std::vector<std::string> DBSQ::list_users() {
   } catch (const std::exception &e) {
     spdlog::error("Query user with error: {}", e.what());
   }
+
+  delete query;
+
   return users;
 }

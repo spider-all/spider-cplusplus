@@ -17,7 +17,7 @@ private:
   httplib::Server svr;
 
 public:
-  Server(Database *db);
+  Server(Config, Database *);
+  ~Server();
   int startup();
-  void teardown();
 };

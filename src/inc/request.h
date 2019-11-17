@@ -6,7 +6,8 @@
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 
-#include <httplib.h>
+#include <cpr/cpr.h>
+// #include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <sqlite3.h>
@@ -39,9 +40,8 @@ private:
   int semaphore = 0; // 执行过程中的信号量
   bool stopping = false;
 
-  std::string url_prefix = "api.github.com";
-
-  std::string url_suffix;
+  std::string url_host   = "api.github.com";
+  std::string url_prefix = "https://" + url_host;
 
   const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) "
                                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
@@ -57,11 +57,10 @@ private:
   }
 
 public:
-  Request(Config c, Database *db);
+  Request(Config, Database *);
+  ~Request();
 
   int startup();
-
-  void teardown();
 
   int request(std::string url, enum request_type type);
 };

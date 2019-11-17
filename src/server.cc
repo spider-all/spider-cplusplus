@@ -1,7 +1,15 @@
 #include <server.h>
 
-Server::Server(Database *db) {
+Server::Server(Config c, Database *db) {
+  config   = c;
   database = db;
+}
+
+Server::~Server() {
+  if (svr.is_running()) {
+    svr.stop();
+  }
+  spdlog::info("Server running over...");
 }
 
 int Server::startup() {
@@ -14,11 +22,4 @@ int Server::startup() {
   });
   server_thread.detach();
   return EXIT_SUCCESS;
-}
-
-void Server::teardown() {
-  if (svr.is_running()) {
-    svr.stop();
-  }
-  spdlog::info("Server running over...");
 }

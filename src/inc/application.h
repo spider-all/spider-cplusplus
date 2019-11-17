@@ -1,7 +1,10 @@
 #pragma once
 
+#include <config.h>
+#include <database.h>
+
 class Application {
 public:
-  virtual int startup()   = 0;
-  virtual void teardown() = 0;
+  virtual ~Application(){};
+  virtual int startup() = 0;
 };
