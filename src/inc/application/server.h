@@ -1,8 +1,10 @@
 #include <iostream>
 
-#define CPPHTTPLIB_ZLIB_SUPPORT
+// #define CPPHTTPLIB_ZLIB_SUPPORT
 
-#include <httplib.h>
+// #include <httplib.h>
+
+// #include <restbed>
 
 #pragma once
 
@@ -14,7 +16,7 @@ class Server : public Application {
 private:
   Config config;
   Database *database;
-  httplib::Server svr;
+  // restbed::Service svr;
 
 public:
   Server(Config, Database *);
