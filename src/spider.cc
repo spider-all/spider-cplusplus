@@ -1,14 +1,12 @@
 #include <csignal>
 #include <iostream>
 #include <thread>
-#include <unistd.h>
 
 #include <spdlog/spdlog.h>
 
 #include <application/request.h>
 #include <application/server.h>
 #include <cli.h>
-#include <common.h>
 #include <config.h>
 #include <database/dbrk.h>
 #include <database/dbsq.h>
@@ -20,7 +18,7 @@ void callback(int) {
   keep_running = false;
 }
 
-Database *switcher(std::string type, std::string path) {
+Database *switcher(const std::string &type, const std::string &path) {
   Database *ret = nullptr;
   if (type == "sqlite3") {
     ret = new DBSQ(path);
@@ -59,7 +57,7 @@ int main(int argc, char *argv[]) {
   if (code != 0) {
     spdlog::error("Initialize database with error: {}", code);
     return EXIT_FAILURE;
-  };
+  }
 
   Application *request = new Request(config, database);
 

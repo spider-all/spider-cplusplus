@@ -4,10 +4,7 @@
 #include <string>
 #include <thread>
 
-#define CPPHTTPLIB_OPENSSL_SUPPORT
-
 #include <cpr/cpr.h>
-// #include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <sqlite3.h>
