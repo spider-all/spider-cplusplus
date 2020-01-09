@@ -1,12 +1,15 @@
-FROM buildpack-deps:curl
+FROM ubuntu:bionic
 
-ARG VERSION=2019.11
-ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr boost-beast"
+ARG VERSION=2019.12
+ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr boost-beast mongo-cxx-driver"
 
 WORKDIR /app
 
+# RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+#   sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
-  file git curl tar wget curl unzip fish locales build-essential \
+  ca-certificates file git curl tar wget curl unzip fish locales build-essential \
   tree vim bash-completion apt-utils man-db cmake && \
   rm -rf /var/lib/apt/lists/*
 

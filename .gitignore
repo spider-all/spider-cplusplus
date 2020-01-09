@@ -32,11 +32,14 @@
 
 *.db
 *.yaml
+
+.vscode/
+
 core
 
 src/release/
 src/debug/
-.vscode/
 pkgs/
 
 *.7z
+*.tar.gz
