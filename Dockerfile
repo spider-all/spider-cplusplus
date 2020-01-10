@@ -5,9 +5,6 @@ ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr
 
 WORKDIR /app
 
-# RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-#   sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
   ca-certificates file git curl tar wget curl unzip fish locales build-essential \
   tree vim bash-completion apt-utils man-db cmake && \

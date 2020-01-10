@@ -1,21 +1,20 @@
-app_name                = spider
-docker_name             = $(app_name)
-docker_tag              = dev
-docker_container        = $(app_name)
+app_name         = spider
+docker_name      = $(app_name)
+docker_tag       = dev
+docker_container = $(app_name)
 
-pwd                     = $(shell pwd)
+pwd              = $(shell pwd)
 
-all: clean release
+all: clean release debug
 
-.PHONY: release
-release:
+release debug:
 	if [ ! -d src/$@ ]; then mkdir src/$@; fi
-	cd src/$@ && cmake .. && \
+	cd src/$@ && cmake -DCMAKE_BUILD_TYPE=$@ .. && \
 	cmake --build .
 
 .PHONY: clean
 clean:
-	$(RM) -r src/release 
+	$(RM) -r src/release src/debug
 
 .PHONY: upgrade
 upgrade:
