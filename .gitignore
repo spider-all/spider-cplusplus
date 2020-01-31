@@ -39,7 +39,11 @@ core
 
 src/release/
 src/debug/
+src/cmake-build*/
 pkgs/
+
+.idea/
+.vscode/
 
 *.7z
 *.tar.gz

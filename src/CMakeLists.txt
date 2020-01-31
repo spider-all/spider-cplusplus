@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 set(CMAKE_TOOLCHAIN_FILE ../pkgs/scripts/buildsystems/vcpkg.cmake)
 set(CMAKE_CXX_STANDARD 17)
@@ -6,7 +6,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fsanitize=address,signed-integer-
 
 project(spider)
 
-add_executable(spider spider.cc cli.cc common.cc config.cc application/request.cc application/server.cc database/dbsq.cc database/dbrk.cc)
+FILE(GLOB Source *.cc application/*.cc database/*.cc)
+add_executable(spider ${Source})
 
 if (CMAKE_BUILD_TYPE STREQUAL release)
   add_custom_command(TARGET spider POST_BUILD COMMAND strip spider)
