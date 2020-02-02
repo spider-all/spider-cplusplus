@@ -2,6 +2,7 @@
 
 //#include <mongocxx/client.hpp>
 #include <SQLiteCpp/SQLiteCpp.h>
+#include <hiredis/hiredis.h>
 #include <rocksdb/db.h>
 
 #pragma once
@@ -9,10 +10,13 @@
 #include <model.h>
 
 class Database {
+private:
+
 public:
   struct db {
     rocksdb::DB *rocksdb;
     SQLite::Database *sqlite;
+    redisContext *redis;
     // mongocxx::client mongo;
   } db;
   int code = 0;

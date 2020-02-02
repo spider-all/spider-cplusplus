@@ -18,6 +18,8 @@ target_include_directories(spider PRIVATE inc)
 find_package(sqlite3 CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE sqlite3)
 
+target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libhiredis.a)
+
 find_package(yaml-cpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE yaml-cpp)
 

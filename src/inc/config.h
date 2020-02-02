@@ -16,6 +16,9 @@ private:
 public:
   std::string database_path;
   std::string database_type;
+  std::string database_host;
+  int database_port;
+
   std::string crawler_entry_username; // entry user name
   std::string crawler_token;          // client id
 

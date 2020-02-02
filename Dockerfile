@@ -1,7 +1,7 @@
 FROM ubuntu:bionic
 
 ARG VERSION=2019.12
-ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr boost-beast mongo-cxx-driver"
+ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr boost-beast libpqxx hiredis[ssl]"
 
 WORKDIR /app
 

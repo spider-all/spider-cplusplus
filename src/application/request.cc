@@ -33,6 +33,7 @@ int Request::startup() {
   std::thread followers_thread([=]() {
     spdlog::info("Followers thread starting...");
     while (!stopping) {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
       std::vector<std::string> users = database->list_users();
       for (std::string u : users) {
 
@@ -57,6 +58,7 @@ int Request::startup() {
     spdlog::info("Following thread starting...");
     while (!stopping) {
       std::vector<std::string> users = database->list_users();
+      std::this_thread::sleep_for(std::chrono::seconds(1));
       for (std::string u : users) {
         std::string request_url = url_prefix + "/users/" + u + "/following";
 

@@ -1,5 +1,4 @@
 #include <database/dbrk.h>
-#include <random>
 
 DBRK::DBRK(std::string path) {
   rocksdb::Options options;
@@ -16,13 +15,15 @@ DBRK::~DBRK() {
   }
 }
 
-int DBRK::initialize() { return EXIT_SUCCESS; }
-
-int DBRK::create_user(user user) {
+int DBRK::initialize() {
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
+  return EXIT_SUCCESS;
+}
+
+int DBRK::create_user(user user) {
   status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:id:" + std::to_string(user.id), std::to_string(user.id));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
@@ -41,7 +42,6 @@ std::vector<std::string> DBRK::list_users() {
   std::vector<std::string> users;
   rocksdb::Iterator *iter = db.rocksdb->NewIterator(rocksdb::ReadOptions());
   for (iter->Seek("user:login:"); iter->Valid() && iter->key().starts_with("user:login:"); iter->Next()) {
-    // spdlog::info("Database got key and value: {}, {}", iter->key().ToString(), iter->value().ToString());
     users.push_back(iter->value().ToString());
   }
   delete iter;

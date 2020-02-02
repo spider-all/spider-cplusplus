@@ -41,7 +41,6 @@ src/release/
 src/debug/
 src/cmake-build*/
 pkgs/
-database/
 
 .idea/
 .vscode/

@@ -10,6 +10,7 @@
 #include <cli.h>
 #include <common.h>
 #include <config.h>
+#include <database/dbrd.h>
 #include <database/dbrk.h>
 #include <database/dbsq.h>
 
@@ -20,12 +21,14 @@ void callback(int) {
   keep_running = false;
 }
 
-Database *switcher(std::string type, std::string path) {
+Database *switcher(Config config) {
   Database *ret = nullptr;
-  if (type == "sqlite3") {
-    ret = new DBSQ(path);
-  } else if (type == "rocksdb") {
-    ret = new DBRK(path);
+  if (config.database_type == "sqlite3") {
+    ret = new DBSQ(config.database_path);
+  } else if (config.database_type == "rocksdb") {
+    ret = new DBRK(config.database_path);
+  } else if (config.database_type == "redis") {
+    ret = new DBRD(config.database_host, config.database_port);
   }
   if (ret == nullptr) {
     return nullptr;
@@ -50,7 +53,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  Database *database = switcher(config.database_type, config.database_path);
+  Database *database = switcher(config);
   if (database == nullptr) {
     return EXIT_FAILURE;
   }
