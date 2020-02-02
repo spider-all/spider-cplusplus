@@ -1,12 +1,16 @@
 #include <iostream>
 
 #include <rocksdb/db.h>
+#include <spdlog/spdlog.h>
 
 #pragma once
 
 #include <database/database.h>
 
 class DBRK : public Database {
+private:
+  rocksdb::Status status;
+
 public:
   DBRK(std::string);
   ~DBRK();

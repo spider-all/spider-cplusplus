@@ -1,4 +1,5 @@
 #include <database/dbrk.h>
+#include <random>
 
 DBRK::DBRK(std::string path) {
   rocksdb::Options options;
@@ -6,7 +7,7 @@ DBRK::DBRK(std::string path) {
   options.OptimizeLevelStyleCompaction();
   options.create_if_missing = true;
 
-  rocksdb::Status s = rocksdb::DB::Open(options, path, &db.rocksdb);
+  status = rocksdb::DB::Open(options, path, &db.rocksdb);
 }
 
 DBRK::~DBRK() {
@@ -17,9 +18,34 @@ DBRK::~DBRK() {
 
 int DBRK::initialize() { return EXIT_SUCCESS; }
 
-int DBRK::create_user(user user) { return EXIT_SUCCESS; }
+int DBRK::create_user(user user) {
+  if (!status.ok()) {
+    spdlog::info("Database got an error: {}", status.ToString());
+    return EXIT_FAILURE;
+  }
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:id:" + std::to_string(user.id), std::to_string(user.id));
+  if (!status.ok()) {
+    spdlog::info("Database got an error: {}", status.ToString());
+    return EXIT_FAILURE;
+  }
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:login:" + user.login, user.login);
+  if (!status.ok()) {
+    spdlog::info("Database got an error: {}", status.ToString());
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
 
 std::vector<std::string> DBRK::list_users() {
   std::vector<std::string> users;
+  rocksdb::Iterator *iter = db.rocksdb->NewIterator(rocksdb::ReadOptions());
+  for (iter->Seek("user:login:"); iter->Valid() && iter->key().starts_with("user:login:"); iter->Next()) {
+    // spdlog::info("Database got key and value: {}, {}", iter->key().ToString(), iter->value().ToString());
+    users.push_back(iter->value().ToString());
+  }
+  delete iter;
+
+  std::shuffle(users.begin(), users.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
   return users;
 }

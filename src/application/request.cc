@@ -91,21 +91,20 @@ int Request::startup() {
 }
 
 int Request::request(std::string url, enum request_type type) {
+  spdlog::info("{}", url);
   cpr::Response response = cpr::Get(
       cpr::Url{url},
-      cpr::Parameters{
-          {"client_id", config.crawler_client_id},
-          {"client_secret", config.crawler_client_secret},
-      },
       cpr::Header{
-          {"accept", "application/json"},
+          {"Accept", "application/json"},
           {"Host", url_host},
           {"User-Agent", USERAGENT},
+          {"Time-Zone", TIMEZONE},
+          {"Authorization", "Bearer " + config.crawler_token},
       });
 
-  // rate_limit_limit     = std::stoi(response.header["X-RateLimit-Limit"]);
-  // rate_limit_reset     = std::stoi(response.header["X-RateLimit-Reset"]);
-  // rate_limit_remaining = std::stoi(response.header["X-RateLimit-Remaining"]);
+  rate_limit_limit     = std::stoi(response.header["X-RateLimit-Limit"]);
+  rate_limit_reset     = std::stoi(response.header["X-RateLimit-Reset"]);
+  rate_limit_remaining = std::stoi(response.header["X-RateLimit-Remaining"]);
 
   if (response.status_code == 403) {
     std::this_thread::sleep_for(std::chrono::seconds(30));

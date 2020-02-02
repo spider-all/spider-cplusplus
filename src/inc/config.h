@@ -17,8 +17,7 @@ public:
   std::string database_path;
   std::string database_type;
   std::string crawler_entry_username; // entry user name
-  std::string crawler_client_id;      // client id
-  std::string crawler_client_secret;  // client secret
+  std::string crawler_token;          // client id
 
   int config(char *config_path);
 };
