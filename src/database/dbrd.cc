@@ -19,11 +19,73 @@ int DBRD::initialize() {
 }
 
 int DBRD::create_user(user user) {
-  int code = set_value("user:id:" + std::to_string(user.id), std::to_string(user.id));
+  std::string userid = std::to_string(user.id);
+
+  int code = set_value("user:id:" + userid, userid);
   if (code == EXIT_FAILURE) {
     return EXIT_SUCCESS;
   }
-  code = set_value("user:login:" + std::to_string(user.id), user.login);
+  code = set_value("user:login:" + userid, user.login);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:node_id:" + userid, user.node_id);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:type:" + userid, user.type);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:name:" + userid, user.name);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:company:" + userid, user.company);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:blog:" + userid, user.blog);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:location:" + userid, user.location);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:email:" + userid, user.email);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:hireable:" + userid, user.hireable ? "1" : "0");
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:bio:" + userid, user.bio);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:created_at:" + userid, user.created_at);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:updated_at:" + userid, user.updated_at);
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:public_gists:" + userid, std::to_string(user.public_gists));
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:public_repos:" + userid, std::to_string(user.public_repos));
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:following:" + userid, std::to_string(user.following));
+  if (code == EXIT_FAILURE) {
+    return EXIT_SUCCESS;
+  }
+  code = set_value("user:followers:" + userid, std::to_string(user.followers));
   if (code == EXIT_FAILURE) {
     return EXIT_SUCCESS;
   }

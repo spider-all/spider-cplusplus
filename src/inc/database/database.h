@@ -10,8 +10,6 @@
 #include <model.h>
 
 class Database {
-private:
-
 public:
   struct db {
     rocksdb::DB *rocksdb;
