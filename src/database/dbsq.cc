@@ -78,7 +78,7 @@ int DBSQ::create_user(user user) {
 
 std::vector<std::string> DBSQ::list_users() {
   std::vector<std::string> users;
-  SQLite::Statement *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random()");
+  SQLite::Statement *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
   try {
     while (query->executeStep()) {
       std::string name = query->getColumn(0);
