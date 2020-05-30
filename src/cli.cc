@@ -11,7 +11,7 @@ char *CommandLine::cli(int argc, char *argv[]) {
     case 'c':
       return optarg;
     case 'h':
-      printf("%s %s\n", argv[0], "usage:");
+      printf("spider %s\n", "usage:");
       printf("\t%s\t%s\n", "-h", "show this help information");
       printf("\t%s\t%s\n", "-c", "set config file path");
       printf("\t%s\t%s\n", "-v", "get version");

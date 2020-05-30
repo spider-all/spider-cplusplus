@@ -30,4 +30,4 @@ docker-run:
 
 .PHONY: docker-exec
 docker-exec:
-	docker-compose exec $(docker_container) /usr/bin/fish
+	docker-compose exec $(docker_container) /bin/bash
