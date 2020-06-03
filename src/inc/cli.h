@@ -9,5 +9,5 @@
 
 class CommandLine {
 public:
-  char *cli(int argc, char *argv[]);
+  static char *cli(int argc, char *argv[]);
 };

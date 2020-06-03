@@ -47,7 +47,7 @@ const std::string QuerySentence[] = {
 
 class DBSQ : public Database {
 public:
-  DBSQ(std::string);
+  DBSQ(const std::string&);
   ~DBSQ();
   int initialize();
   int create_user(user);

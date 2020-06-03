@@ -13,7 +13,7 @@ private:
   rocksdb::Status status;
 
 public:
-  DBRK(std::string);
+  DBRK(const std::string&);
   ~DBRK();
   int initialize();
   int create_user(user);

@@ -1,6 +1,6 @@
 #include <database/dbrk.h>
 
-DBRK::DBRK(std::string path) {
+DBRK::DBRK(const std::string& path) {
   rocksdb::Options options;
   options.IncreaseParallelism();
   options.OptimizeLevelStyleCompaction();
@@ -10,9 +10,7 @@ DBRK::DBRK(std::string path) {
 }
 
 DBRK::~DBRK() {
-  if (db.rocksdb != nullptr) {
     delete db.rocksdb;
-  }
 }
 
 int DBRK::initialize() {
@@ -24,84 +22,84 @@ int DBRK::initialize() {
 }
 
 int DBRK::create_user(user user) {
-  std::string userid = std::to_string(user.id);
+  std::string userId = std::to_string(user.id);
 
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:id:" + userid, userid);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:id:" + userId, userId);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:login:" + userid, user.login);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:login:" + userId, user.login);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:node_id:" + userid, user.node_id);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:node_id:" + userId, user.node_id);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:type:" + userid, user.type);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:type:" + userId, user.type);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:name:" + userid, user.name);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:name:" + userId, user.name);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:company:" + userid, user.company);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:company:" + userId, user.company);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:location:" + userid, user.location);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:location:" + userId, user.location);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:email:" + userid, user.email);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:email:" + userId, user.email);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:hireable:" + userid, user.hireable ? "1" : "0");
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:hireable:" + userId, user.hireable ? "1" : "0");
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:bio:" + userid, user.bio);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:bio:" + userId, user.bio);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:created_at:" + userid, user.created_at);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:created_at:" + userId, user.created_at);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:updated_at:" + userid, user.updated_at);
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:updated_at:" + userId, user.updated_at);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:public_gists:" + userid, std::to_string(user.public_gists));
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:public_gists:" + userId, std::to_string(user.public_gists));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:public_repos:" + userid, std::to_string(user.public_repos));
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:public_repos:" + userId, std::to_string(user.public_repos));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:following:" + userid, std::to_string(user.following));
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:following:" + userId, std::to_string(user.following));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:followers:" + userid, std::to_string(user.followers));
+  status = db.rocksdb->Put(rocksdb::WriteOptions(), "user:followers:" + userId, std::to_string(user.followers));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;

@@ -1,8 +1,8 @@
 #include <database/dbsq.h>
 
-DBSQ::DBSQ(std::string path) {
+DBSQ::DBSQ(const std::string &path) {
   try {
-    db.sqlite = new SQLite::Database(path, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+    db.sqlite = new SQLite::Database(path, SQLite::OPEN_CREATE | SQLite::OPEN_READWRITE);
   } catch (std::exception &e) {
     spdlog::error("Open database with error: {}", e.what());
     code = DATABASE_OPEN_ERROR;
@@ -10,13 +10,11 @@ DBSQ::DBSQ(std::string path) {
 }
 
 DBSQ::~DBSQ() {
-  if (db.sqlite != nullptr) {
-    delete db.sqlite;
-  }
+  delete db.sqlite;
 }
 
 int DBSQ::initialize() {
-  for (std::string sql : CreateSentence) {
+  for (const std::string &sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
     try {
       db.sqlite->exec(sql);
@@ -29,16 +27,16 @@ int DBSQ::initialize() {
 }
 
 int DBSQ::create_user(user user) {
-  SQLite::Statement *query = new SQLite::Statement(*db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
   query->bind(1, user.id);
-  std::string create_sql = "";
+  std::string create_sql;
   if (query->executeStep()) {
     create_sql = "UPDATE `users` SET `id` = ?, `login` = ?, `node_id` = ?, `type` = ?, `name` = ?, `company` = ?, `blog` = ?, `location` = ?, `email` = ?, `hireable` = ?, `bio` = ?, `created_at` = ?, `updated_at` = ?, `public_gists` = ?, `public_repos` = ?, `following` = ?, `followers` = ? WHERE `id` = ?";
   } else {
     create_sql = "INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   }
 
-  SQLite::Statement *create_st = new SQLite::Statement(*db.sqlite, create_sql);
+  auto *create_st = new SQLite::Statement(*db.sqlite, create_sql);
 
   create_st->bind(1, user.id);
   create_st->bind(2, user.login);
@@ -78,7 +76,7 @@ int DBSQ::create_user(user user) {
 
 std::vector<std::string> DBSQ::list_users() {
   std::vector<std::string> users;
-  SQLite::Statement *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
   try {
     while (query->executeStep()) {
       std::string name = query->getColumn(0);

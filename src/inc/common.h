@@ -4,5 +4,5 @@
 
 class Common {
 public:
-  bool end_with(std::string const &, std::string const &);
+  static bool end_with(std::string const &, std::string const &);
 };

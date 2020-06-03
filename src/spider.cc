@@ -21,7 +21,7 @@ void callback(int) {
   keep_running = false;
 }
 
-Database *switcher(Config config) {
+Database *switcher(const Config& config) {
   Database *ret = nullptr;
   if (config.database_type == "sqlite3") {
     ret = new DBSQ(config.database_path);
@@ -40,8 +40,7 @@ Database *switcher(Config config) {
 }
 
 int main(int argc, char *argv[]) {
-  CommandLine commandLine;
-  char *config_path = commandLine.cli(argc, argv);
+  char *config_path = CommandLine::cli(argc, argv);
   if (config_path == nullptr) {
     return EXIT_SUCCESS;
   }

@@ -26,13 +26,12 @@ enum request_type {
 
 class Request : public Application {
 private:
-  Common common;
   Config config;
   Database *database;
 
-  int rate_limit_remaining;
-  int rate_limit_limit;
-  int rate_limit_reset;
+  int rate_limit_remaining{};
+  int rate_limit_limit{};
+  int rate_limit_reset{};
 
   int semaphore = 0; // 执行过程中的信号量
   bool stopping = false;
@@ -55,9 +54,9 @@ private:
 
 public:
   Request(Config, Database *);
-  ~Request();
+  ~Request() override;
 
-  int startup();
+  int startup() override;
 
-  int request(std::string url, enum request_type type);
+  int request(const std::string& url, enum request_type type);
 };

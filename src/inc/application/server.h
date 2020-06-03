@@ -13,6 +13,6 @@ private:
 
 public:
   Server(Config, Database *);
-  ~Server();
-  int startup();
+  ~Server() override;
+  int startup() override;
 };

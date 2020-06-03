@@ -16,7 +16,7 @@ private:
   std::mutex mtx;
 
 public:
-  DBRD(std::string, int);
+  DBRD(const std::string&, int);
   ~DBRD();
   int initialize();
   int create_user(user);

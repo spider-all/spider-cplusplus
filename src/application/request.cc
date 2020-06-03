@@ -1,7 +1,9 @@
 #include <application/request.h>
 
+#include <utility>
+
 Request::Request(Config c, Database *db) {
-  config   = c;
+  config   = std::move(c);
   database = db;
 }
 
@@ -35,7 +37,7 @@ int Request::startup() {
     while (!stopping) {
       std::this_thread::sleep_for(std::chrono::seconds(1));
       std::vector<std::string> users = database->list_users();
-      for (std::string u : users) {
+      for (const std::string& u : users) {
 
         std::string request_url = url_prefix + "/users/" + u + "/followers";
 
@@ -59,7 +61,7 @@ int Request::startup() {
     while (!stopping) {
       std::vector<std::string> users = database->list_users();
       std::this_thread::sleep_for(std::chrono::seconds(1));
-      for (std::string u : users) {
+      for (const std::string& u : users) {
         std::string request_url = url_prefix + "/users/" + u + "/following";
 
         int code = request(request_url, request_type_following);
@@ -92,7 +94,7 @@ int Request::startup() {
   return 0;
 }
 
-int Request::request(std::string url, enum request_type type) {
+int Request::request(const std::string& url, enum request_type type) {
   spdlog::info("{}", url);
   cpr::Response response = cpr::Get(
       cpr::Url{url},
@@ -119,7 +121,7 @@ int Request::request(std::string url, enum request_type type) {
     return REQUEST_ERROR;
   }
 
-  if (response.text == "") {
+  if (response.text.empty()) {
     return REQUEST_ERROR;
   }
 
@@ -131,7 +133,7 @@ int Request::request(std::string url, enum request_type type) {
         std::string str = parsed.dump();
         str.erase(str.begin(), str.begin() + 1);
         str.erase(str.end() - 1, str.end());
-        if (common.end_with(str, "_url") or str == "url") {
+        if (Common::end_with(str, "_url") or str == "url") {
           return false;
         }
       } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
@@ -192,7 +194,7 @@ int Request::request(std::string url, enum request_type type) {
     return UNKNOWN_REQUEST_TYPE;
   }
 
-  std::regex pieces_regex("<(https:\\/\\/api\\.github\\.com\\/[0-9a-z\\/\\?_=&]+)>;\\srel=\"(next|last|prev|first)\"");
+  std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
   std::string header = response.header["Link"];
   while (regex_search(header, result, pieces_regex)) {
@@ -200,7 +202,7 @@ int Request::request(std::string url, enum request_type type) {
       return request(result[1], type);
     }
     header = result.suffix().str();
-  };
+  }
 
   return 0;
 }
