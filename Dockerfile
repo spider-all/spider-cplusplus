@@ -1,8 +1,8 @@
 FROM buildpack-deps:stable
 
-ARG VERSION=2020.04
+ARG VERSION=2020.06
 ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json rocksdb[zstd] sqlitecpp cpr \
-  boost-beast libpqxx hiredis[ssl] sqlpp11-connector-sqlite3 sqlpp11-connector-mysql"
+  boost-beast libpqxx hiredis[ssl] poco[mariadb,postgresql]"
 
 WORKDIR /app
 
