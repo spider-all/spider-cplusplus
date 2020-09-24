@@ -13,9 +13,9 @@ private:
   rocksdb::Status status;
 
 public:
-  DBRK(const std::string&);
-  ~DBRK();
-  int initialize();
-  int create_user(user);
-  std::vector<std::string> list_users();
+  explicit DBRK(const std::string&);
+  ~DBRK() override;
+  int initialize() override;
+  int create_user(user) override;
+  std::vector<std::string> list_users() override;
 };
