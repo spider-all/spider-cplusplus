@@ -2,7 +2,8 @@
 
 DBSQ::DBSQ(const std::string &path) {
   try {
-    db.sqlite = new SQLite::Database(path, SQLite::OPEN_CREATE | SQLite::OPEN_READWRITE);
+    unsigned flags = unsigned(SQLite::OPEN_CREATE) | unsigned(SQLite::OPEN_READWRITE) | unsigned(SQLite::OPEN_FULLMUTEX);
+    db.sqlite      = new SQLite::Database(path, int(flags));
   } catch (std::exception &e) {
     spdlog::error("Open database with error: {}", e.what());
     code = DATABASE_OPEN_ERROR;

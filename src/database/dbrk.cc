@@ -2,10 +2,7 @@
 
 DBRK::DBRK(const std::string &path) {
   leveldb::Options options;
-  // options.IncreaseParallelism();
-  // options.OptimizeLevelStyleCompaction();
   options.create_if_missing = true;
-
   status = leveldb::DB::Open(options, path, &db.rocksdb);
 }
 

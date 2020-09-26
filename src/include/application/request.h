@@ -13,9 +13,11 @@
 #pragma once
 
 #include <application/application.h>
+
+#include <database/database.h>
+
 #include <common.h>
 #include <config.h>
-#include <database/database.h>
 #include <error.hpp>
 
 enum request_type {
@@ -42,21 +44,11 @@ private:
   const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36";
   const std::string TIMEZONE  = "Asia/Shanghai";
 
-  static size_t body_callback(void *contents, size_t size, size_t nmemb, void *userp) {
-    ((std::string *)userp)->append((char *)contents, size * nmemb);
-    return size * nmemb;
-  }
-
-  static size_t header_callback(void *contents, size_t size, size_t nmemb, void *userp) {
-    ((std::string *)userp)->append((char *)contents, size * nmemb);
-    return size * nmemb;
-  }
-
 public:
   Request(Config, Database *);
   ~Request() override;
 
   int startup() override;
 
-  int request(const std::string& url, enum request_type type);
+  int request(const std::string &url, enum request_type type);
 };

@@ -10,7 +10,7 @@ int Config::config(char *config_path) {
   database_host = config["database"]["host"].as<std::string>();
   database_port = config["database"]["port"].as<int>();
 
-  if (crawler_entry_username == "" || crawler_token == "") {
+  if (crawler_entry_username.empty() || crawler_token.empty()) {
     spdlog::error("Config {0} have not the import value.", config_path);
     return CONFIG_PARSE_ERROR;
   }
