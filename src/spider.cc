@@ -1,34 +1,34 @@
 #include <csignal>
 #include <iostream>
 #include <thread>
-#include <unistd.h>
 
 #include <spdlog/spdlog.h>
 
+#include <cli.h>
+#include <config.h>
+
+#include <database/dbrd.h>
+#include <database/sqlite.h>
+#include <database/dbrk.h>
+
 #include <application/request.h>
 #include <application/server.h>
-#include <cli.h>
-#include <common.h>
-#include <config.h>
-#include <database/dbrd.h>
-#include <database/dbrk.h>
-#include <database/dbsq.h>
 
 bool keep_running = true; // test keep running
 
 void callback(int) {
-  std::cout << std::endl; // output a new line after CTRL+C
+  std::cout << std::endl; // output a new line after CTRL-C
   keep_running = false;
 }
 
-Database *switcher(const Config& config) {
+Database *switcher(const Config &config) {
   Database *ret = nullptr;
   if (config.database_type == "sqlite3") {
     ret = new DBSQ(config.database_path);
-  } else if (config.database_type == "rocksdb") {
-    ret = new DBRK(config.database_path);
   } else if (config.database_type == "redis") {
     ret = new DBRD(config.database_host, config.database_port);
+  } else if (config.database_type == "rocksdb") {
+      ret = new DBRK(config.database_path);
   }
   if (ret == nullptr) {
     return nullptr;

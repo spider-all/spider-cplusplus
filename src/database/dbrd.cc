@@ -1,6 +1,6 @@
 #include <database/dbrd.h>
 
-DBRD::DBRD(const std::string& host, int port) {
+DBRD::DBRD(const std::string &host, int port) {
   struct timeval timeout = {1, 500000};
 
   db.redis = redisConnectWithTimeout(host.c_str(), port, timeout);
@@ -93,8 +93,8 @@ int DBRD::create_user(user user) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int DBRD::set_value(std::string key, std::string value) {
-  redisReply *reply = (redisReply *)redisCommand(db.redis, "SET %s %s", key.c_str(), value.c_str());
+int DBRD::set_value(const std::string &key, const std::string &value) {
+  auto *reply = (redisReply *)redisCommand(db.redis, "SET %s %s", key.c_str(), value.c_str());
 
   int code = 0;
   if (reply == nullptr) {
@@ -110,7 +110,7 @@ int DBRD::set_value(std::string key, std::string value) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int DBRD::get_value(std::string key, std::string *value) {
+int DBRD::get_value(const std::string &key, std::string *value) {
   auto *reply = (redisReply *)redisCommand(db.redis, "GET %s", key.c_str());
 
   int code = 0;
@@ -133,7 +133,7 @@ std::vector<std::string> DBRD::list_users() {
   if (reply == nullptr) {
     spdlog::info("Redis got an error");
   } else if (reply->type == REDIS_REPLY_ARRAY) {
-    for (int j = 0; j < reply->elements; j++) {
+    for (size_t j = 0; j < reply->elements; j++) {
       std::string value;
       if (reply->element[j]->str != nullptr) get_value(std::string(reply->element[j]->str), &value);
       users.push_back(value);

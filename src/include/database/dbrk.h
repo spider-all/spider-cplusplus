@@ -1,7 +1,7 @@
 #include <iostream>
 #include <random>
 
-#include <rocksdb/db.h>
+#include <leveldb/db.h>
 #include <spdlog/spdlog.h>
 
 #pragma once
@@ -10,10 +10,10 @@
 
 class DBRK : public Database {
 private:
-  rocksdb::Status status;
+  leveldb::Status status;
 
 public:
-  explicit DBRK(const std::string&);
+  explicit DBRK(const std::string &);
   ~DBRK() override;
   int initialize() override;
   int create_user(user) override;

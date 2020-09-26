@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 
 services:
   spider:
@@ -10,5 +10,11 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - $PWD:/app/spider
+      - $PWD:/app
     tty: true
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge

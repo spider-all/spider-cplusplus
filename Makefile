@@ -1,16 +1,12 @@
 app_name         = spider
 docker_name      = $(app_name)
-docker_tag       = dev
-docker_container = $(app_name)
 
-pwd              = $(shell pwd)
-
-all: clean release debug
+all: debug
 
 release debug:
 	if [ ! -d src/$@ ]; then mkdir src/$@; fi
-	cd src/$@ && cmake -DCMAKE_BUILD_TYPE=$@ .. && \
-	cmake --build .
+	cd src/$@ && cmake -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+	-DCMAKE_BUILD_TYPE=$@ .. && cmake --build . -j8
 
 .PHONY: clean
 clean:
@@ -26,8 +22,4 @@ docker-build:
 
 .PHONY: docker-run
 docker-run:
-	docker-compose up --force-recreate -d
-
-.PHONY: docker-exec
-docker-exec:
-	docker-compose exec $(docker_container) /bin/bash
+	docker-compose run --rm --name $(app_name) $(app_name)

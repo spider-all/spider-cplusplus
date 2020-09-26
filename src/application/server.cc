@@ -1,9 +1,5 @@
 #include <boost/asio.hpp>
-#include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
-
-#include <utility>
-#include <boost/beast/version.hpp>
 
 #include <application/server.h>
 
