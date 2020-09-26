@@ -149,7 +149,7 @@ int Request::request(const std::string& url, enum request_type type) {
   }
 
   user user;
-  int code = 0;
+  int code;
   switch (type) {
   case request_type_following:
   case request_type_followers:

@@ -9,8 +9,7 @@ all: clean release debug
 
 release debug:
 	if [ ! -d src/$@ ]; then mkdir src/$@; fi
-	cd src/$@ && cmake -DCMAKE_BUILD_TYPE=$@ .. && \
-	cmake --build .
+	cd src/$@ && cmake -DCMAKE_BUILD_TYPE=$@ .. && cmake --build . -j8
 
 .PHONY: clean
 clean:
@@ -30,4 +29,4 @@ docker-run:
 
 .PHONY: docker-exec
 docker-exec:
-	docker-compose exec $(docker_container) /bin/bash
+	docker-compose exec $(docker_container) /usr/bin/fish

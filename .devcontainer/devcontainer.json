@@ -1,11 +1,11 @@
 {
-	"name": "spider",
-	"dockerFile": "Dockerfile",
-	"settings": {
-		"terminal.integrated.shell.linux": null
-	},
-	"extensions": [],
-	"runArgs": [
-		"--dns=223.5.5.5"
-	]
+  "name": "spider",
+  "dockerFile": "../Dockerfile",
+  "settings": {
+    "terminal.integrated.shell.linux": null
+  },
+  "extensions": [],
+  "runArgs": [
+    "--dns=223.5.5.5"
+  ]
 }

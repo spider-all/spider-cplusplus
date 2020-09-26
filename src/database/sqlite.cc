@@ -1,4 +1,4 @@
-#include <database/dbsq.h>
+#include <database/sqlite.h>
 
 DBSQ::DBSQ(const std::string &path) {
   try {

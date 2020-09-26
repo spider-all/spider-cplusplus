@@ -5,9 +5,9 @@
 #include <thread>
 #include <vector>
 
-// #include <SQLiteCpp/SQLiteCpp.h>
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <spdlog/spdlog.h>
-#include <Poco/Data/SQLite/Connector.h>
+// #include <Poco/Data/SQLite/Connector.h>
 
 #pragma once
 
@@ -48,7 +48,7 @@ const std::string QuerySentence[] = {
 
 class DBSQ : public Database {
 public:
-  explicit DBSQ(const std::string&);
+  explicit DBSQ(const std::string &);
   ~DBSQ() override;
   int initialize() override;
   int create_user(user) override;

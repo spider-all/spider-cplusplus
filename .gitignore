@@ -171,3 +171,5 @@ src/release/
 
 *.yaml
 *.db
+
+build/
