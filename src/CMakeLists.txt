@@ -6,7 +6,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
 
 set(SQLiteCpp_version 3.1.1)
-set(cpr_version 1.5.1)
 set(nlohmann_json_version 3.9.1)
 set(yaml_cpp_version 6.3.0)
 set(cpp_httplib_version 0.7.10)
@@ -29,6 +28,7 @@ endif()
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/3rdparty/SQLiteCpp-${SQLiteCpp_version})
 
 target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/SQLiteCpp-${SQLiteCpp_version}/include)
+target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/SQLiteCpp-${SQLiteCpp_version}/sqlite3)
 target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/nlohmann-json-${nlohmann_json_version}/include)
 target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/cpp-httplib-${cpp_httplib_version})
 
@@ -58,7 +58,7 @@ if (APPLE)
   target_link_directories(spider PRIVATE /usr/local/opt/openssl/lib)
 endif()
 
-target_link_libraries(spider PRIVATE SQLiteCpp sqlite3 leveldb fmt hiredis yaml-cpp crypto ssl pthread dl z)
+target_link_libraries(spider PRIVATE SQLiteCpp leveldb fmt hiredis yaml-cpp crypto ssl pthread dl z)
 
 if (CMAKE_BUILD_TYPE STREQUAL release)
   add_custom_command(TARGET spider POST_BUILD COMMAND strip spider)
