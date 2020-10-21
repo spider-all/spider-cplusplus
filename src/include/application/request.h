@@ -3,8 +3,8 @@
 #include <regex>
 #include <string>
 #include <thread>
+#include <utility>
 
-//#include <cpr/cpr.h>
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <httplib.h>
 #include <nlohmann/json.hpp>
@@ -12,15 +12,14 @@
 #include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
 
-#pragma once
-
 #include <application/application.h>
-
 #include <database/database.h>
 
 #include <common.h>
 #include <config.h>
 #include <error.hpp>
+
+#pragma once
 
 enum request_type {
   request_type_followers,

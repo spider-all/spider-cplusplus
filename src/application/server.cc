@@ -1,29 +1,37 @@
-#include <boost/asio.hpp>
-#include <boost/beast/http.hpp>
-
 #include <application/server.h>
 
 Server::Server(Config c, Database *db) {
-  config   = std::move(c);
+  config = std::move(c);
   database = db;
 }
 
 Server::~Server() {
-  spdlog::info("Server running over...");
+  stopping = true;
+
+  if (svr.is_running()) {
+    svr.stop();
+  }
+
+  while (true) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(200)); // run loop
+    if (semaphore == 0) {
+      break;
+    }
+  }
+
+  spdlog::info("Server stopped...");
 }
 
 int Server::startup() {
+  semaphore++;
   std::thread server_thread([=]() {
-    boost::asio::io_service service;
-    boost::asio::ip::tcp::acceptor acceptor(service);
-    boost::asio::ip::tcp::endpoint endPoint(boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::any(), 0));
-
-    acceptor.open(endPoint.protocol());
-    acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-    acceptor.bind(endPoint);
-    acceptor.listen(); // NEEDED TO ADD THIS BIT!
-    unsigned short port = acceptor.local_endpoint().port();
+    svr.Get("/", [](const httplib::Request &req, httplib::Response &res) {
+      res.set_content("Hello World!", "text/plain");
+    });
+    int port = 3000;
     spdlog::info("Server running at port {}", port);
+    svr.listen("127.0.0.1", port);
+    semaphore--;
   });
   server_thread.detach();
 

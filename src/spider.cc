@@ -7,12 +7,11 @@
 #include <cli.h>
 #include <config.h>
 
+#include <application/request.h>
+#include <application/server.h>
 #include <database/dblevel.h>
 #include <database/dbredis.h>
 #include <database/dbsqlite.h>
-
-#include <application/request.h>
-#include <application/server.h>
 
 bool keep_running = true; // test keep running
 

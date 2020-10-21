@@ -1,7 +1,5 @@
 #include <application/request.h>
 
-#include <utility>
-
 Request::Request(Config c, Database *db) {
   config = std::move(c);
   database = db;
@@ -16,7 +14,7 @@ Request::~Request() {
     }
   }
 
-  spdlog::info("Spider running over...");
+  spdlog::info("Spider stopped...");
 }
 
 int Request::startup() {
@@ -88,7 +86,7 @@ int Request::startup() {
   });
   info_thread.detach();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int Request::request(const std::string &url, enum request_type type) {
@@ -200,10 +198,16 @@ int Request::request(const std::string &url, enum request_type type) {
   std::string header = response->headers.find("Link")->second;
   while (regex_search(header, result, pieces_regex)) {
     if (result.size() == 3 && result[2] == "next") {
-      return request(result[1], type);
+      auto u = std::string(result[1]);
+      size_t pos = u.find(url_prefix);
+      if (pos != std::string::npos) {
+        u.erase(pos, url_prefix.length());
+      }
+
+      return request(u, type);
     }
     header = result.suffix().str();
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
