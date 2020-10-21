@@ -1,16 +1,16 @@
-#include <database/dbrd.h>
+#include <database/dbredis.h>
 
-DBRD::DBRD(const std::string &host, int port) {
+DBRedis::DBRedis(const std::string &host, int port) {
   struct timeval timeout = {1, 500000};
 
   db.redis = redisConnectWithTimeout(host.c_str(), port, timeout);
 }
 
-DBRD::~DBRD() {
+DBRedis::~DBRedis() {
   redisFree(db.redis);
 }
 
-int DBRD::initialize() {
+int DBRedis::initialize() {
   if (db.redis == nullptr || db.redis->err) {
     redisFree(db.redis);
     return EXIT_FAILURE;
@@ -18,7 +18,7 @@ int DBRD::initialize() {
   return EXIT_SUCCESS;
 }
 
-int DBRD::create_user(user user) {
+int DBRedis::create_user(user user) {
   std::string userId = std::to_string(user.id);
 
   int code = set_value("user:id:" + userId, userId);
@@ -93,7 +93,7 @@ int DBRD::create_user(user user) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int DBRD::set_value(const std::string &key, const std::string &value) {
+int DBRedis::set_value(const std::string &key, const std::string &value) {
   auto *reply = (redisReply *)redisCommand(db.redis, "SET %s %s", key.c_str(), value.c_str());
 
   int code = 0;
@@ -110,7 +110,7 @@ int DBRD::set_value(const std::string &key, const std::string &value) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int DBRD::get_value(const std::string &key, std::string *value) {
+int DBRedis::get_value(const std::string &key, std::string *value) {
   auto *reply = (redisReply *)redisCommand(db.redis, "GET %s", key.c_str());
 
   int code = 0;
@@ -126,7 +126,7 @@ int DBRD::get_value(const std::string &key, std::string *value) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-std::vector<std::string> DBRD::list_users() {
+std::vector<std::string> DBRedis::list_users() {
   mtx.lock();
   std::vector<std::string> users;
   auto *reply = (redisReply *)redisCommand(db.redis, "KEYS user:login:*");
@@ -146,4 +146,8 @@ std::vector<std::string> DBRD::list_users() {
   }
   mtx.unlock();
   return users;
+}
+
+int DBRedis::count_user() {
+  return 0;
 }

@@ -4,7 +4,9 @@
 #include <string>
 #include <thread>
 
-#include <cpr/cpr.h>
+//#include <cpr/cpr.h>
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <sqlite3.h>
@@ -38,11 +40,11 @@ private:
   int semaphore = 0; // 执行过程中的信号量
   bool stopping = false;
 
-  std::string url_host   = "api.github.com";
+  std::string url_host = "api.github.com";
   std::string url_prefix = "https://" + url_host;
 
-  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36";
-  const std::string TIMEZONE  = "Asia/Shanghai";
+  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.80 Safari/537.36";
+  const std::string TIMEZONE = "Asia/Shanghai";
 
 public:
   Request(Config, Database *);

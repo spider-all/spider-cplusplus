@@ -1,20 +1,40 @@
-#include <database/sqlite.h>
+#include <database/dbsqlite.h>
 
-DBSQ::DBSQ(const std::string &path) {
+DBSQLite::DBSQLite(const std::string &path) {
   try {
     unsigned flags = unsigned(SQLite::OPEN_CREATE) | unsigned(SQLite::OPEN_READWRITE) | unsigned(SQLite::OPEN_FULLMUTEX);
-    db.sqlite      = new SQLite::Database(path, int(flags));
+    db.sqlite = new SQLite::Database(path, int(flags));
   } catch (std::exception &e) {
     spdlog::error("Open database with error: {}", e.what());
     code = DATABASE_OPEN_ERROR;
   }
 }
 
-DBSQ::~DBSQ() {
+DBSQLite::~DBSQLite() {
   delete db.sqlite;
 }
 
-int DBSQ::initialize() {
+int DBSQLite::initialize() {
+  const std::string CreateSentence[] = {
+      "CREATE TABLE IF NOT EXISTS `users` ("
+      "`id` NUMERIC NOT NULL PRIMARY KEY, "
+      "`login` TEXT NOT NULL, "
+      "`node_id` TEXT NOT NULL, "
+      "`type` TEXT NOT NULL, "
+      "`name` TEXT NOT NULL, "
+      "`company` TEXT, "
+      "`blog` TEXT, "
+      "`location` TEXT, "
+      "`email` TEXT, "
+      "`hireable` NUMERIC, "
+      "`bio` TEXT, "
+      "`created_at` TEXT NOT NULL, "
+      "`updated_at` TEXT NOT NULL, "
+      "`public_gists` NUMERIC NOT NULL, "
+      "`public_repos` NUMERIC NOT NULL, "
+      "`following` NUMERIC NOT NULL, "
+      "`followers` NUMERIC NOT NULL);",
+  };
   for (const std::string &sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
     try {
@@ -27,7 +47,7 @@ int DBSQ::initialize() {
   return EXIT_SUCCESS;
 }
 
-int DBSQ::create_user(user user) {
+int DBSQLite::create_user(user user) {
   auto *query = new SQLite::Statement(*db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
   query->bind(1, user.id);
   std::string create_sql;
@@ -75,7 +95,7 @@ int DBSQ::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> DBSQ::list_users() {
+std::vector<std::string> DBSQLite::list_users() {
   std::vector<std::string> users;
   auto *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
   try {
@@ -86,8 +106,20 @@ std::vector<std::string> DBSQ::list_users() {
   } catch (const std::exception &e) {
     spdlog::error("Query user with error: {}", e.what());
   }
-
   delete query;
-
   return users;
+}
+
+int DBSQLite::count_user() {
+  int count = 0;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(*) FROM `users`");
+  try {
+    while (query->executeStep()) {
+      count = query->getColumn(0);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query user with error: {}", e.what());
+  }
+  delete query;
+  return count;
 }

@@ -1,16 +1,17 @@
-#include <database/dbrk.h>
+#include <database/dblevel.h>
 
-DBRK::DBRK(const std::string &path) {
+DBLevel::DBLevel(const std::string &path) {
   leveldb::Options options;
   options.create_if_missing = true;
+
   status = leveldb::DB::Open(options, path, &db.rocksdb);
 }
 
-DBRK::~DBRK() {
+DBLevel::~DBLevel() {
   delete db.rocksdb;
 }
 
-int DBRK::initialize() {
+int DBLevel::initialize() {
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
@@ -18,7 +19,7 @@ int DBRK::initialize() {
   return EXIT_SUCCESS;
 }
 
-int DBRK::create_user(user user) {
+int DBLevel::create_user(user user) {
   std::string userId = std::to_string(user.id);
 
   status = db.rocksdb->Put(leveldb::WriteOptions(), "user:id:" + userId, userId);
@@ -105,7 +106,7 @@ int DBRK::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> DBRK::list_users() {
+std::vector<std::string> DBLevel::list_users() {
   std::vector<std::string> users;
   leveldb::Iterator *iter = db.rocksdb->NewIterator(leveldb::ReadOptions());
   for (iter->Seek("user:login:"); iter->Valid() && iter->key().starts_with("user:login:"); iter->Next()) {
@@ -115,4 +116,8 @@ std::vector<std::string> DBRK::list_users() {
 
   std::shuffle(users.begin(), users.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
   return users;
+}
+
+int DBLevel::count_user() {
+  return 0;
 }
