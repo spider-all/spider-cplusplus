@@ -1,0 +1,31 @@
+FROM buildpack-deps:buster as build
+
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+  sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
+
+WORKDIR /app
+
+ADD . .
+
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends python ccache cmake libhiredis-dev \
+  libleveldb-dev libyaml-cpp-dev && \
+  make clean && \
+  make release
+
+FROM debian:buster
+
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+  sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
+
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends ca-certificates libhiredis0.14 \
+  libleveldb-dev libyaml-cpp0.6 libssl1.1
+
+COPY --from=build /app/src/release/spider /usr/bin
+
+WORKDIR /app
+
+VOLUME ["/etc/spider/", "/app"]
+
+CMD ["spider", "-c", "/etc/spider/config.yaml"]

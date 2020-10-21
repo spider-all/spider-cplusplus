@@ -1,9 +1,7 @@
 #include <application/request.h>
 
-#include <utility>
-
 Request::Request(Config c, Database *db) {
-  config   = std::move(c);
+  config = std::move(c);
   database = db;
 }
 
@@ -16,12 +14,12 @@ Request::~Request() {
     }
   }
 
-  spdlog::info("Spider running over...");
+  spdlog::info("Spider stopped...");
 }
 
 int Request::startup() {
   spdlog::info("Spider is running...");
-  std::string request_url = url_prefix + "/users/" + config.crawler_entry_username;
+  std::string request_url = "/users/" + config.crawler_entry_username;
 
   int code = request(request_url, request_type_userinfo);
   if (code != 0) {
@@ -37,10 +35,8 @@ int Request::startup() {
     while (!stopping) {
       std::this_thread::sleep_for(std::chrono::seconds(1));
       std::vector<std::string> users = database->list_users();
-      for (const std::string& u : users) {
-
-        std::string request_url = url_prefix + "/users/" + u + "/followers";
-
+      for (const std::string &u : users) {
+        std::string request_url = "/users/" + u + "/followers";
         int code = request(request_url, request_type_followers);
         if (code != 0) {
           spdlog::error("Request url: {} with error: {}", request_url, code);
@@ -61,9 +57,8 @@ int Request::startup() {
     while (!stopping) {
       std::vector<std::string> users = database->list_users();
       std::this_thread::sleep_for(std::chrono::seconds(1));
-      for (const std::string& u : users) {
-        std::string request_url = url_prefix + "/users/" + u + "/following";
-
+      for (const std::string &u : users) {
+        std::string request_url = "/users/" + u + "/following";
         int code = request(request_url, request_type_following);
         if (code != 0) {
           spdlog::error("Request url: {} with error: {}", request_url, code);
@@ -82,8 +77,8 @@ int Request::startup() {
   std::thread info_thread([=]() {
     spdlog::info("Info thread starting...");
     while (!stopping) {
-      std::vector<std::string> users = database->list_users();
-      spdlog::info("Database have users: {}", users.size());
+      int count = database->count_user();
+      spdlog::info("Database have users: {}", count);
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     spdlog::info("Info thread stopped");
@@ -91,37 +86,63 @@ int Request::startup() {
   });
   info_thread.detach();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
-int Request::request(const std::string& url, enum request_type type) {
-  spdlog::info("{}", url);
-  cpr::Response response = cpr::Get(
-      cpr::Url{url},
-      cpr::Header{
-          {"Accept", "application/json"},
-          {"Host", url_host},
-          {"User-Agent", USERAGENT},
-          {"Time-Zone", TIMEZONE},
-          {"Authorization", "Bearer " + config.crawler_token},
-      });
+int Request::request(const std::string &url, enum request_type type) {
+  spdlog::info("crawler url: {}", url);
 
-  rate_limit_limit     = std::stoi(response.header["X-RateLimit-Limit"]);
-  rate_limit_reset     = std::stoi(response.header["X-RateLimit-Reset"]);
-  rate_limit_remaining = std::stoi(response.header["X-RateLimit-Remaining"]);
+  std::string _useragent = USERAGENT;
+  if (!config.crawler_useragent.empty()) {
+    _useragent = config.crawler_useragent;
+  }
+  std::string _timezone = TIMEZONE;
+  if (!config.crawler_timezone.empty()) {
+    _timezone = config.crawler_timezone;
+  }
 
-  if (response.status_code == 403) {
-    std::this_thread::sleep_for(std::chrono::seconds(30));
-    spdlog::info("Wait for another 30s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset);
+  httplib::Client client(url_prefix.c_str());
+  httplib::Headers headers = {
+      {"Accept", "application/json"},
+      {"Host", url_host},
+      {"User-Agent", _useragent},
+      {"Time-Zone", _timezone},
+      {"Authorization", "Bearer " + config.crawler_token},
+  };
+  auto response = client.Get(url.c_str(), headers);
+  for (const auto &header : response->headers) {
+    if (header.first == "X-RateLimit-Limit") {
+      rate_limit_limit = std::stoi(header.second, nullptr);
+    } else if (header.first == "X-RateLimit-Reset")
+      rate_limit_reset = std::stoi(header.second);
+    else if (header.first == "X-RateLimit-Remaining")
+      rate_limit_remaining = std::stoi(header.second);
+  }
+
+  if (rate_limit_remaining % 10 == 0) {
+    std::time_t result = rate_limit_remaining;
+    spdlog::info("Rate limit: {}/{}, reset at: {}(UTC)", rate_limit_remaining, rate_limit_limit, std::asctime(std::localtime(&result)));
+  }
+
+  if (response->status == 403) {
+    auto current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    for (;;) {
+      spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
+      std::this_thread::sleep_for(std::chrono::seconds(30));
+      current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      if (rate_limit_reset - current <= 0) {
+        break;
+      }
+    }
     return request(url, type);
   }
 
-  if (response.status_code != 200) {
-    spdlog::error("Got {} on request url: {}, {}", response.status_code, url, response.text);
+  if (response->status != 200) {
+    spdlog::error("Got {} on request url: {}, {}", response->status, url, response->body);
     return REQUEST_ERROR;
   }
 
-  if (response.text.empty()) {
+  if (response->body.empty()) {
     return REQUEST_ERROR;
   }
 
@@ -142,7 +163,7 @@ int Request::request(const std::string& url, enum request_type type) {
       }
       return true;
     };
-    content = nlohmann::json::parse(response.text, cb);
+    content = nlohmann::json::parse(response->body, cb);
   } catch (nlohmann::detail::parse_error &e) {
     spdlog::error("Request {} got error: {}", url.c_str(), e.what());
     return REQUEST_ERROR;
@@ -154,7 +175,7 @@ int Request::request(const std::string& url, enum request_type type) {
   case request_type_following:
   case request_type_followers:
     for (auto i : content) {
-      code = request(url_prefix + "/users/" + i["login"].get<std::string>(), request_type_userinfo);
+      code = request("/users/" + i["login"].get<std::string>(), request_type_userinfo);
       if (code != 0) {
         spdlog::error("Request userinfo with error: {}", code);
       }
@@ -167,23 +188,23 @@ int Request::request(const std::string& url, enum request_type type) {
     if (content["hireable"].dump() != "true") {
       content["hireable"] = false;
     }
-    user.login        = content["login"].get<std::string>();
-    user.id           = content["id"].get<int64_t>();
-    user.node_id      = content["node_id"].get<std::string>();
-    user.type         = content["type"].get<std::string>();
-    user.name         = content["name"].get<std::string>();
-    user.company      = content["company"].get<std::string>();
-    user.blog         = content["blog"].get<std::string>();
-    user.location     = content["location"].get<std::string>();
-    user.email        = content["email"].get<std::string>();
-    user.hireable     = content["hireable"].get<bool>();
-    user.bio          = content["bio"].get<std::string>();
-    user.created_at   = content["created_at"].get<std::string>();
-    user.updated_at   = content["updated_at"].get<std::string>();
+    user.login = content["login"].get<std::string>();
+    user.id = content["id"].get<int64_t>();
+    user.node_id = content["node_id"].get<std::string>();
+    user.type = content["type"].get<std::string>();
+    user.name = content["name"].get<std::string>();
+    user.company = content["company"].get<std::string>();
+    user.blog = content["blog"].get<std::string>();
+    user.location = content["location"].get<std::string>();
+    user.email = content["email"].get<std::string>();
+    user.hireable = content["hireable"].get<bool>();
+    user.bio = content["bio"].get<std::string>();
+    user.created_at = content["created_at"].get<std::string>();
+    user.updated_at = content["updated_at"].get<std::string>();
     user.public_gists = content["public_gists"].get<int>();
     user.public_repos = content["public_repos"].get<int>();
-    user.following    = content["following"].get<int>();
-    user.followers    = content["followers"].get<int>();
+    user.following = content["following"].get<int>();
+    user.followers = content["followers"].get<int>();
 
     code = database->create_user(user);
     if (code != 0) {
@@ -196,13 +217,19 @@ int Request::request(const std::string& url, enum request_type type) {
 
   std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
-  std::string header = response.header["Link"];
+  std::string header = response->headers.find("Link")->second;
   while (regex_search(header, result, pieces_regex)) {
     if (result.size() == 3 && result[2] == "next") {
-      return request(result[1], type);
+      auto u = std::string(result[1]);
+      size_t pos = u.find(url_prefix);
+      if (pos != std::string::npos) {
+        u.erase(pos, url_prefix.length());
+      }
+
+      return request(u, type);
     }
     header = result.suffix().str();
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

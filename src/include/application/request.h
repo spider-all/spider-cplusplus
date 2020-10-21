@@ -3,22 +3,23 @@
 #include <regex>
 #include <string>
 #include <thread>
+#include <utility>
 
-#include <cpr/cpr.h>
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
 
-#pragma once
-
 #include <application/application.h>
-
 #include <database/database.h>
 
 #include <common.h>
 #include <config.h>
 #include <error.hpp>
+
+#pragma once
 
 enum request_type {
   request_type_followers,
@@ -35,14 +36,14 @@ private:
   int rate_limit_limit{};
   int rate_limit_reset{};
 
-  int semaphore = 0; // 执行过程中的信号量
+  int semaphore = 0;
   bool stopping = false;
 
-  std::string url_host   = "api.github.com";
+  std::string url_host = "api.github.com";
   std::string url_prefix = "https://" + url_host;
 
-  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36";
-  const std::string TIMEZONE  = "Asia/Shanghai";
+  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36";
+  const std::string TIMEZONE = "Asia/Shanghai";
 
 public:
   Request(Config, Database *);

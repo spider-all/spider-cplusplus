@@ -6,7 +6,7 @@ all: debug
 release debug:
 	if [ ! -d src/$@ ]; then mkdir src/$@; fi
 	cd src/$@ && cmake -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-	-DCMAKE_BUILD_TYPE=$@ .. && cmake --build . -j8
+	-DCMAKE_BUILD_TYPE=$@ .. && cmake --build .
 
 .PHONY: clean
 clean:
@@ -22,4 +22,4 @@ docker-build:
 
 .PHONY: docker-run
 docker-run:
-	docker-compose run --rm --name $(app_name) $(app_name)
+	docker-compose run --rm --name $(app_name) -d $(app_name)

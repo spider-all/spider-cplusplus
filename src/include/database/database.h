@@ -15,9 +15,10 @@ public:
     SQLite::Database *sqlite;
     redisContext *redis;
   } db{};
-  int code                                      = 0;
-  virtual ~Database()                           = default;
-  virtual int initialize()                      = 0;
-  virtual int create_user(user)                 = 0;
+  int code = 0;
+  virtual ~Database() = default;
+  virtual int initialize() = 0;
+  virtual int create_user(user) = 0;
   virtual std::vector<std::string> list_users() = 0;
+  virtual int count_user() = 0;
 };

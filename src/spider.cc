@@ -7,12 +7,11 @@
 #include <cli.h>
 #include <config.h>
 
-#include <database/dbrd.h>
-#include <database/sqlite.h>
-#include <database/dbrk.h>
-
 #include <application/request.h>
 #include <application/server.h>
+#include <database/dblevel.h>
+#include <database/dbredis.h>
+#include <database/dbsqlite.h>
 
 bool keep_running = true; // test keep running
 
@@ -24,11 +23,11 @@ void callback(int) {
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
   if (config.database_type == "sqlite3") {
-    ret = new DBSQ(config.database_path);
+    ret = new DBSQLite(config.database_path);
   } else if (config.database_type == "redis") {
-    ret = new DBRD(config.database_host, config.database_port);
-  } else if (config.database_type == "rocksdb") {
-      ret = new DBRK(config.database_path);
+    ret = new DBRedis(config.database_host, config.database_port);
+  } else if (config.database_type == "leveldb") {
+    ret = new DBLevel(config.database_path);
   }
   if (ret == nullptr) {
     return nullptr;
@@ -88,6 +87,8 @@ int main(int argc, char *argv[]) {
   delete request;
   delete server;
   delete database;
+
+  spdlog::info("All of applications stopped...");
 
   return EXIT_SUCCESS;
 }
