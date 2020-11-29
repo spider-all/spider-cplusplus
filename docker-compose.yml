@@ -2,12 +2,26 @@ version: "3.8"
 
 services:
   spider:
+    image: spider:release
+    container_name: spider
+    hostname: spider
+    build:
+      context: .
+      dockerfile: Dockerfile.release
+    restart: always
+    volumes:
+      - $PWD/config.yaml:/etc/spider/config.yaml:ro
+      - $PWD/spider.db:/app/spider.db
+    tty: true
+    networks:
+      - default
+  spider-dev:
     image: spider:dev
     container_name: spider
     hostname: spider
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
       - $PWD:/app
