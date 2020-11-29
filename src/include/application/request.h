@@ -36,13 +36,13 @@ private:
   int rate_limit_limit{};
   int rate_limit_reset{};
 
-  int semaphore = 0; // 执行过程中的信号量
+  int semaphore = 0;
   bool stopping = false;
 
   std::string url_host = "api.github.com";
   std::string url_prefix = "https://" + url_host;
 
-  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.80 Safari/537.36";
+  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
 
 public:

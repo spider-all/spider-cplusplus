@@ -91,27 +91,49 @@ int Request::startup() {
 
 int Request::request(const std::string &url, enum request_type type) {
   spdlog::info("crawler url: {}", url);
+
+  std::string _useragent = USERAGENT;
+  if (!config.crawler_useragent.empty()) {
+    _useragent = config.crawler_useragent;
+  }
+  std::string _timezone = TIMEZONE;
+  if (!config.crawler_timezone.empty()) {
+    _timezone = config.crawler_timezone;
+  }
+
   httplib::Client client(url_prefix.c_str());
   httplib::Headers headers = {
       {"Accept", "application/json"},
       {"Host", url_host},
-      {"User-Agent", USERAGENT},
-      {"Time-Zone", TIMEZONE},
+      {"User-Agent", _useragent},
+      {"Time-Zone", _timezone},
       {"Authorization", "Bearer " + config.crawler_token},
   };
   auto response = client.Get(url.c_str(), headers);
   for (const auto &header : response->headers) {
-    if (header.first == "X-Ratelimit-Limit")
-      rate_limit_limit = std::stoi(header.second);
-    else if (header.first == "X-Ratelimit-Remaining")
+    if (header.first == "X-RateLimit-Limit") {
+      rate_limit_limit = std::stoi(header.second, nullptr);
+    } else if (header.first == "X-RateLimit-Reset")
       rate_limit_reset = std::stoi(header.second);
-    else if (header.first == "X-Ratelimit-Reset")
+    else if (header.first == "X-RateLimit-Remaining")
       rate_limit_remaining = std::stoi(header.second);
   }
 
+  if (rate_limit_remaining % 10 == 0) {
+    std::time_t result = rate_limit_remaining;
+    spdlog::info("Rate limit: {}/{}, reset at: {}(UTC)", rate_limit_remaining, rate_limit_limit, std::asctime(std::localtime(&result)));
+  }
+
   if (response->status == 403) {
-    spdlog::info("Wait for another 30s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset);
-    std::this_thread::sleep_for(std::chrono::seconds(30));
+    auto current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    for (;;) {
+      spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
+      std::this_thread::sleep_for(std::chrono::seconds(30));
+      current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      if (rate_limit_reset - current <= 0) {
+        break;
+      }
+    }
     return request(url, type);
   }
 

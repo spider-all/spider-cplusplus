@@ -88,5 +88,7 @@ int main(int argc, char *argv[]) {
   delete server;
   delete database;
 
+  spdlog::info("All of applications stopped...");
+
   return EXIT_SUCCESS;
 }
