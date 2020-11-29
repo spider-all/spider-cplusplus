@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
 set(SQLiteCpp_version 3.1.1)
 set(nlohmann_json_version 3.9.1)
 set(yaml_cpp_version 6.3.0)
-set(cpp_httplib_version 0.7.10)
+set(cpp_httplib_version 0.7.15)
 
 project(spider)
 
