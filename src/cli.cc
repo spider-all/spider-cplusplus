@@ -17,14 +17,7 @@ char *CommandLine::cli(int argc, char *argv[]) {
       printf("\t%s\t%s\n", "-v", "get version");
       return nullptr;
     case 'v':
-      std::cout << fmt::format(fg(fmt::color::golden_rod), "\n{}", "spider ") << fmt::format(fg(fmt::color::green), "v{}.{}.{}", std::to_string(SPIDER_VERSION_MAJOR), std::to_string(SPIDER_VERSION_MINOR), std::to_string(SPIDER_VERSION_PATCH)) << std::endl;
-      std::cout << std::endl;
-      std::cout << fmt::format(fg(fmt::color::golden_rod), "   {:13} ", "SQLiteCpp") << fmt::format(fg(fmt::color::green), "v{}", SQLITECPP_VERSION) << std::endl;
-      std::cout << fmt::format(fg(fmt::color::golden_rod), "   {:13} ", "sqlite3") << fmt::format(fg(fmt::color::green), "v{}", SQLITE_VERSION) << std::endl;
-      std::cout << fmt::format(fg(fmt::color::golden_rod), "   {:13} ", "yaml-cpp") << fmt::format(fg(fmt::color::green), "v{}", yaml_cpp_version) << std::endl;
-      std::cout << fmt::format(fg(fmt::color::golden_rod), "   {:13} ", "cpp-httplib") << fmt::format(fg(fmt::color::green), "v{}", cpp_httplib_version) << std::endl;
-      std::cout << fmt::format(fg(fmt::color::golden_rod), "   {:13} ", "leveldb") << fmt::format(fg(fmt::color::green), "v{}.{}", leveldb::kMajorVersion, leveldb::kMinorVersion) << std::endl;
-      std::cout << std::endl;
+      std::cout << "spider v" << std::to_string(SPIDER_VERSION_MAJOR) << "." << std::to_string(SPIDER_VERSION_MINOR) << "." << std::to_string(SPIDER_VERSION_PATCH) << std::endl;
       return nullptr;
     default:
       return nullptr;

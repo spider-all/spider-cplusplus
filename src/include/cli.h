@@ -1,13 +1,6 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <SQLiteCpp/SQLiteCpp.h>
-#include <fmt/color.h>
-#include <fmt/core.h>
-#include <leveldb/db.h>
-#include <nlohmann/json.hpp>
-#include <sqlite3.h>
-
 #pragma once
 
 #define SPIDER_VERSION_MAJOR 1
