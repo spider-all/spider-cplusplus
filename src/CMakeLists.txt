@@ -15,9 +15,6 @@ project(spider)
 FILE(GLOB Source *.cc application/*.cc database/*.cc)
 add_executable(spider ${Source})
 
-target_compile_definitions(spider PRIVATE yaml_cpp_version="${yaml_cpp_version}")
-target_compile_definitions(spider PRIVATE cpp_httplib_version="${cpp_httplib_version}")
-
 if (APPLE)
   set(OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR} /usr/local/opt/openssl)
   set(OPENSSL_INCLUDE_DIR ${OPENSSL_ROOT_DIR}/include)
