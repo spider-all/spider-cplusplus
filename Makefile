@@ -16,8 +16,8 @@ clean:
 upgrade:
 	docker pull buildpack-deps:curl
 
-.PHONY: docker-build
-docker-build:
+.PHONY: image
+image:
 	docker-compose build spider
 
 .PHONY: docker-run

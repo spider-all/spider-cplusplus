@@ -2,60 +2,47 @@ cmake_minimum_required(VERSION 3.10.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_TOOLCHAIN_FILE ../pkgs/scripts/buildsystems/vcpkg.cmake)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall -fsanitize=address,signed-integer-overflow")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Os")
 
-set(SQLiteCpp_version 3.1.1)
-set(nlohmann_json_version 3.9.1)
-set(yaml_cpp_version 6.3.0)
-set(cpp_httplib_version 0.7.15)
-set(spdlog_version 1.8.1)
 project(spider)
 
-FILE(GLOB Source *.cc application/*.cc database/*.cc)
-add_executable(spider ${Source})
+FILE(GLOB source *.cc application/*.cc database/*.cc)
+add_executable(spider ${source})
 
-if (APPLE)
-  set(OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR} /usr/local/opt/openssl)
-  set(OPENSSL_INCLUDE_DIR ${OPENSSL_ROOT_DIR}/include)
-  set(OPENSSL_CRYPTO_LIBRARY ${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib)
-  set(OPENSSL_SSL_LIBRARY ${OPENSSL_ROOT_DIR}/lib/libssl.dylib)
-endif()
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/3rdparty/SQLiteCpp-${SQLiteCpp_version})
+find_package(yaml-cpp CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE yaml-cpp)
 
-target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/SQLiteCpp-${SQLiteCpp_version}/include)
-target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/SQLiteCpp-${SQLiteCpp_version}/sqlite3)
-target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/nlohmann-json-${nlohmann_json_version}/include)
-target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/cpp-httplib-${cpp_httplib_version})
-target_include_directories(spider PRIVATE ${CMAKE_CURRENT_LIST_DIR}/3rdparty/spdlog-${spdlog_version}/include)
+find_package(OpenSSL REQUIRED)
+target_link_libraries(spider PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+find_package(ZLIB REQUIRED)
+target_link_libraries(spider PRIVATE ZLIB::ZLIB)
+
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE spdlog::spdlog)
+
+find_package(SQLiteCpp CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE SQLiteCpp)
+
+find_package(CURL CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE CURL::libcurl)
+
+find_path(CPP_HTTPLIB_INCLUDE_DIRS "httplib.h")
+target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
+
+find_package(leveldb CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE leveldb::leveldb)
+
+target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libhiredis.a)
 
 target_include_directories(spider PRIVATE include)
 
-if (APPLE)
-  target_include_directories(spider PRIVATE /usr/local/opt/spdlog/include)
-  target_include_directories(spider PRIVATE /usr/local/opt/fmt/include)
-  target_include_directories(spider PRIVATE /usr/local/opt/nlohmann-json/include)
-  target_include_directories(spider PRIVATE /usr/local/opt/yaml-cpp/include)
-  target_include_directories(spider PRIVATE /usr/local/opt/hiredis/include)
-  target_include_directories(spider PRIVATE /usr/local/opt/zlib/include)
-  target_include_directories(spider PRIVATE /usr/local/opt/leveldb/include)
-  target_include_directories(spider PRIVATE /usr/local/opt/openssl/include)
-endif()
-
-if (APPLE)
-  target_link_directories(spider PRIVATE /usr/local/opt/spdlog/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/fmt/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/nlohmann-json/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/yaml-cpp/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/sqlite/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/hiredis/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/zlib/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/leveldb/lib)
-  target_link_directories(spider PRIVATE /usr/local/opt/openssl/lib)
-endif()
-
-target_link_libraries(spider PRIVATE SQLiteCpp sqlite3 leveldb hiredis yaml-cpp crypto ssl pthread dl z)
+target_link_libraries(spider PRIVATE pthread dl z)
 
 if (CMAKE_BUILD_TYPE STREQUAL release)
   add_custom_command(TARGET spider POST_BUILD COMMAND strip spider)
