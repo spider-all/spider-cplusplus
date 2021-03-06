@@ -4,5 +4,5 @@ timezone: "Asia/Shanghai"
 token: github_token
 
 database:
-  path: spider.db
+  path: ./data/spider.db
   type: sqlite3
