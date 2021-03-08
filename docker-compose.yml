@@ -10,8 +10,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - $PWD/config.yaml:/etc/spider/config.yaml:ro
-      - $PWD/spider.db:/app/spider.db
+      - $PWD/config.yaml:/app/etc/config.yaml:ro
+      - $PWD/data:/app/data
     tty: true
     networks:
       - default

@@ -1,5 +1,4 @@
-app_name         = spider
-docker_name      = $(app_name)
+app_name = spider
 
 all: debug
 
@@ -22,4 +21,4 @@ image:
 
 .PHONY: docker-run
 docker-run:
-	docker-compose run --rm --name $(app_name) -d $(app_name)
+	docker-compose run --rm --name $(app_name) $(app_name)
