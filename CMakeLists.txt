@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.10.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_TOOLCHAIN_FILE ../pkgs/scripts/buildsystems/vcpkg.cmake)
+set(CMAKE_TOOLCHAIN_FILE pkgs/scripts/buildsystems/vcpkg.cmake)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Os")
 
 project(spider)
 
-FILE(GLOB source *.cc application/*.cc database/*.cc)
+FILE(GLOB source src/*.cc src/application/*.cc src/database/*.cc)
 add_executable(spider ${source})
 
 find_package(CLI11 CONFIG REQUIRED)
@@ -55,7 +55,7 @@ target_link_libraries(spider PRIVATE leveldb::leveldb)
 
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libhiredis.a)
 
-target_include_directories(spider PRIVATE include)
+target_include_directories(spider PRIVATE src/include)
 
 target_link_libraries(spider PRIVATE pthread dl z)
 

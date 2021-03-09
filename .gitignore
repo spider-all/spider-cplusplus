@@ -166,8 +166,8 @@ Temporary Items
 
 .idea/
 pkgs/
-src/debug/
-src/release/
+debug/
+release/
 
 *.yaml
 *.db
