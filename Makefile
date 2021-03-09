@@ -9,11 +9,7 @@ release debug:
 
 .PHONY: clean
 clean:
-	$(RM) -r src/release src/debug
-
-.PHONY: upgrade
-upgrade:
-	docker pull buildpack-deps:curl
+	$(RM) -r release debug
 
 .PHONY: image
 image:

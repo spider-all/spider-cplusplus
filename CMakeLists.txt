@@ -11,6 +11,16 @@ project(spider)
 FILE(GLOB source src/*.cc src/application/*.cc src/database/*.cc)
 add_executable(spider ${source})
 
+if (UNIX AND NOT APPLE)
+  target_link_libraries(spider PRIVATE stdc++fs)
+endif ()
+
+target_link_libraries(spider PRIVATE stdc++ pthread dl)
+
+if (CMAKE_BUILD_TYPE STREQUAL release)
+  add_custom_command(TARGET spider POST_BUILD COMMAND strip spider)
+endif ()
+
 find_package(CLI11 CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE CLI11::CLI11)
 
@@ -56,12 +66,6 @@ target_link_libraries(spider PRIVATE leveldb::leveldb)
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libhiredis.a)
 
 target_include_directories(spider PRIVATE src/include)
-
-target_link_libraries(spider PRIVATE pthread dl z)
-
-if (CMAKE_BUILD_TYPE STREQUAL release)
-  add_custom_command(TARGET spider POST_BUILD COMMAND strip spider)
-endif ()
 
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")
