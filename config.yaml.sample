@@ -6,3 +6,7 @@ token: github_token
 database:
   path: ./data/spider.db
   type: sqlite3
+  host: ""
+  port: 0
+
+  aws_region: ap-east-1

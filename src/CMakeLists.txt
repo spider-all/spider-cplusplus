@@ -3,13 +3,25 @@ cmake_minimum_required(VERSION 3.10.0)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_TOOLCHAIN_FILE ../pkgs/scripts/buildsystems/vcpkg.cmake)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall -fsanitize=address,signed-integer-overflow")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Os")
 
 project(spider)
 
 FILE(GLOB source *.cc application/*.cc database/*.cc)
 add_executable(spider ${source})
+
+find_package(aws-cpp-sdk-core CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE aws-cpp-sdk-core)
+
+find_package(aws-cpp-sdk-dynamodb CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE aws-cpp-sdk-dynamodb)
+
+find_package(aws-cpp-sdk-kinesis CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE aws-cpp-sdk-kinesis)
+
+find_package(aws-cpp-sdk-s3 CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE aws-cpp-sdk-s3)
 
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
