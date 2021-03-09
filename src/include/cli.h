@@ -9,5 +9,5 @@
 
 class CommandLine {
 public:
-  static char *cli(int argc, char *argv[]);
+  static std::string cli(int argc, char *argv[]);
 };

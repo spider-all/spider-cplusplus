@@ -9,10 +9,10 @@
 
 #include <application/request.h>
 #include <application/server.h>
+#include <database/dynamo.h>
 #include <database/level.h>
 #include <database/redis.h>
 #include <database/sqlite.h>
-#include <database/dynamo.h>
 
 bool keep_running = true; // test keep running
 
@@ -21,7 +21,7 @@ void callback(int) {
   keep_running = false;
 }
 
-const std::string default_config = "./config.yaml";
+const std::string default_config = "./etc/config.yaml";
 
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
@@ -44,15 +44,19 @@ Database *switcher(const Config &config) {
 }
 
 int main(int argc, char *argv[]) {
-  char *config_path = CommandLine::cli(argc, argv);
-  int code = 0;
-  Config config;
-  if (config_path == nullptr) {
-    code = config.initialize(default_config.c_str());
-  } else {
-    code = config.initialize(config_path);
+  std::string config_path = CommandLine::cli(argc, argv);
+
+  if (config_path.empty()) {
+    config_path = default_config;
   }
 
+  if (!std::filesystem::exists(config_path)) {
+    spdlog::error("no such a file: {}", config_path);
+    return EXIT_FAILURE;
+  }
+
+  Config config;
+  int code = config.initialize(default_config.c_str());
   if (code != 0) {
     spdlog::error("Parse config with error: {}", code);
     return EXIT_FAILURE;
