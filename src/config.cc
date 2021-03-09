@@ -1,6 +1,6 @@
 #include <config.h>
 
-int Config::config(char *config_path) {
+int Config::initialize(const char *config_path) {
   YAML::Node config = YAML::LoadFile(config_path);
   crawler_entry_username = config["name"].as<std::string>();
   crawler_token = config["token"].as<std::string>();
@@ -11,6 +11,7 @@ int Config::config(char *config_path) {
   database_type = config["database"]["type"].as<std::string>();
   database_host = config["database"]["host"].as<std::string>();
   database_port = config["database"]["port"].as<int>();
+  database_aws_region = config["database"]["aws_region"].as<std::string>();
 
   if (crawler_entry_username.empty() || crawler_token.empty()) {
     spdlog::error("Config {0} have not the import value.", config_path);

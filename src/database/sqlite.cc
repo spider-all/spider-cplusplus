@@ -1,4 +1,4 @@
-#include <database/dbsqlite.h>
+#include <database/sqlite.h>
 
 DBSQLite::DBSQLite(const std::string &path) {
   try {

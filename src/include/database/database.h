@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <SQLiteCpp/SQLiteCpp.h>
+#include <aws/dynamodb/DynamoDBClient.h>
 #include <hiredis/hiredis.h>
 #include <leveldb/db.h>
 
@@ -11,9 +12,10 @@
 class Database {
 public:
   struct db {
-    leveldb::DB *rocksdb;
+    leveldb::DB *leveldb;
     SQLite::Database *sqlite;
     redisContext *redis;
+    Aws::DynamoDB::DynamoDBClient *dynamo;
   } db{};
   int code = 0;
   virtual ~Database() = default;
