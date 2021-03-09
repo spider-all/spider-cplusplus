@@ -35,7 +35,7 @@ FROM debian:buster
 
 WORKDIR /app
 
-COPY config.yaml.sample /app/etc/config.yaml
+COPY etc/config.yaml.sample etc/config.yaml
 COPY --from=builder /app/src/release/spider .
 
 VOLUME "/app/etc"
