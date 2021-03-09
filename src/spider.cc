@@ -2,9 +2,9 @@
 #include <iostream>
 #include <thread>
 
+#include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 
-#include <cli.h>
 #include <config.h>
 
 #include <application/request.h>
@@ -13,6 +13,10 @@
 #include <database/level.h>
 #include <database/redis.h>
 #include <database/sqlite.h>
+
+#define SPIDER_VERSION_MAJOR 1
+#define SPIDER_VERSION_MINOR 2
+#define SPIDER_VERSION_PATCH 0
 
 bool keep_running = true; // test keep running
 
@@ -43,8 +47,12 @@ Database *switcher(const Config &config) {
   return ret;
 }
 
-int main(int argc, char *argv[]) {
-  std::string config_path = CommandLine::cli(argc, argv);
+int main(int argc, char const *argv[]) {
+  CLI::App app{"GitHub Spider"};
+  app.set_version_flag("--version", std::string(CLI11_VERSION));
+  std::string config_path;
+  app.add_option("-c,--config", config_path, "config path");
+  CLI11_PARSE(app, argc, argv);
 
   if (config_path.empty()) {
     config_path = default_config;

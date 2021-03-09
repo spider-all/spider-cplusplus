@@ -1,7 +1,7 @@
 FROM buildpack-deps:stable as dep
 
 ARG VERSION=2020.11-1
-ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json sqlitecpp sqlite3 hiredis[ssl] leveldb curl[ssl] cpp-httplib aws-sdk-cpp[dynamodb]"
+ARG DEPS="openssl zlib yaml-cpp spdlog nlohmann-json sqlitecpp sqlite3 hiredis[ssl] leveldb curl[ssl] cpp-httplib aws-sdk-cpp[dynamodb] cli11"
 
 WORKDIR /app
 

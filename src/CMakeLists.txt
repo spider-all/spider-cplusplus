@@ -11,6 +11,9 @@ project(spider)
 FILE(GLOB source *.cc application/*.cc database/*.cc)
 add_executable(spider ${source})
 
+find_package(CLI11 CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE CLI11::CLI11)
+
 find_package(aws-cpp-sdk-core CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE aws-cpp-sdk-core)
 
