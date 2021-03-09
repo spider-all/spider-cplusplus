@@ -9,9 +9,10 @@
 
 #include <application/request.h>
 #include <application/server.h>
-#include <database/dblevel.h>
-#include <database/dbredis.h>
-#include <database/dbsqlite.h>
+#include <database/level.h>
+#include <database/redis.h>
+#include <database/sqlite.h>
+#include <database/dynamo.h>
 
 bool keep_running = true; // test keep running
 
@@ -19,6 +20,8 @@ void callback(int) {
   std::cout << std::endl; // output a new line after CTRL-C
   keep_running = false;
 }
+
+const std::string default_config = "./config.yaml";
 
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
@@ -28,6 +31,8 @@ Database *switcher(const Config &config) {
     ret = new DBRedis(config.database_host, config.database_port);
   } else if (config.database_type == "leveldb") {
     ret = new DBLevel(config.database_path);
+  } else if (config.database_type == "dynamo") {
+    ret = new DynamoDB(config.database_aws_region);
   }
   if (ret == nullptr) {
     return nullptr;
@@ -40,12 +45,14 @@ Database *switcher(const Config &config) {
 
 int main(int argc, char *argv[]) {
   char *config_path = CommandLine::cli(argc, argv);
+  int code = 0;
+  Config config;
   if (config_path == nullptr) {
-    return EXIT_SUCCESS;
+    code = config.initialize(default_config.c_str());
+  } else {
+    code = config.initialize(config_path);
   }
 
-  Config config;
-  int code = config.config(config_path);
   if (code != 0) {
     spdlog::error("Parse config with error: {}", code);
     return EXIT_FAILURE;
@@ -61,6 +68,8 @@ int main(int argc, char *argv[]) {
     spdlog::error("Initialize database with error: {}", code);
     return EXIT_FAILURE;
   }
+
+  return 0;
 
   Application *request = new Request(config, database);
 

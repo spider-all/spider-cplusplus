@@ -1,4 +1,4 @@
-#include <database/dbredis.h>
+#include <database/redis.h>
 
 DBRedis::DBRedis(const std::string &host, int port) {
   struct timeval timeout = {1, 500000};

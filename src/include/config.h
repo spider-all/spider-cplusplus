@@ -18,11 +18,12 @@ public:
   std::string database_type;
   std::string database_host;
   int database_port;
+  std::string database_aws_region;
 
   std::string crawler_entry_username; // entry user name
   std::string crawler_token;          // client id
   std::string crawler_useragent;      // useragent
   std::string crawler_timezone;       // timezone
 
-  int config(char *config_path);
+  int initialize(const char *config_path);
 };
