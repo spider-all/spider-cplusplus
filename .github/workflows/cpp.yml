@@ -12,10 +12,29 @@ on:
       - main
 
 jobs:
-  build:
+  image:
+    name: Image builder
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Compile docker image
         run: make image
+  build:
+    name: Native builder
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install packages
+        run: sudo apt-get install ccache
+      - name: Install deps
+        run: |
+          vcpkg install openssl zlib yaml-cpp spdlog nlohmann-json sqlitecpp sqlite3 hiredis[ssl] leveldb curl[ssl] cpp-httplib aws-sdk-cpp[dynamodb] cli11
+          vcpkg export openssl zlib yaml-cpp spdlog nlohmann-json sqlitecpp sqlite3 hiredis[ssl] leveldb curl[ssl] cpp-httplib aws-sdk-cpp[dynamodb] cli11 --raw --output=pkgs --output-dir=.
+      - name: Compile
+        run: make debug release
