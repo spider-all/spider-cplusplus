@@ -113,15 +113,19 @@ int Request::request(const std::string &url, enum request_type type) {
   for (const auto &header : response->headers) {
     if (header.first == "X-RateLimit-Limit") {
       rate_limit_limit = std::stoi(header.second, nullptr);
-    } else if (header.first == "X-RateLimit-Reset")
+    } else if (header.first == "X-RateLimit-Reset") {
       rate_limit_reset = std::stoi(header.second);
-    else if (header.first == "X-RateLimit-Remaining")
+    } else if (header.first == "X-RateLimit-Remaining") {
       rate_limit_remaining = std::stoi(header.second);
+    }
   }
 
   if (rate_limit_remaining % 10 == 0) {
-    std::time_t result = rate_limit_remaining;
-    spdlog::info("Rate limit: {}/{}, reset at: {}(UTC)", rate_limit_remaining, rate_limit_limit, std::asctime(std::localtime(&result)));
+    spdlog::info("Rate limit: {}/{}", rate_limit_remaining, rate_limit_limit);
+    std::time_t result = rate_limit_reset;
+    char buffer[32];
+    std::strftime(buffer, 32, "%Y/%m/%d %H:%M:%S", std::localtime(&result));
+    spdlog::info("Rate limit reset at: {}", buffer);
   }
 
   if (response->status == 403) {
