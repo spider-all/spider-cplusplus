@@ -4,8 +4,9 @@ all: debug
 
 release debug:
 	if [ ! -d $@ ]; then mkdir $@; fi
-	cd $@ && cmake -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-	-DCMAKE_BUILD_TYPE=$@ .. && cmake --build .
+	cd $@ && \
+	cmake -DCMAKE_BUILD_TYPE=$@ .. && \
+	cmake --build . -j 6
 
 .PHONY: clean
 clean:
