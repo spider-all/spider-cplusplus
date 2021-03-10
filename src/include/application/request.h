@@ -42,7 +42,9 @@ private:
   std::string url_host = "api.github.com";
   std::string url_prefix = "https://" + url_host;
 
-  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36";
+  const std::string USERAGENT =
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
 
 public:

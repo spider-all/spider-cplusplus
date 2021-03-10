@@ -16,9 +16,11 @@ int DynamoDB::initialize() {
   Aws::DynamoDB::Model::DescribeTableRequest dtr;
   dtr.SetTableName(Aws::String(database_users));
 
-  const Aws::DynamoDB::Model::DescribeTableOutcome &result = db.dynamo->DescribeTable(dtr);
+  const Aws::DynamoDB::Model::DescribeTableOutcome &result =
+      db.dynamo->DescribeTable(dtr);
   if (result.IsSuccess()) {
-    spdlog::info("Table {} exist!", result.GetResult().GetTable().GetTableName());
+    spdlog::info("Table {} exist!",
+                 result.GetResult().GetTable().GetTableName());
   } else {
     Aws::DynamoDB::Model::CreateTableRequest req;
 
@@ -39,9 +41,11 @@ int DynamoDB::initialize() {
 
     req.SetTableName(Aws::String(database_users));
 
-    const Aws::DynamoDB::Model::CreateTableOutcome &res = db.dynamo->CreateTable(req);
+    const Aws::DynamoDB::Model::CreateTableOutcome &res =
+        db.dynamo->CreateTable(req);
     if (res.IsSuccess()) {
-      spdlog::info("Table {} created!", res.GetResult().GetTableDescription().GetTableName());
+      spdlog::info("Table {} created!",
+                   res.GetResult().GetTableDescription().GetTableName());
     } else {
       spdlog::info("Failed to create table: {}", res.GetError().GetMessage());
     }
@@ -140,10 +144,12 @@ std::vector<std::string> DynamoDB::list_users() {
 
   const Aws::DynamoDB::Model::ScanOutcome &result = db.dynamo->Scan(req);
   if (result.IsSuccess()) {
-    const Aws::Vector<Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>> &items = result.GetResult().GetItems();
+    const Aws::Vector<
+        Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>> &items =
+        result.GetResult().GetItems();
     if (!items.empty()) {
       for (const auto &item : items) {
-        for (const auto& i : item){
+        for (const auto &i : item) {
           if (i.first == "login") {
             users.push_back(i.second.GetS());
           }
@@ -154,7 +160,10 @@ std::vector<std::string> DynamoDB::list_users() {
     spdlog::error(result.GetError().GetMessage());
   }
 
-  std::shuffle(users.begin(), users.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
+  std::shuffle(
+      users.begin(), users.end(),
+      std::default_random_engine(
+          std::chrono::system_clock::now().time_since_epoch().count()));
 
   if (users.size() > 100) {
     users.resize(100);
@@ -169,9 +178,11 @@ int DynamoDB::count_user() {
   req.SetTableName(database_users);
   const Aws::DynamoDB::Model::ScanOutcome &result = db.dynamo->Scan(req);
   if (result.IsSuccess()) {
-    const Aws::Vector<Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>> items = result.GetResult().GetItems();
+    const Aws::Vector<
+        Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>>
+        items = result.GetResult().GetItems();
     count = items.size();
-  }else {
+  } else {
     spdlog::error(result.GetError().GetMessage());
   }
   return count;

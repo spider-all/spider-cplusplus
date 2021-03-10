@@ -47,7 +47,8 @@ Database *switcher(const Config &config) {
 
 int main(int argc, char const *argv[]) {
   std::ostringstream version;
-  version << SPIDER_VERSION_MAJOR << "." << SPIDER_VERSION_MINOR << "." << SPIDER_VERSION_PATCH;
+  version << SPIDER_VERSION_MAJOR << "." << SPIDER_VERSION_MINOR << "."
+          << SPIDER_VERSION_PATCH;
 
   CLI::App app{"GitHub Spider"};
   app.set_version_flag("--version", version.str());

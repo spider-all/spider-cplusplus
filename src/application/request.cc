@@ -129,11 +129,17 @@ int Request::request(const std::string &url, enum request_type type) {
   }
 
   if (response->status == 403) {
-    auto current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    auto current = std::chrono::duration_cast<std::chrono::seconds>(
+                       std::chrono::system_clock::now().time_since_epoch())
+                       .count();
     for (;;) {
-      spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
+      spdlog::info("Wait for another {}s to request due to rate limit, "
+                   "X-RateLimit-Reset: {}",
+                   rate_limit_reset - current, rate_limit_reset);
       std::this_thread::sleep_for(std::chrono::seconds(30));
-      current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      current = std::chrono::duration_cast<std::chrono::seconds>(
+                    std::chrono::system_clock::now().time_since_epoch())
+                    .count();
       if (rate_limit_reset - current <= 0) {
         break;
       }
@@ -142,7 +148,8 @@ int Request::request(const std::string &url, enum request_type type) {
   }
 
   if (response->status != 200) {
-    spdlog::error("Got {} on request url: {}, {}", response->status, url, response->body);
+    spdlog::error("Got {} on request url: {}, {}", response->status, url,
+                  response->body);
     return REQUEST_ERROR;
   }
 
@@ -153,20 +160,23 @@ int Request::request(const std::string &url, enum request_type type) {
   nlohmann::json content;
 
   try {
-    nlohmann::json::parser_callback_t cb = [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
-      if (event == nlohmann::json::parse_event_t::key) {
-        std::string str = parsed.dump();
-        str.erase(str.begin(), str.begin() + 1);
-        str.erase(str.end() - 1, str.end());
-        if (Common::end_with(str, "_url") or str == "url") {
-          return false;
-        }
-      } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
-        parsed = nlohmann::json("");
-        return true;
-      }
-      return true;
-    };
+    nlohmann::json::parser_callback_t cb =
+        [=](int /*depth*/, nlohmann::json::parse_event_t event,
+            nlohmann::json &parsed) {
+          if (event == nlohmann::json::parse_event_t::key) {
+            std::string str = parsed.dump();
+            str.erase(str.begin(), str.begin() + 1);
+            str.erase(str.end() - 1, str.end());
+            if (Common::end_with(str, "_url") or str == "url") {
+              return false;
+            }
+          } else if (event == nlohmann::json::parse_event_t::value &&
+                     parsed.dump() == "null") {
+            parsed = nlohmann::json("");
+            return true;
+          }
+          return true;
+        };
     content = nlohmann::json::parse(response->body, cb);
   } catch (nlohmann::detail::parse_error &e) {
     spdlog::error("Request {} got error: {}", url.c_str(), e.what());
@@ -179,7 +189,8 @@ int Request::request(const std::string &url, enum request_type type) {
   case request_type_following:
   case request_type_followers:
     for (auto i : content) {
-      code = request("/users/" + i["login"].get<std::string>(), request_type_userinfo);
+      code = request("/users/" + i["login"].get<std::string>(),
+                     request_type_userinfo);
       if (code != 0) {
         spdlog::error("Request userinfo with error: {}", code);
       }
@@ -219,7 +230,8 @@ int Request::request(const std::string &url, enum request_type type) {
     return UNKNOWN_REQUEST_TYPE;
   }
 
-  std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
+  std::regex pieces_regex(
+      R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
   std::string header = response->headers.find("Link")->second;
   while (regex_search(header, result, pieces_regex)) {
