@@ -5,6 +5,6 @@
 
 class Application {
 public:
-  virtual ~Application()= default;;
+  virtual ~Application() = default;
   virtual int startup() = 0;
 };

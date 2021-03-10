@@ -7,9 +7,7 @@ DBLevel::DBLevel(const std::string &path) {
   status = leveldb::DB::Open(options, path, &db.leveldb);
 }
 
-DBLevel::~DBLevel() {
-  delete db.leveldb;
-}
+DBLevel::~DBLevel() { delete db.leveldb; }
 
 int DBLevel::initialize() {
   if (!status.ok()) {
@@ -22,82 +20,100 @@ int DBLevel::initialize() {
 int DBLevel::create_user(user user) {
   std::string userId = std::to_string(user.id);
 
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:id:" + userId, userId);
+  status =
+      db.leveldb->Put(leveldb::WriteOptions(), "user:id:" + userId, userId);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:login:" + userId, user.login);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:login:" + userId,
+                           user.login);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:node_id:" + userId, user.node_id);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:node_id:" + userId,
+                           user.node_id);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:type:" + userId, user.type);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:type:" + userId,
+                           user.type);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:name:" + userId, user.name);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:name:" + userId,
+                           user.name);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:company:" + userId, user.company);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:company:" + userId,
+                           user.company);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:location:" + userId, user.location);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:location:" + userId,
+                           user.location);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:email:" + userId, user.email);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:email:" + userId,
+                           user.email);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:hireable:" + userId, user.hireable ? "1" : "0");
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:hireable:" + userId,
+                           user.hireable ? "1" : "0");
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:bio:" + userId, user.bio);
+  status =
+      db.leveldb->Put(leveldb::WriteOptions(), "user:bio:" + userId, user.bio);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:created_at:" + userId, user.created_at);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:created_at:" + userId,
+                           user.created_at);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:updated_at:" + userId, user.updated_at);
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:updated_at:" + userId,
+                           user.updated_at);
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:public_gists:" + userId, std::to_string(user.public_gists));
+  status =
+      db.leveldb->Put(leveldb::WriteOptions(), "user:public_gists:" + userId,
+                      std::to_string(user.public_gists));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:public_repos:" + userId, std::to_string(user.public_repos));
+  status =
+      db.leveldb->Put(leveldb::WriteOptions(), "user:public_repos:" + userId,
+                      std::to_string(user.public_repos));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:following:" + userId, std::to_string(user.following));
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:following:" + userId,
+                           std::to_string(user.following));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
   }
-  status = db.leveldb->Put(leveldb::WriteOptions(), "user:followers:" + userId, std::to_string(user.followers));
+  status = db.leveldb->Put(leveldb::WriteOptions(), "user:followers:" + userId,
+                           std::to_string(user.followers));
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
@@ -109,12 +125,16 @@ int DBLevel::create_user(user user) {
 std::vector<std::string> DBLevel::list_users() {
   std::vector<std::string> users;
   leveldb::Iterator *iter = db.leveldb->NewIterator(leveldb::ReadOptions());
-  for (iter->Seek("user:login:"); iter->Valid() && iter->key().starts_with("user:login:"); iter->Next()) {
+  for (iter->Seek("user:login:");
+       iter->Valid() && iter->key().starts_with("user:login:"); iter->Next()) {
     users.push_back(iter->value().ToString());
   }
   delete iter;
 
-  std::shuffle(users.begin(), users.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
+  std::shuffle(
+      users.begin(), users.end(),
+      std::default_random_engine(
+          std::chrono::system_clock::now().time_since_epoch().count()));
 
   if (users.size() > 100) {
     users.resize(100);
@@ -123,6 +143,4 @@ std::vector<std::string> DBLevel::list_users() {
   return users;
 }
 
-int DBLevel::count_user() {
-  return 0;
-}
+int DBLevel::count_user() { return 0; }

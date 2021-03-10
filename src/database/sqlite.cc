@@ -2,7 +2,9 @@
 
 DBSQLite::DBSQLite(const std::string &path) {
   try {
-    unsigned flags = unsigned(SQLite::OPEN_CREATE) | unsigned(SQLite::OPEN_READWRITE) | unsigned(SQLite::OPEN_FULLMUTEX);
+    unsigned flags = unsigned(SQLite::OPEN_CREATE) |
+                     unsigned(SQLite::OPEN_READWRITE) |
+                     unsigned(SQLite::OPEN_FULLMUTEX);
     db.sqlite = new SQLite::Database(path, int(flags));
   } catch (std::exception &e) {
     spdlog::error("Open database with error: {}", e.what());
@@ -10,9 +12,7 @@ DBSQLite::DBSQLite(const std::string &path) {
   }
 }
 
-DBSQLite::~DBSQLite() {
-  delete db.sqlite;
-}
+DBSQLite::~DBSQLite() { delete db.sqlite; }
 
 int DBSQLite::initialize() {
   const std::string CreateSentence[] = {
@@ -48,13 +48,20 @@ int DBSQLite::initialize() {
 }
 
 int DBSQLite::create_user(user user) {
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
+  auto *query = new SQLite::Statement(
+      *db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
   query->bind(1, user.id);
   std::string create_sql;
   if (query->executeStep()) {
-    create_sql = "UPDATE `users` SET `id` = ?, `login` = ?, `node_id` = ?, `type` = ?, `name` = ?, `company` = ?, `blog` = ?, `location` = ?, `email` = ?, `hireable` = ?, `bio` = ?, `created_at` = ?, `updated_at` = ?, `public_gists` = ?, `public_repos` = ?, `following` = ?, `followers` = ? WHERE `id` = ?";
+    create_sql =
+        "UPDATE `users` SET `id` = ?, `login` = ?, `node_id` = ?, `type` = ?, "
+        "`name` = ?, `company` = ?, `blog` = ?, `location` = ?, `email` = ?, "
+        "`hireable` = ?, `bio` = ?, `created_at` = ?, `updated_at` = ?, "
+        "`public_gists` = ?, `public_repos` = ?, `following` = ?, `followers` "
+        "= ? WHERE `id` = ?";
   } else {
-    create_sql = "INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    create_sql = "INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                 "?, ?, ?, ?, ?, ?)";
   }
 
   auto *create_st = new SQLite::Statement(*db.sqlite, create_sql);
@@ -97,7 +104,8 @@ int DBSQLite::create_user(user user) {
 
 std::vector<std::string> DBSQLite::list_users() {
   std::vector<std::string> users;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
+  auto *query = new SQLite::Statement(
+      *db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
   try {
     while (query->executeStep()) {
       std::string name = query->getColumn(0);
@@ -112,7 +120,8 @@ std::vector<std::string> DBSQLite::list_users() {
 
 int DBSQLite::count_user() {
   int count = 0;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(*) FROM `users`");
+  auto *query =
+      new SQLite::Statement(*db.sqlite, "SELECT COUNT(*) FROM `users`");
   try {
     while (query->executeStep()) {
       count = query->getColumn(0);
