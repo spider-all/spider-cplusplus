@@ -34,7 +34,8 @@ jobs:
         run: sudo apt-get install ccache
       - name: Install deps
         run: |
-          vcpkg install openssl zlib yaml-cpp spdlog nlohmann-json sqlitecpp sqlite3 hiredis[ssl] leveldb curl[ssl] cpp-httplib aws-sdk-cpp[dynamodb] cli11
-          vcpkg export openssl zlib yaml-cpp spdlog nlohmann-json sqlitecpp sqlite3 hiredis[ssl] leveldb curl[ssl] cpp-httplib aws-sdk-cpp[dynamodb] cli11 --raw --output=pkgs --output-dir=.
+          export DEPS=$(jq --raw-output '.dependencies | keys | join(" ")' package.json| tr -d "")
+          vcpkg install ${DEPS}
+          vcpkg export ${DEPS} --raw --output=pkgs --output-dir=.
       - name: Compile
         run: make debug release
