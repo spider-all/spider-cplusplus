@@ -25,8 +25,6 @@ void callback(int) {
   keep_running = false;
 }
 
-const std::string default_config = "./etc/config.yaml";
-
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
   if (config.database_type == "sqlite3") {
@@ -48,12 +46,16 @@ Database *switcher(const Config &config) {
 }
 
 int main(int argc, char const *argv[]) {
+  std::ostringstream version;
+  version << SPIDER_VERSION_MAJOR << "." << SPIDER_VERSION_MINOR << "." << SPIDER_VERSION_PATCH;
+
   CLI::App app{"GitHub Spider"};
-  app.set_version_flag("--version", std::string(CLI11_VERSION));
+  app.set_version_flag("--version", version.str());
   std::string config_path;
   app.add_option("-c,--config", config_path, "config path");
   CLI11_PARSE(app, argc, argv);
 
+  const std::string default_config = "./etc/config.yaml";
   if (config_path.empty()) {
     config_path = default_config;
   }
@@ -80,8 +82,6 @@ int main(int argc, char const *argv[]) {
     spdlog::error("Initialize database with error: {}", code);
     return EXIT_FAILURE;
   }
-
-  return 0;
 
   Application *request = new Request(config, database);
 
