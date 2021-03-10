@@ -1,0 +1,28 @@
+{
+  "name": "spider",
+  "dependencies": {
+    "zlib": "1.2.11",
+    "openssl": "1.1.1",
+    "yaml-cpp": "0.6.3",
+    "spdlog": "1.8.0",
+    "nlohmann-json": "3.9.1",
+    "sqlitecpp": "3.1.1",
+    "sqlite3": "3.33.0",
+    "hiredis[ssl]": "2019-11-2",
+    "leveldb": "1.22-1",
+    "curl[ssl]": "7.73.0",
+    "cpp-httplib": "0.7.0",
+    "aws-sdk-cpp[dynamodb]": "1.8.4",
+    "cli11": "1.9.1"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Tosone",
+    "email": "i@tosone.cn",
+    "url": "https://tosone.cn"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spider-all/spider-cplusplus"
+  }
+}
