@@ -115,6 +115,11 @@ std::vector<std::string> DBLevel::list_users() {
   delete iter;
 
   std::shuffle(users.begin(), users.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
+
+  if (users.size() > 100) {
+    users.resize(100);
+  }
+
   return users;
 }
 

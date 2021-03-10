@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <random>
 
 #include <aws/core/Aws.h>
 #include <aws/core/utils/Outcome.h>
@@ -11,11 +12,13 @@
 #include <aws/dynamodb/model/AttributeDefinition.h>
 #include <aws/dynamodb/model/CreateTableRequest.h>
 #include <aws/dynamodb/model/DescribeTableRequest.h>
+#include <aws/dynamodb/model/GetItemRequest.h>
 #include <aws/dynamodb/model/KeySchemaElement.h>
 #include <aws/dynamodb/model/ProvisionedThroughput.h>
 #include <aws/dynamodb/model/PutItemRequest.h>
 #include <aws/dynamodb/model/PutItemResult.h>
 #include <aws/dynamodb/model/ScalarAttributeType.h>
+#include <aws/dynamodb/model/ScanRequest.h>
 #include <spdlog/spdlog.h>
 
 #pragma once
