@@ -1,7 +1,9 @@
 app_name = spider
 
+.PHONY: all
 all: debug
 
+.PHONY: release debug
 release debug:
 	if [ ! -d $@ ]; then mkdir $@; fi
 	cd $@ && \
