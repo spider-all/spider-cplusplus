@@ -143,4 +143,4 @@ std::vector<std::string> DBLevel::list_users() {
   return users;
 }
 
-int DBLevel::count_user() { return 0; }
+int64_t DBLevel::count_user() { return 0; }

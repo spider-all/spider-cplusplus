@@ -118,8 +118,8 @@ std::vector<std::string> DBSQLite::list_users() {
   return users;
 }
 
-int DBSQLite::count_user() {
-  int count = 0;
+int64_t DBSQLite::count_user() {
+  int64_t count = 0;
   auto *query =
       new SQLite::Statement(*db.sqlite, "SELECT COUNT(*) FROM `users`");
   try {

@@ -154,4 +154,4 @@ std::vector<std::string> DBRedis::list_users() {
   return users;
 }
 
-int DBRedis::count_user() { return 0; }
+int64_t DBRedis::count_user() { return 0; }
