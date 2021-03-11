@@ -1,7 +1,6 @@
-app_name = spider
 deps     = $(shell jq --raw-output '.deps | join(" ")' package.json | tr -d "")
 version  = $(shell jq --raw-output '.version' package.json | tr -d "")
-vcpkg    ?= vcpkg
+vcpkg   ?= vcpkg
 
 .PHONY: build
 build: debug
@@ -21,10 +20,6 @@ deps:
 .PHONY: image
 image:
 	docker-compose build spider
-
-.PHONY: docker-run
-docker-run:
-	docker-compose run --rm --name $(app_name) $(app_name)
 
 .PHONY: clean
 clean:

@@ -18,7 +18,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
   ./bootstrap-vcpkg.sh && \
   cd .. && \
   env vcpkg=vcpkg-${VERSION}/vcpkg make deps && \
-  rm -rf vcpkg-${VERSION} ${VERSION}.tar.gz pkgs.zip
+  rm -rf vcpkg-${VERSION} ${VERSION}.tar.gz
 
 FROM buildpack-deps:stable as builder
 
