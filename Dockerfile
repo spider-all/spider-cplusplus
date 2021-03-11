@@ -7,19 +7,17 @@ WORKDIR /app
 # RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
 #   sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
 
-COPY package.json .
+COPY . .
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
   bison flex cmake unzip zip wget jq && \
   rm -rf /var/lib/apt/lists/* && \
-  export DEPS="$(jq --raw-output '.dependencies | keys | join(" ")' package.json| tr -d "")" && \
   wget https://github.com/microsoft/vcpkg/archive/${VERSION}.tar.gz && \
   tar zxvf ${VERSION}.tar.gz && \
   cd vcpkg-${VERSION} && \
   ./bootstrap-vcpkg.sh && \
-  ./vcpkg install ${DEPS} && \
-  ./vcpkg list && ./vcpkg export ${DEPS} --raw --output=pkgs --output-dir=/app && \
   cd .. && \
+  env vcpkg=vcpkg-${VERSION}/vcpkg make deps && \
   rm -rf vcpkg-${VERSION} ${VERSION}.tar.gz pkgs.zip
 
 FROM buildpack-deps:stable as builder
