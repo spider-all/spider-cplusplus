@@ -2,19 +2,19 @@
 
 using namespace Aws::DynamoDB::Model;
 
-DynamoDB::DynamoDB(const std::string &region) {
+Dynamo::Dynamo(const std::string &region) {
   Aws::InitAPI(options);
   Aws::Client::ClientConfiguration clientConfig;
   clientConfig.region = region;
   db.dynamo = new Aws::DynamoDB::DynamoDBClient(clientConfig);
 }
 
-DynamoDB::~DynamoDB() {
+Dynamo::~Dynamo() {
   delete db.dynamo;
   Aws::ShutdownAPI(options);
 }
 
-int DynamoDB::initialize() {
+int Dynamo::initialize() {
   DescribeTableRequest dtr;
   dtr.SetTableName(Aws::String(database_users));
 
@@ -49,7 +49,7 @@ int DynamoDB::initialize() {
   return EXIT_SUCCESS;
 }
 
-int DynamoDB::create_user(user user) {
+int Dynamo::create_user(user user) {
   std::string user_id = std::to_string(user.id);
 
   PutItemRequest pir;
@@ -132,7 +132,7 @@ int DynamoDB::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> DynamoDB::list_users() {
+std::vector<std::string> Dynamo::list_users() {
   std::vector<std::string> users{};
 
   ScanRequest req;
@@ -164,7 +164,7 @@ std::vector<std::string> DynamoDB::list_users() {
   return users;
 }
 
-int64_t DynamoDB::count_user() {
+int64_t Dynamo::count_user() {
   int64_t count = 0;
 
   DescribeTableRequest dtr;

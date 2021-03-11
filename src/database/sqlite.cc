@@ -1,6 +1,6 @@
-#include <database/sqlite.h>
+#include <database/sqlite3.h>
 
-DBSQLite::DBSQLite(const std::string &path) {
+SQLite3::SQLite3(const std::string &path) {
   try {
     unsigned flags = unsigned(SQLite::OPEN_CREATE) |
                      unsigned(SQLite::OPEN_READWRITE) |
@@ -12,9 +12,9 @@ DBSQLite::DBSQLite(const std::string &path) {
   }
 }
 
-DBSQLite::~DBSQLite() { delete db.sqlite; }
+SQLite3::~SQLite3() { delete db.sqlite; }
 
-int DBSQLite::initialize() {
+int SQLite3::initialize() {
   const std::string CreateSentence[] = {
       "CREATE TABLE IF NOT EXISTS `users` ("
       "`id` NUMERIC NOT NULL PRIMARY KEY, "
@@ -47,7 +47,7 @@ int DBSQLite::initialize() {
   return EXIT_SUCCESS;
 }
 
-int DBSQLite::create_user(user user) {
+int SQLite3::create_user(user user) {
   auto *query = new SQLite::Statement(
       *db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
   query->bind(1, user.id);
@@ -102,7 +102,7 @@ int DBSQLite::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> DBSQLite::list_users() {
+std::vector<std::string> SQLite3::list_users() {
   std::vector<std::string> users;
   auto *query = new SQLite::Statement(
       *db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
@@ -118,10 +118,9 @@ std::vector<std::string> DBSQLite::list_users() {
   return users;
 }
 
-int64_t DBSQLite::count_user() {
+int64_t SQLite3::count_user() {
   int64_t count = 0;
-  auto *query =
-      new SQLite::Statement(*db.sqlite, "SELECT COUNT(*) FROM `users`");
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(*) FROM `users`");
   try {
     while (query->executeStep()) {
       count = query->getColumn(0);

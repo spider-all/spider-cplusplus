@@ -12,7 +12,7 @@
 #include <database/dynamo.h>
 #include <database/level.h>
 #include <database/redis.h>
-#include <database/sqlite.h>
+#include <database/sqlite3.h>
 
 bool keep_running = true; // test keep running
 
@@ -24,13 +24,13 @@ void callback(int) {
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
   if (config.database_type == "sqlite3") {
-    ret = new DBSQLite(config.database_path);
+    ret = new SQLite3(config.database_path);
   } else if (config.database_type == "redis") {
-    ret = new DBRedis(config.database_host, config.database_port);
+    ret = new Redis(config.database_host, config.database_port);
   } else if (config.database_type == "leveldb") {
-    ret = new DBLevel(config.database_path);
+    ret = new Level(config.database_path);
   } else if (config.database_type == "dynamo") {
-    ret = new DynamoDB(config.database_aws_region);
+    ret = new Dynamo(config.database_aws_region);
   }
   if (ret == nullptr) {
     return nullptr;
