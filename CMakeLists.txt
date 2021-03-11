@@ -7,6 +7,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Os")
 set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 
+add_definitions(-DSPIDER_VERSION=${SPIDER_VERSION})
+
 project(spider)
 
 FILE(GLOB source src/*.cc src/application/*.cc src/database/*.cc)

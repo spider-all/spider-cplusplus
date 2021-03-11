@@ -14,10 +14,6 @@
 #include <database/redis.h>
 #include <database/sqlite.h>
 
-#define SPIDER_VERSION_MAJOR 1
-#define SPIDER_VERSION_MINOR 2
-#define SPIDER_VERSION_PATCH 0
-
 bool keep_running = true; // test keep running
 
 void callback(int) {
@@ -45,13 +41,12 @@ Database *switcher(const Config &config) {
   return ret;
 }
 
-int main(int argc, char const *argv[]) {
-  std::ostringstream version;
-  version << SPIDER_VERSION_MAJOR << "." << SPIDER_VERSION_MINOR << "."
-          << SPIDER_VERSION_PATCH;
+#define STRINGIZE(x) #x
+#define STRINGIZE_VALUE_OF(x) STRINGIZE(x)
 
+int main(int argc, char const *argv[]) {
   CLI::App app{"GitHub Spider"};
-  app.set_version_flag("--version", version.str());
+  app.set_version_flag("--version", STRINGIZE_VALUE_OF(SPIDER_VERSION));
   std::string config_path;
   app.add_option("-c,--config", config_path, "config path");
   CLI11_PARSE(app, argc, argv);

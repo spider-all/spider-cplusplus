@@ -1,5 +1,6 @@
 app_name = spider
-deps     = $(shell jq --raw-output '.dependencies | keys | join(" ")' package.json| tr -d "")
+deps     = $(shell jq --raw-output '.deps | join(" ")' package.json | tr -d "")
+version  = $(shell jq --raw-output '.version' package.json | tr -d "")
 vcpkg    ?= vcpkg
 
 .PHONY: build
@@ -9,7 +10,7 @@ build: debug
 release debug:
 	if [ ! -d $@ ]; then mkdir $@; fi
 	cd $@ && \
-	cmake -DCMAKE_BUILD_TYPE=$@ .. && \
+	cmake -DCMAKE_BUILD_TYPE=$@ -DSPIDER_VERSION=$(version) .. && \
 	cmake --build . -j 6
 
 .PHONY: deps
