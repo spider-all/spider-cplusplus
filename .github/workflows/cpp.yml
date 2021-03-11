@@ -33,9 +33,6 @@ jobs:
       - name: Install packages
         run: sudo apt-get install ccache
       - name: Install deps
-        run: |
-          export DEPS=$(jq --raw-output '.dependencies | keys | join(" ")' package.json| tr -d "")
-          vcpkg install ${DEPS}
-          vcpkg export ${DEPS} --raw --output=pkgs --output-dir=.
+        run: make deps
       - name: Compile
         run: make debug release
