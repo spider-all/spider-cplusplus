@@ -27,12 +27,12 @@
 #include <error.hpp>
 #include <model.h>
 
-class DynamoDB : public Database {
+class Dynamo : public Database {
 public:
   std::string database_users = "github_users";
   Aws::SDKOptions options;
-  explicit DynamoDB(const std::string &);
-  ~DynamoDB() override;
+  explicit Dynamo(const std::string &);
+  ~Dynamo() override;
   int initialize() override;
   int create_user(user) override;
   std::vector<std::string> list_users() override;

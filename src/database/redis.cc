@@ -1,14 +1,14 @@
 #include <database/redis.h>
 
-DBRedis::DBRedis(const std::string &host, int port) {
+Redis::Redis(const std::string &host, int port) {
   struct timeval timeout = {1, 500000};
 
   db.redis = redisConnectWithTimeout(host.c_str(), port, timeout);
 }
 
-DBRedis::~DBRedis() { redisFree(db.redis); }
+Redis::~Redis() { redisFree(db.redis); }
 
-int DBRedis::initialize() {
+int Redis::initialize() {
   if (db.redis == nullptr || db.redis->err) {
     redisFree(db.redis);
     return EXIT_FAILURE;
@@ -16,7 +16,7 @@ int DBRedis::initialize() {
   return EXIT_SUCCESS;
 }
 
-int DBRedis::create_user(user user) {
+int Redis::create_user(user user) {
   std::string userId = std::to_string(user.id);
 
   int code = set_value("user:id:" + userId, userId);
@@ -93,7 +93,7 @@ int DBRedis::create_user(user user) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int DBRedis::set_value(const std::string &key, const std::string &value) {
+int Redis::set_value(const std::string &key, const std::string &value) {
   auto *reply = (redisReply *)redisCommand(db.redis, "SET %s %s", key.c_str(),
                                            value.c_str());
 
@@ -112,7 +112,7 @@ int DBRedis::set_value(const std::string &key, const std::string &value) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int DBRedis::get_value(const std::string &key, std::string *value) {
+int Redis::get_value(const std::string &key, std::string *value) {
   auto *reply = (redisReply *)redisCommand(db.redis, "GET %s", key.c_str());
 
   int code = 0;
@@ -128,7 +128,7 @@ int DBRedis::get_value(const std::string &key, std::string *value) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-std::vector<std::string> DBRedis::list_users() {
+std::vector<std::string> Redis::list_users() {
   mtx.lock();
   std::vector<std::string> users;
   auto *reply = (redisReply *)redisCommand(db.redis, "KEYS user:login:*");
@@ -154,4 +154,4 @@ std::vector<std::string> DBRedis::list_users() {
   return users;
 }
 
-int64_t DBRedis::count_user() { return 0; }
+int64_t Redis::count_user() { return 0; }

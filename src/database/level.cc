@@ -1,15 +1,15 @@
 #include <database/level.h>
 
-DBLevel::DBLevel(const std::string &path) {
+Level::Level(const std::string &path) {
   leveldb::Options options;
   options.create_if_missing = true;
 
   status = leveldb::DB::Open(options, path, &db.leveldb);
 }
 
-DBLevel::~DBLevel() { delete db.leveldb; }
+Level::~Level() { delete db.leveldb; }
 
-int DBLevel::initialize() {
+int Level::initialize() {
   if (!status.ok()) {
     spdlog::info("Database got an error: {}", status.ToString());
     return EXIT_FAILURE;
@@ -17,7 +17,7 @@ int DBLevel::initialize() {
   return EXIT_SUCCESS;
 }
 
-int DBLevel::create_user(user user) {
+int Level::create_user(user user) {
   std::string userId = std::to_string(user.id);
 
   status =
@@ -122,7 +122,7 @@ int DBLevel::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> DBLevel::list_users() {
+std::vector<std::string> Level::list_users() {
   std::vector<std::string> users;
   leveldb::Iterator *iter = db.leveldb->NewIterator(leveldb::ReadOptions());
   for (iter->Seek("user:login:");
@@ -143,4 +143,4 @@ std::vector<std::string> DBLevel::list_users() {
   return users;
 }
 
-int64_t DBLevel::count_user() { return 0; }
+int64_t Level::count_user() { return 0; }

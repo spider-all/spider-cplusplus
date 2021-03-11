@@ -8,13 +8,13 @@
 
 #include <database/database.h>
 
-class DBLevel : public Database {
+class Level : public Database {
 private:
   leveldb::Status status;
 
 public:
-  explicit DBLevel(const std::string &);
-  ~DBLevel() override;
+  explicit Level(const std::string &);
+  ~Level() override;
   int initialize() override;
   int create_user(user) override;
   std::vector<std::string> list_users() override;

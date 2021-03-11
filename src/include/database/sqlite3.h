@@ -14,10 +14,10 @@
 #include <error.hpp>
 #include <model.h>
 
-class DBSQLite : public Database {
+class SQLite3 : public Database {
 public:
-  explicit DBSQLite(const std::string &);
-  ~DBSQLite() override;
+  explicit SQLite3(const std::string &);
+  ~SQLite3() override;
   int initialize() override;
   int create_user(user) override;
   std::vector<std::string> list_users() override;
