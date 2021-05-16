@@ -1,6 +1,6 @@
 FROM buildpack-deps:stable as dep
 
-ARG VERSION=2021.04.30
+ARG VERSION=2021.05.12
 
 WORKDIR /app
 
