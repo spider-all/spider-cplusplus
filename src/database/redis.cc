@@ -93,6 +93,10 @@ int Redis::create_user(user user) {
   return code == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+int Redis::create_org(Org) {
+  return EXIT_SUCCESS;
+}
+
 int Redis::set_value(const std::string &key, const std::string &value) {
   auto *reply = (redisReply *)redisCommand(db.redis, "SET %s %s", key.c_str(),
                                            value.c_str());

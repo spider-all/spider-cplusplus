@@ -23,4 +23,5 @@ public:
   virtual int create_user(user) = 0;
   virtual std::vector<std::string> list_users() = 0;
   virtual int64_t count_user() = 0;
+  virtual int create_org(Org) = 0;
 };

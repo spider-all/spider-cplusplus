@@ -37,4 +37,5 @@ public:
   int create_user(user) override;
   std::vector<std::string> list_users() override;
   int64_t count_user() override;
+  int create_org(Org) override;
 };

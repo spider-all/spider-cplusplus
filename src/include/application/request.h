@@ -25,6 +25,8 @@ enum request_type {
   request_type_followers,
   request_type_following,
   request_type_userinfo,
+  request_type_orgs,
+  request_type_repos,
 };
 
 class Request : public Application {
