@@ -122,6 +122,10 @@ int Level::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
+int Level::create_org(Org) {
+  return EXIT_SUCCESS;
+}
+
 std::vector<std::string> Level::list_users() {
   std::vector<std::string> users;
   leveldb::Iterator *iter = db.leveldb->NewIterator(leveldb::ReadOptions());

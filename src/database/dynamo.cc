@@ -132,6 +132,10 @@ int Dynamo::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
+int Dynamo::create_org(Org) {
+  return EXIT_SUCCESS;
+}
+
 std::vector<std::string> Dynamo::list_users() {
   std::vector<std::string> users{};
 

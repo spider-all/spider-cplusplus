@@ -31,9 +31,8 @@ int Request::startup() {
 
   semaphore++;
   std::thread followers_thread([=]() {
-    spdlog::info("Followers thread starting...");
+    spdlog::info("Followers thread is starting...");
     while (!stopping) {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
       std::vector<std::string> users = database->list_users();
       for (const std::string &u : users) {
         std::string request_url = "/users/" + u + "/followers";
@@ -45,6 +44,7 @@ int Request::startup() {
           break;
         }
       }
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     spdlog::info("Followers thread stopped");
     semaphore--;
@@ -53,10 +53,9 @@ int Request::startup() {
 
   semaphore++;
   std::thread followings_thread([=]() {
-    spdlog::info("Following thread starting...");
+    spdlog::info("Following thread is starting...");
     while (!stopping) {
       std::vector<std::string> users = database->list_users();
-      std::this_thread::sleep_for(std::chrono::seconds(1));
       for (const std::string &u : users) {
         std::string request_url = "/users/" + u + "/following";
         int code = request(request_url, request_type_following);
@@ -67,6 +66,7 @@ int Request::startup() {
           break;
         }
       }
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     spdlog::info("Following thread stopped");
     semaphore--;
@@ -74,12 +74,47 @@ int Request::startup() {
   followings_thread.detach();
 
   semaphore++;
+  std::thread orgs_thread([=]() {
+    spdlog::info("Orgs thread is starting...");
+    while (!stopping) {
+      std::vector<std::string> users = database->list_users();
+      for (const std::string &u : users) {
+        std::string request_url = "/users/" + u + "/orgs";
+        int code = request(request_url, request_type_orgs);
+        if (code != 0) {
+          spdlog::error("Request url: {} with error: {}", request_url, code);
+        }
+        if (stopping) {
+          break;
+        }
+      }
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    spdlog::info("Orgs thread stopped");
+    semaphore--;
+  });
+  orgs_thread.detach();
+
+  semaphore++;
+  std::thread repos_thread([=]() {
+    spdlog::info("Repos thread is starting...");
+    // while (!stopping) {
+    //   int count = database->count_user();
+    //   spdlog::info("Database have users: {}", count);
+    //   std::this_thread::sleep_for(std::chrono::seconds(5));
+    // }
+    spdlog::info("Repos thread stopped");
+    semaphore--;
+  });
+  repos_thread.detach();
+
+  semaphore++;
   std::thread info_thread([=]() {
-    spdlog::info("Info thread starting...");
+    spdlog::info("Info thread is starting...");
     while (!stopping) {
       int count = database->count_user();
       spdlog::info("Database have users: {}", count);
-      std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::this_thread::sleep_for(std::chrono::seconds(5));
     }
     spdlog::info("Info thread stopped");
     semaphore--;
@@ -199,6 +234,20 @@ int Request::request(const std::string &url, enum request_type type) {
       }
     }
     break;
+  case request_type_orgs:
+    for (auto con : content) {
+      Org org;
+      org.login = con["login"].get<std::string>();
+      org.id = con["id"].get<int64_t>();
+      org.node_id = con["node_id"].get<std::string>();
+      org.description = con["description"].get<std::string>();
+      spdlog::info("request_type_orgs: {}", con["login"]);
+      code = database->create_org(org);
+      if (code != 0) {
+        spdlog::error("Database create org with error: {}", code);
+      }
+    }
+    break;
   case request_type_userinfo:
     if (content["hireable"].dump() != "true") {
       content["hireable"] = false;
@@ -230,8 +279,7 @@ int Request::request(const std::string &url, enum request_type type) {
     return UNKNOWN_REQUEST_TYPE;
   }
 
-  std::regex pieces_regex(
-      R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
+  std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
   std::string header = response->headers.find("Link")->second;
   while (regex_search(header, result, pieces_regex)) {

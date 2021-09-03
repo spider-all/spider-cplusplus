@@ -34,6 +34,11 @@ int SQLite3::initialize() {
       "`public_repos` NUMERIC NOT NULL, "
       "`following` NUMERIC NOT NULL, "
       "`followers` NUMERIC NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS `orgs` ("
+      "`id` NUMERIC NOT NULL PRIMARY KEY, "
+      "`login` TEXT NOT NULL, "
+      "`node_id` TEXT NOT NULL, "
+      "`description` TEXT NOT NULL);",
   };
   for (const std::string &sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
@@ -102,10 +107,44 @@ int SQLite3::create_user(user user) {
   return EXIT_SUCCESS;
 }
 
+int SQLite3::create_org(Org org) {
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `id` FROM `orgs` WHERE `id` = ?");
+  query->bind(1, org.id);
+  std::string create_sql;
+  if (query->executeStep()) {
+    create_sql = "UPDATE `orgs` SET `id` = ?, `login` = ?, `node_id` = ?, `description` = ? WHERE `id` = ?";
+  } else {
+    create_sql = "INSERT INTO `orgs` VALUES (?, ?, ?, ?)";
+  }
+
+  auto *create_st = new SQLite::Statement(*db.sqlite, create_sql);
+
+  create_st->bind(1, org.id);
+  create_st->bind(2, org.login);
+  create_st->bind(3, org.node_id);
+  create_st->bind(4, org.description);
+
+  if (query->hasRow()) {
+    create_st->bind(5, org.id);
+  }
+
+  delete query;
+
+  try {
+    create_st->exec();
+  } catch (const std::exception &e) {
+    spdlog::error("Insert user with error: {}", e.what());
+    return DATABASE_SQL_ERROR;
+  }
+
+  delete create_st;
+
+  return EXIT_SUCCESS;
+}
+
 std::vector<std::string> SQLite3::list_users() {
   std::vector<std::string> users;
-  auto *query = new SQLite::Statement(
-      *db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` ORDER BY random() limit 100");
   try {
     while (query->executeStep()) {
       std::string name = query->getColumn(0);

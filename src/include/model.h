@@ -21,3 +21,10 @@ struct user {
   int following;
   int followers;
 };
+
+struct Org {
+  int64_t id;
+  std::string login;
+  std::string node_id;
+  std::string description;
+};
