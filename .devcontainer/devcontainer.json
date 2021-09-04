@@ -1,0 +1,8 @@
+{
+  "build": {
+    "dockerfile": "../Dockerfile.dev"
+  },
+  "extensions": [
+    "ms-vscode.cpptools-extension-pack"
+  ],
+}

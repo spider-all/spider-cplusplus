@@ -48,6 +48,16 @@ target_link_libraries(spider PRIVATE yaml-cpp)
 find_package(OpenSSL REQUIRED)
 target_link_libraries(spider PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
+target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongocxx-static.a)
+target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-1.0.a)
+target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
+target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
+
+target_link_libraries(spider PRIVATE sasl2)
+target_link_libraries(spider PRIVATE resolv)
+
+target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
+
 find_package(ZLIB REQUIRED)
 target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 
