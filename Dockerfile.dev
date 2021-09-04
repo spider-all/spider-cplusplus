@@ -2,7 +2,7 @@ FROM buildpack-deps:stable
 
 WORKDIR /app
 
-COPY --from=ghcr.io/spider-all/spider-cplusplus:base-v1.2.0 /app/pkgs ./pkgs
+COPY --from=ghcr.io/spider-all/spider-cplusplus:base-v1.2.1 /app/pkgs ./pkgs
 
 RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
   sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list

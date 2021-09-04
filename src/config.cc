@@ -2,7 +2,6 @@
 
 int Config::initialize(const char *config_path) {
   YAML::Node config = YAML::LoadFile(config_path);
-  spdlog::info("help");
   crawler_entry_username = config["name"].as<std::string>();
   crawler_token = config["token"].as<std::string>();
   crawler_useragent = config["useragent"].as<std::string>();

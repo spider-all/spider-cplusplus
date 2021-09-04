@@ -58,6 +58,9 @@ target_link_libraries(spider PRIVATE resolv)
 
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
 
+find_package(libpqxx CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE libpqxx::pqxx)
+
 find_package(ZLIB REQUIRED)
 target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 
