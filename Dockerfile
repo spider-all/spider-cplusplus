@@ -13,6 +13,8 @@ FROM debian:buster
 
 WORKDIR /app
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update -y && apt-get install -y --no-install-recommends libsasl2-dev && \
   rm -rf /var/lib/apt/lists/*
 

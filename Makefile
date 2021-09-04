@@ -17,10 +17,6 @@ deps:
 	$(vcpkg) install $(deps)
 	$(vcpkg) export --raw --output=pkgs --output-dir=. $(deps)
 
-.PHONY: image
-image:
-	docker-compose build spider
-
 .PHONY: clean
 clean:
 	$(RM) -r release debug
