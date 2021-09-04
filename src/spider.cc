@@ -12,6 +12,7 @@
 #include <database/dynamo.h>
 #include <database/level.h>
 #include <database/mongo.h>
+#include <database/postgres.h>
 #include <database/redis.h>
 #include <database/sqlite3.h>
 
@@ -34,6 +35,8 @@ Database *switcher(const Config &config) {
     ret = new Dynamo(config.database_aws_region);
   } else if (config.database_type == "mongodb") {
     ret = new Mongo(config.database_host);
+  } else if (config.database_type == "postgresql") {
+    ret = new Postgres(config.database_host);
   }
   if (ret == nullptr) {
     return nullptr;
@@ -81,6 +84,8 @@ int main(int argc, char const *argv[]) {
     spdlog::error("Initialize database with error: {}", code);
     return EXIT_FAILURE;
   }
+
+  return 0;
 
   Application *request = new Request(config, database);
 

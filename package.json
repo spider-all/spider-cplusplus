@@ -1,6 +1,6 @@
 {
   "name": "spider",
-  "version": "v1.2.0",
+  "version": "v1.2.1",
   "deps": [
     "zlib",
     "openssl",
@@ -16,7 +16,8 @@
     "aws-sdk-cpp[dynamodb]",
     "cli11",
     "mongo-cxx-driver",
-    "zstd"
+    "zstd",
+    "libpqxx"
   ],
   "license": "MIT",
   "author": {

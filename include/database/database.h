@@ -5,6 +5,7 @@
 #include <hiredis/hiredis.h>
 #include <leveldb/db.h>
 #include <mongocxx/client.hpp>
+#include <pqxx/pqxx>
 
 #pragma once
 
@@ -18,6 +19,7 @@ public:
     redisContext *redis;
     Aws::DynamoDB::DynamoDBClient *dynamo;
     mongocxx::client *client;
+    pqxx::connection *pg;
   } db{};
   int code = 0;
   virtual ~Database() = default;
