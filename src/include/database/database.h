@@ -22,8 +22,12 @@ public:
   int code = 0;
   virtual ~Database() = default;
   virtual int initialize() = 0;
-  virtual int create_user(user) = 0;
-  virtual std::vector<std::string> list_users() = 0;
+
+  virtual int create_user(User) = 0;
   virtual int64_t count_user() = 0;
+  virtual std::vector<std::string> list_users() = 0;
+
   virtual int create_org(Org) = 0;
+  virtual int64_t count_org() = 0;
+  virtual std::vector<std::string> list_orgs() = 0;
 };

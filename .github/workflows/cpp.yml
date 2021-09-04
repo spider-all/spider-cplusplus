@@ -37,7 +37,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install packages
-        run: sudo apt-get install ccache
+        run: sudo apt-get install ccache libsasl2-dev
       - name: Install deps
         run: make deps
       - name: Compile

@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 COPY --from=ghcr.io/spider-all/spider-cplusplus:base-v1.2.0 /app/pkgs ./pkgs
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends libsasl2-dev ccache cmake && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends jq libsasl2-dev ccache cmake && \
   rm -rf /var/lib/apt/lists/* && \
   make release
 

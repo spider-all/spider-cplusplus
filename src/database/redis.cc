@@ -16,7 +16,7 @@ int Redis::initialize() {
   return EXIT_SUCCESS;
 }
 
-int Redis::create_user(user user) {
+int Redis::create_user(User user) {
   std::string userId = std::to_string(user.id);
 
   int code = set_value("user:id:" + userId, userId);
@@ -158,4 +158,10 @@ std::vector<std::string> Redis::list_users() {
   return users;
 }
 
+std::vector<std::string> Redis::list_orgs() {
+  std::vector<std::string> orgs;
+  return orgs;
+}
+
 int64_t Redis::count_user() { return 0; }
+int64_t Redis::count_org() { return 0; }

@@ -18,7 +18,7 @@ Mongo::~Mongo() {
   }
 }
 
-int Mongo::create_user(user user) {
+int Mongo::create_user(User user) {
   auto builder = bsoncxx::builder::stream::document{};
   bsoncxx::document::value doc_value = builder
                                        << "id" << user.id
@@ -63,4 +63,10 @@ std::vector<std::string> Mongo::list_users() {
   return users;
 }
 
+std::vector<std::string> Mongo::list_orgs() {
+  std::vector<std::string> orgs;
+  return orgs;
+}
+
 int64_t Mongo::count_user() { return 0; }
+int64_t Mongo::count_org() { return 0; }

@@ -24,8 +24,9 @@
 enum request_type {
   request_type_followers,
   request_type_following,
-  request_type_userinfo,
+  request_type_user,
   request_type_orgs,
+  request_type_orgs_member,
   request_type_repos,
 };
 
@@ -48,6 +49,11 @@ private:
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
+
+  int request_orgs_members(nlohmann::json content);
+  int request_orgs(nlohmann::json content);
+  int request_user(nlohmann::json content);
+  int request_followx(nlohmann::json content);
 
 public:
   Request(Config, Database *);

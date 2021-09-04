@@ -52,7 +52,7 @@ int SQLite3::initialize() {
   return EXIT_SUCCESS;
 }
 
-int SQLite3::create_user(user user) {
+int SQLite3::create_user(User user) {
   auto *query = new SQLite::Statement(
       *db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
   query->bind(1, user.id);
@@ -157,15 +157,44 @@ std::vector<std::string> SQLite3::list_users() {
   return users;
 }
 
+std::vector<std::string> SQLite3::list_orgs() {
+  std::vector<std::string> orgs;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `orgs` ORDER BY random() limit 100");
+  try {
+    while (query->executeStep()) {
+      std::string name = query->getColumn(0);
+      orgs.push_back(name);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query user with error: {}", e.what());
+  }
+  delete query;
+  return orgs;
+}
+
 int64_t SQLite3::count_user() {
   int64_t count = 0;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(*) FROM `users`");
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(id) FROM `users`");
   try {
     while (query->executeStep()) {
       count = query->getColumn(0);
     }
   } catch (const std::exception &e) {
-    spdlog::error("Query user with error: {}", e.what());
+    spdlog::error("Query users with error: {}", e.what());
+  }
+  delete query;
+  return count;
+}
+
+int64_t SQLite3::count_org() {
+  int64_t count = 0;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(id) FROM `orgs`");
+  try {
+    while (query->executeStep()) {
+      count = query->getColumn(0);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query orgs with error: {}", e.what());
   }
   delete query;
   return count;
