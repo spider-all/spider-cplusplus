@@ -164,6 +164,7 @@ Temporary Items
 # End of https://www.gitignore.io/api/macos,visualstudiocode,jetbrains,c++
 
 .idea/
+.vscode/
 pkgs/
 debug/
 release/

@@ -4,6 +4,7 @@
 #include <aws/dynamodb/DynamoDBClient.h>
 #include <hiredis/hiredis.h>
 #include <leveldb/db.h>
+#include <mongocxx/client.hpp>
 
 #pragma once
 
@@ -16,6 +17,7 @@ public:
     SQLite::Database *sqlite;
     redisContext *redis;
     Aws::DynamoDB::DynamoDBClient *dynamo;
+    mongocxx::client *client;
   } db{};
   int code = 0;
   virtual ~Database() = default;

@@ -1,0 +1,6 @@
+debug/
+release/
+.idea/
+.vscode/
+.devcontainer/
+pkgs/

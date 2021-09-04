@@ -14,7 +14,9 @@
     "curl[ssl]",
     "cpp-httplib",
     "aws-sdk-cpp[dynamodb]",
-    "cli11"
+    "cli11",
+    "mongo-cxx-driver",
+    "zstd"
   ],
   "license": "MIT",
   "author": {

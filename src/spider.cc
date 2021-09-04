@@ -11,6 +11,7 @@
 #include <application/server.h>
 #include <database/dynamo.h>
 #include <database/level.h>
+#include <database/mongo.h>
 #include <database/redis.h>
 #include <database/sqlite3.h>
 
@@ -31,6 +32,8 @@ Database *switcher(const Config &config) {
     ret = new Level(config.database_path);
   } else if (config.database_type == "dynamo") {
     ret = new Dynamo(config.database_aws_region);
+  } else if (config.database_type == "mongodb") {
+    ret = new Mongo(config.database_host);
   }
   if (ret == nullptr) {
     return nullptr;
