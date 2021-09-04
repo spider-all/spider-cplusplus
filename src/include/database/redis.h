@@ -19,8 +19,12 @@ public:
   Redis(const std::string &, int);
   ~Redis() override;
   int initialize() override;
-  int create_user(user) override;
-  std::vector<std::string> list_users() override;
+
+  int create_user(User) override;
   int64_t count_user() override;
+  std::vector<std::string> list_users() override;
+
   int create_org(Org) override;
+  int64_t count_org() override;
+  std::vector<std::string> list_orgs() override;
 };

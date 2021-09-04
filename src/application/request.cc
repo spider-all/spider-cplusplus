@@ -21,7 +21,7 @@ int Request::startup() {
   spdlog::info("Spider is running...");
   std::string request_url = "/users/" + config.crawler_entry_username;
 
-  int code = request(request_url, request_type_userinfo);
+  int code = request(request_url, request_type_user);
   if (code != 0) {
     return code;
   }
@@ -96,6 +96,28 @@ int Request::startup() {
   orgs_thread.detach();
 
   semaphore++;
+  std::thread orgs_member_thread([=]() {
+    spdlog::info("Orgs thread is starting...");
+    while (!stopping) {
+      std::vector<std::string> orgs = database->list_orgs();
+      for (const std::string &org : orgs) {
+        std::string request_url = "/orgs/" + org + "/public_members";
+        int code = request(request_url, request_type_orgs_member);
+        if (code != 0) {
+          spdlog::error("Request url: {} with error: {}", request_url, code);
+        }
+        if (stopping) {
+          break;
+        }
+      }
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    spdlog::info("Orgs member thread stopped");
+    semaphore--;
+  });
+  orgs_member_thread.detach();
+
+  semaphore++;
   std::thread repos_thread([=]() {
     spdlog::info("Repos thread is starting...");
     // while (!stopping) {
@@ -112,8 +134,9 @@ int Request::startup() {
   std::thread info_thread([=]() {
     spdlog::info("Info thread is starting...");
     while (!stopping) {
-      int count = database->count_user();
-      spdlog::info("Database have users: {}", count);
+      int user_count = database->count_user();
+      int user_org = database->count_org();
+      spdlog::info("Database have users: {}, orgs: {}", user_count, user_org);
       std::this_thread::sleep_for(std::chrono::seconds(5));
     }
     spdlog::info("Info thread stopped");
@@ -164,17 +187,11 @@ int Request::request(const std::string &url, enum request_type type) {
   }
 
   if (response->status == 403) {
-    auto current = std::chrono::duration_cast<std::chrono::seconds>(
-                       std::chrono::system_clock::now().time_since_epoch())
-                       .count();
+    auto current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     for (;;) {
-      spdlog::info("Wait for another {}s to request due to rate limit, "
-                   "X-RateLimit-Reset: {}",
-                   rate_limit_reset - current, rate_limit_reset);
+      spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
       std::this_thread::sleep_for(std::chrono::seconds(30));
-      current = std::chrono::duration_cast<std::chrono::seconds>(
-                    std::chrono::system_clock::now().time_since_epoch())
-                    .count();
+      current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
       if (rate_limit_reset - current <= 0) {
         break;
       }
@@ -183,8 +200,7 @@ int Request::request(const std::string &url, enum request_type type) {
   }
 
   if (response->status != 200) {
-    spdlog::error("Got {} on request url: {}, {}", response->status, url,
-                  response->body);
+    spdlog::error("Got {} on request url: {}, {}", response->status, url, response->body);
     return REQUEST_ERROR;
   }
 
@@ -196,8 +212,7 @@ int Request::request(const std::string &url, enum request_type type) {
 
   try {
     nlohmann::json::parser_callback_t cb =
-        [=](int /*depth*/, nlohmann::json::parse_event_t event,
-            nlohmann::json &parsed) {
+        [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
           if (event == nlohmann::json::parse_event_t::key) {
             std::string str = parsed.dump();
             str.erase(str.begin(), str.begin() + 1);
@@ -205,8 +220,7 @@ int Request::request(const std::string &url, enum request_type type) {
             if (Common::end_with(str, "_url") or str == "url") {
               return false;
             }
-          } else if (event == nlohmann::json::parse_event_t::value &&
-                     parsed.dump() == "null") {
+          } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
             parsed = nlohmann::json("");
             return true;
           }
@@ -218,59 +232,29 @@ int Request::request(const std::string &url, enum request_type type) {
     return REQUEST_ERROR;
   }
 
-  user user;
   int code;
   switch (type) {
   case request_type_following:
   case request_type_followers:
-    for (auto i : content) {
-      code = request("/users/" + i["login"].get<std::string>(),
-                     request_type_userinfo);
-      if (code != 0) {
-        spdlog::error("Request userinfo with error: {}", code);
-      }
-      if (stopping) {
-        return EXIT_SUCCESS;
-      }
+    code = request_followx(content);
+    if (code != 0) {
+      spdlog::error("Request userinfo with error: {}", code);
     }
     break;
   case request_type_orgs:
-    for (auto con : content) {
-      Org org;
-      org.login = con["login"].get<std::string>();
-      org.id = con["id"].get<int64_t>();
-      org.node_id = con["node_id"].get<std::string>();
-      org.description = con["description"].get<std::string>();
-      spdlog::info("request_type_orgs: {}", con["login"]);
-      code = database->create_org(org);
-      if (code != 0) {
-        spdlog::error("Database create org with error: {}", code);
-      }
+    code = request_orgs(content);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
     }
     break;
-  case request_type_userinfo:
-    if (content["hireable"].dump() != "true") {
-      content["hireable"] = false;
+  case request_type_orgs_member:
+    code = request_orgs_members(content);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
     }
-    user.login = content["login"].get<std::string>();
-    user.id = content["id"].get<int64_t>();
-    user.node_id = content["node_id"].get<std::string>();
-    user.type = content["type"].get<std::string>();
-    user.name = content["name"].get<std::string>();
-    user.company = content["company"].get<std::string>();
-    user.blog = content["blog"].get<std::string>();
-    user.location = content["location"].get<std::string>();
-    user.email = content["email"].get<std::string>();
-    user.hireable = content["hireable"].get<bool>();
-    user.bio = content["bio"].get<std::string>();
-    user.created_at = content["created_at"].get<std::string>();
-    user.updated_at = content["updated_at"].get<std::string>();
-    user.public_gists = content["public_gists"].get<int>();
-    user.public_repos = content["public_repos"].get<int>();
-    user.following = content["following"].get<int>();
-    user.followers = content["followers"].get<int>();
-
-    code = database->create_user(user);
+    break;
+  case request_type_user:
+    code = request_user(content);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
@@ -296,4 +280,88 @@ int Request::request(const std::string &url, enum request_type type) {
   }
 
   return EXIT_SUCCESS;
+}
+
+int Request::request_followx(nlohmann::json content) {
+  for (auto i : content) {
+    int code = request("/users/" + i["login"].get<std::string>(), request_type_user);
+    if (code != 0) {
+      spdlog::error("Request userinfo with error: {}", code);
+    }
+    if (stopping) {
+      return EXIT_SUCCESS;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+int Request::request_orgs_members(nlohmann::json content) {
+  for (auto con : content) {
+    User user;
+    if (con["hireable"].dump() != "true") {
+      con["hireable"] = false;
+    }
+    user.login = content["login"].get<std::string>();
+    user.id = content["id"].get<int64_t>();
+    user.node_id = content["node_id"].get<std::string>();
+    user.type = content["type"].get<std::string>();
+    user.name = content["name"].get<std::string>();
+    user.company = content["company"].get<std::string>();
+    user.blog = content["blog"].get<std::string>();
+    user.location = content["location"].get<std::string>();
+    user.email = content["email"].get<std::string>();
+    user.hireable = content["hireable"].get<bool>();
+    user.bio = content["bio"].get<std::string>();
+    user.created_at = content["created_at"].get<std::string>();
+    user.updated_at = content["updated_at"].get<std::string>();
+    user.public_gists = content["public_gists"].get<int>();
+    user.public_repos = content["public_repos"].get<int>();
+    user.following = content["following"].get<int>();
+    user.followers = content["followers"].get<int>();
+
+    int code = database->create_user(user);
+    return code;
+  }
+  return EXIT_SUCCESS;
+}
+
+int Request::request_orgs(nlohmann::json content) {
+  for (auto con : content) {
+    Org org;
+    org.login = con["login"].get<std::string>();
+    org.id = con["id"].get<int64_t>();
+    org.node_id = con["node_id"].get<std::string>();
+    org.description = con["description"].get<std::string>();
+    spdlog::info("request_type_orgs: {}", con["login"]);
+    int code = database->create_org(org);
+    return code;
+  }
+  return EXIT_SUCCESS;
+}
+
+int Request::request_user(nlohmann::json content) {
+  User user;
+  if (content["hireable"].dump() != "true") {
+    content["hireable"] = false;
+  }
+  user.login = content["login"].get<std::string>();
+  user.id = content["id"].get<int64_t>();
+  user.node_id = content["node_id"].get<std::string>();
+  user.type = content["type"].get<std::string>();
+  user.name = content["name"].get<std::string>();
+  user.company = content["company"].get<std::string>();
+  user.blog = content["blog"].get<std::string>();
+  user.location = content["location"].get<std::string>();
+  user.email = content["email"].get<std::string>();
+  user.hireable = content["hireable"].get<bool>();
+  user.bio = content["bio"].get<std::string>();
+  user.created_at = content["created_at"].get<std::string>();
+  user.updated_at = content["updated_at"].get<std::string>();
+  user.public_gists = content["public_gists"].get<int>();
+  user.public_repos = content["public_repos"].get<int>();
+  user.following = content["following"].get<int>();
+  user.followers = content["followers"].get<int>();
+
+  int code = database->create_user(user);
+  return code;
 }

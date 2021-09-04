@@ -49,7 +49,7 @@ int Dynamo::initialize() {
   return EXIT_SUCCESS;
 }
 
-int Dynamo::create_user(user user) {
+int Dynamo::create_user(User user) {
   std::string user_id = std::to_string(user.id);
 
   PutItemRequest pir;
@@ -158,14 +158,18 @@ std::vector<std::string> Dynamo::list_users() {
     spdlog::error(result.GetError().GetMessage());
   }
 
-  std::shuffle(users.begin(), users.end(),
-               std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
+  std::shuffle(users.begin(), users.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
 
   if (users.size() > 100) {
     users.resize(100);
   }
 
   return users;
+}
+
+std::vector<std::string> Dynamo::list_orgs() {
+  std::vector<std::string> orgs{};
+  return orgs;
 }
 
 int64_t Dynamo::count_user() {
@@ -182,4 +186,8 @@ int64_t Dynamo::count_user() {
   }
 
   return count;
+}
+
+int64_t Dynamo::count_org() {
+  return 0;
 }

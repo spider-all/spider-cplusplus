@@ -2,7 +2,7 @@
 
 #pragma once
 
-struct user {
+struct User {
   int64_t id;
   std::string login;
   std::string node_id;
