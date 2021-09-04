@@ -18,8 +18,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
@@ -27,7 +25,8 @@ jobs:
           username: tosone
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Compile docker image
-        run: make image
+        run: |
+          docker build -t ghcr.io/spider-all/spider-cplusplus:$GITHUB_SHA .
   build:
     name: Native builder
     runs-on: ubuntu-20.04
