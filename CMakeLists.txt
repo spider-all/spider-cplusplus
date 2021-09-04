@@ -78,7 +78,7 @@ target_link_libraries(spider PRIVATE leveldb::leveldb)
 
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libhiredis.a)
 
-target_include_directories(spider PRIVATE src/include)
+target_include_directories(spider PRIVATE include)
 
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")
