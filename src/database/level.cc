@@ -140,3 +140,11 @@ int Level::create_emoji(std::vector<Emoji> emojis) {
 int64_t Level::count_emoji() {
   return 0;
 }
+
+int64_t Level::count_gitignore() {
+  return 0;
+}
+
+int Level::create_gitignore(Gitignore gitignore) {
+  return EXIT_SUCCESS;
+}

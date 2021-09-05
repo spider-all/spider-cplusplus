@@ -198,3 +198,11 @@ int Dynamo::create_emoji(std::vector<Emoji> emojis) {
 int64_t Dynamo::count_emoji() {
   return 0;
 }
+
+int64_t Dynamo::count_gitignore() {
+  return 0;
+}
+
+int Dynamo::create_gitignore(Gitignore gitignore) {
+  return EXIT_SUCCESS;
+}

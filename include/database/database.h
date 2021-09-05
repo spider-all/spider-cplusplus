@@ -35,4 +35,7 @@ public:
 
   virtual int create_emoji(std::vector<Emoji> emojis) = 0;
   virtual int64_t count_emoji() = 0;
+
+  virtual int create_gitignore(Gitignore gitignore) = 0;
+  virtual int64_t count_gitignore() = 0;
 };
