@@ -42,6 +42,9 @@ int SQLite3::initialize() {
       "CREATE TABLE IF NOT EXISTS `emojis` ("
       "`name` TEXT NOT NULL PRIMARY KEY, "
       "`url` TEXT NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS `gitignores` ("
+      "`name` TEXT NOT NULL PRIMARY KEY, "
+      "`source` TEXT NOT NULL);",
   };
   for (const std::string &sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
@@ -153,6 +156,52 @@ int64_t SQLite3::count_emoji() {
     }
   } catch (const std::exception &e) {
     spdlog::error("Query emojis with error: {}", e.what());
+  }
+  delete query;
+  return count;
+}
+
+int SQLite3::create_gitignore(Gitignore gitignore) {
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `name` FROM `gitignores` WHERE `name` = ?");
+  query->bind(1, gitignore.name);
+  std::string create_sql;
+  if (query->executeStep()) {
+    create_sql = "UPDATE `gitignores` SET `name` = ?, `source` = ? WHERE `name` = ?";
+  } else {
+    create_sql = "INSERT INTO `gitignores` VALUES (?, ?)";
+  }
+
+  auto *create_st = new SQLite::Statement(*db.sqlite, create_sql);
+
+  create_st->bind(1, gitignore.name);
+  create_st->bind(2, gitignore.source);
+
+  if (query->hasRow()) {
+    create_st->bind(3, gitignore.name);
+  }
+
+  delete query;
+
+  try {
+    create_st->exec();
+  } catch (const std::exception &e) {
+    spdlog::error("Insert gitignore with error: {}", e.what());
+    return DATABASE_SQL_ERROR;
+  }
+
+  delete create_st;
+  return EXIT_SUCCESS;
+}
+
+int64_t SQLite3::count_gitignore() {
+  int64_t count = 0;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(name) FROM `gitignores`");
+  try {
+    while (query->executeStep()) {
+      count = query->getColumn(0);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query gitignores with error: {}", e.what());
   }
   delete query;
   return count;

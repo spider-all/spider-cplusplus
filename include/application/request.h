@@ -30,6 +30,8 @@ enum request_type {
   request_type_orgs_member,
   request_type_repos,
   request_type_emoji,
+  request_type_gitignore_list,
+  request_type_gitignore_info,
 };
 
 class Request : public Application {
@@ -47,9 +49,7 @@ private:
   std::string url_host = "api.github.com";
   std::string url_prefix = "https://" + url_host;
 
-  const std::string USERAGENT =
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36";
+  const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
 
   int request_orgs_members(nlohmann::json content);
@@ -57,6 +57,8 @@ private:
   int request_user(nlohmann::json content);
   int request_followx(nlohmann::json content);
   int request_emoji(nlohmann::json content);
+  int request_gitignore_list(nlohmann::json content);
+  int request_gitignore_info(nlohmann::json content);
 
 public:
   Request(Config, Database *);

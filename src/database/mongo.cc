@@ -78,3 +78,11 @@ int Mongo::create_emoji(std::vector<Emoji> emojis) {
 int64_t Mongo::count_emoji() {
   return 0;
 }
+
+int64_t Mongo::count_gitignore() {
+  return 0;
+}
+
+int Mongo::create_gitignore(Gitignore gitignore) {
+  return EXIT_SUCCESS;
+}

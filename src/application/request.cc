@@ -144,6 +144,19 @@ int Request::startup() {
   emojis_thread.detach();
 
   semaphore++;
+  std::thread gitignore_list_thread([=]() {
+    spdlog::info("Gitignore list thread is starting...");
+    std::string request_url = "/gitignore/templates";
+    int code = request(request_url, request_type_gitignore_list);
+    if (code != 0) {
+      spdlog::error("Request url: {} with error: {}", request_url, code);
+    }
+    spdlog::info("Gitignore list thread stopped");
+    semaphore--;
+  });
+  gitignore_list_thread.detach();
+
+  semaphore++;
   std::thread info_thread([=]() {
     spdlog::info("Info thread is starting...");
     while (!stopping) {
@@ -297,6 +310,18 @@ int Request::request(const std::string &url, enum request_type type) {
       spdlog::error("Database with error: {}", code);
     }
     break;
+  case request_type_gitignore_list:
+    code = request_gitignore_list(content);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
+    }
+    break;
+  case request_type_gitignore_info:
+    code = request_gitignore_info(content);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
+    }
+    break;
   default:
     return UNKNOWN_REQUEST_TYPE;
   }
@@ -398,5 +423,26 @@ int Request::request_emoji(nlohmann::json content) {
     emojis.push_back(Emoji{it.key(), it.value()});
   }
   int code = database->create_emoji(emojis);
+  return code;
+}
+
+int Request::request_gitignore_list(nlohmann::json content) {
+  for (auto con : content) {
+    std::string request_url = "/gitignore/templates/" + con.get<std::string>();
+    int code = request(request_url, request_type_gitignore_info);
+    if (code != 0) {
+      return code;
+    }
+    if (stopping) {
+      return EXIT_SUCCESS;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+int Request::request_gitignore_info(nlohmann::json content) {
+  Gitignore gitignore = {content["name"].get<std::string>(),
+                         content["source"].get<std::string>()};
+  int code = database->create_gitignore(gitignore);
   return code;
 }

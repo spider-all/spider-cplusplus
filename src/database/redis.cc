@@ -173,3 +173,11 @@ int Redis::create_emoji(std::vector<Emoji> emojis) {
 int64_t Redis::count_emoji() {
   return 0;
 }
+
+int64_t Redis::count_gitignore() {
+  return 0;
+}
+
+int Redis::create_gitignore(Gitignore gitignore) {
+  return EXIT_SUCCESS;
+}

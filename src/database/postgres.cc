@@ -82,3 +82,12 @@ int Postgres::create_emoji(std::vector<Emoji> emojis) {
 int64_t Postgres::count_emoji() {
   return 0;
 }
+
+
+int64_t Postgres::count_gitignore() {
+  return 0;
+}
+
+int Postgres::create_gitignore(Gitignore gitignore) {
+  return EXIT_SUCCESS;
+}

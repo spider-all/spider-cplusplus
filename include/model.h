@@ -33,3 +33,8 @@ typedef struct Emoji {
   std::string name;
   std::string url;
 } Emoji;
+
+typedef struct Gitignore {
+  std::string name;
+  std::string source;
+} Gitignore;

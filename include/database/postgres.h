@@ -27,4 +27,7 @@ public:
 
   int create_emoji(std::vector<Emoji> emojis) override;
   int64_t count_emoji() override;
+
+  int create_gitignore(Gitignore gitignore) override;
+  int64_t count_gitignore() override;
 };
