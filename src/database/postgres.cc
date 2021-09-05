@@ -1,8 +1,6 @@
 #include <database/postgres.h>
 
 Postgres::Postgres(const std::string &host) {
-  spdlog::info("{}", host);
-  std::cout << host << std::endl;
   db.pg = new pqxx::connection(host);
 }
 
@@ -83,11 +81,18 @@ int64_t Postgres::count_emoji() {
   return 0;
 }
 
-
 int64_t Postgres::count_gitignore() {
   return 0;
 }
 
 int Postgres::create_gitignore(Gitignore gitignore) {
+  return EXIT_SUCCESS;
+}
+
+int64_t Postgres::count_license() {
+  return 0;
+}
+
+int Postgres::create_license(License license) {
   return EXIT_SUCCESS;
 }

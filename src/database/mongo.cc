@@ -86,3 +86,11 @@ int64_t Mongo::count_gitignore() {
 int Mongo::create_gitignore(Gitignore gitignore) {
   return EXIT_SUCCESS;
 }
+
+int64_t Mongo::count_license() {
+  return 0;
+}
+
+int Mongo::create_license(License license) {
+  return EXIT_SUCCESS;
+}
