@@ -45,6 +45,19 @@ int SQLite3::initialize() {
       "CREATE TABLE IF NOT EXISTS `gitignores` ("
       "`name` TEXT NOT NULL PRIMARY KEY, "
       "`source` TEXT NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS `licenses` ("
+      "`key` TEXT NOT NULL PRIMARY KEY, "
+      "`name` TEXT NOT NULL, "
+      "`spdx_id` TEXT NOT NULL, "
+      "`node_id` TEXT NOT NULL, "
+      "`description` TEXT, "
+      "`implementation` TEXT, "
+      "`permissions` TEXT, "
+      "`conditions` TEXT, "
+      "`limitations` TEXT, "
+      "`body` TEXT NOT NULL, "
+      "`featured` NUMERIC, "
+      "`source` TEXT NOT NULL);",
   };
   for (const std::string &sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
@@ -205,6 +218,61 @@ int64_t SQLite3::count_gitignore() {
   }
   delete query;
   return count;
+}
+
+int64_t SQLite3::count_license() {
+  int64_t count = 0;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(key) FROM `licenses`");
+  try {
+    while (query->executeStep()) {
+      count = query->getColumn(0);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query licenses with error: {}", e.what());
+  }
+  delete query;
+  return count;
+}
+
+int SQLite3::create_license(License license) {
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `key` FROM `licenses` WHERE `key` = ?");
+  query->bind(1, license.key);
+  std::string create_sql;
+  if (query->executeStep()) {
+    create_sql = "UPDATE `licenses` SET `key` = ?, `name` = ?, `spdx_id` = ?, `node_id` = ?, `description` = ?, `implementation` = ?, `permissions` = ?, `conditions` = ?, `limitations` = ?, `body` = ?, `featured` = ? WHERE `name` = ?";
+  } else {
+    create_sql = "INSERT INTO `licenses` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  }
+
+  auto *create_st = new SQLite::Statement(*db.sqlite, create_sql);
+
+  create_st->bind(1, license.key);
+  create_st->bind(2, license.name);
+  create_st->bind(3, license.spdx_id);
+  create_st->bind(4, license.node_id);
+  create_st->bind(5, license.description);
+  create_st->bind(6, license.implementation);
+  create_st->bind(7, license.permissions);
+  create_st->bind(8, license.conditions);
+  create_st->bind(9, license.limitations);
+  create_st->bind(10, license.body);
+  create_st->bind(11, license.featured);
+
+  if (query->hasRow()) {
+    create_st->bind(12, license.key);
+  }
+
+  delete query;
+
+  try {
+    create_st->exec();
+  } catch (const std::exception &e) {
+    spdlog::error("Insert gitignore with error: {}", e.what());
+    return DATABASE_SQL_ERROR;
+  }
+
+  delete create_st;
+  return EXIT_SUCCESS;
 }
 
 int SQLite3::create_org(Org org) {

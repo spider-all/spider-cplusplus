@@ -148,3 +148,11 @@ int64_t Level::count_gitignore() {
 int Level::create_gitignore(Gitignore gitignore) {
   return EXIT_SUCCESS;
 }
+
+int64_t Level::count_license() {
+  return 0;
+}
+
+int Level::create_license(License license) {
+  return EXIT_SUCCESS;
+}

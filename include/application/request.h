@@ -32,6 +32,8 @@ enum request_type {
   request_type_emoji,
   request_type_gitignore_list,
   request_type_gitignore_info,
+  request_type_license_list,
+  request_type_license_info,
 };
 
 class Request : public Application {
@@ -59,6 +61,8 @@ private:
   int request_emoji(nlohmann::json content);
   int request_gitignore_list(nlohmann::json content);
   int request_gitignore_info(nlohmann::json content);
+  int request_license_list(nlohmann::json content);
+  int request_license_info(nlohmann::json content);
 
 public:
   Request(Config, Database *);

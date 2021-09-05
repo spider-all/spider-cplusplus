@@ -206,3 +206,11 @@ int64_t Dynamo::count_gitignore() {
 int Dynamo::create_gitignore(Gitignore gitignore) {
   return EXIT_SUCCESS;
 }
+
+int64_t Dynamo::count_license() {
+  return 0;
+}
+
+int Dynamo::create_license(License license) {
+  return EXIT_SUCCESS;
+}

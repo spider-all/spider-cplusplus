@@ -38,4 +38,7 @@ public:
 
   virtual int create_gitignore(Gitignore gitignore) = 0;
   virtual int64_t count_gitignore() = 0;
+
+  virtual int create_license(License license) = 0;
+  virtual int64_t count_license() = 0;
 };

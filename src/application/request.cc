@@ -157,6 +157,19 @@ int Request::startup() {
   gitignore_list_thread.detach();
 
   semaphore++;
+  std::thread license_list_thread([=]() {
+    spdlog::info("License list thread is starting...");
+    std::string request_url = "/licenses";
+    int code = request(request_url, request_type_license_list);
+    if (code != 0) {
+      spdlog::error("Request url: {} with error: {}", request_url, code);
+    }
+    spdlog::info("License list thread stopped");
+    semaphore--;
+  });
+  license_list_thread.detach();
+
+  semaphore++;
   std::thread info_thread([=]() {
     spdlog::info("Info thread is starting...");
     while (!stopping) {
@@ -322,6 +335,18 @@ int Request::request(const std::string &url, enum request_type type) {
       spdlog::error("Database with error: {}", code);
     }
     break;
+  case request_type_license_list:
+    code = request_license_list(content);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
+    }
+    break;
+  case request_type_license_info:
+    code = request_license_info(content);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
+    }
+    break;
   default:
     return UNKNOWN_REQUEST_TYPE;
   }
@@ -441,8 +466,42 @@ int Request::request_gitignore_list(nlohmann::json content) {
 }
 
 int Request::request_gitignore_info(nlohmann::json content) {
-  Gitignore gitignore = {content["name"].get<std::string>(),
-                         content["source"].get<std::string>()};
+  Gitignore gitignore = {
+      content["name"].get<std::string>(),
+      content["source"].get<std::string>(),
+  };
   int code = database->create_gitignore(gitignore);
+  return code;
+}
+
+int Request::request_license_list(nlohmann::json content) {
+  for (auto con : content) {
+    std::string request_url = "/licenses/" + con.get<std::string>();
+    int code = request(request_url, request_type_license_info);
+    if (code != 0) {
+      return code;
+    }
+    if (stopping) {
+      return EXIT_SUCCESS;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+int Request::request_license_info(nlohmann::json content) {
+  License license = {
+      .key = content["key"].get<std::string>(),
+      .name = content["name"].get<std::string>(),
+      .spdx_id = content["spdx_id"].get<std::string>(),
+      .node_id = content["node_id"].get<std::string>(),
+      .description = content["description"].get<std::string>(),
+      .implementation = content["implementation"].get<std::string>(),
+      .permissions = content["permissions"].dump(),
+      .conditions = content["conditions"].dump(),
+      .limitations = content["limitations"].dump(),
+      .body = content["body"].get<std::string>(),
+      .featured = content["body"].get<bool>(),
+  };
+  int code = database->create_license(license);
   return code;
 }

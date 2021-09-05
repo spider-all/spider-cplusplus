@@ -181,3 +181,11 @@ int64_t Redis::count_gitignore() {
 int Redis::create_gitignore(Gitignore gitignore) {
   return EXIT_SUCCESS;
 }
+
+int64_t Redis::count_license() {
+  return 0;
+}
+
+int Redis::create_license(License license) {
+  return EXIT_SUCCESS;
+}

@@ -32,4 +32,7 @@ public:
 
   int create_gitignore(Gitignore gitignore) override;
   int64_t count_gitignore() override;
+
+  int create_license(License license) override;
+  int64_t count_license() override;
 };
