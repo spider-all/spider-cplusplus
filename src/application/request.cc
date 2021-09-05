@@ -131,12 +131,40 @@ int Request::startup() {
   repos_thread.detach();
 
   semaphore++;
+  std::thread emojis_thread([=]() {
+    spdlog::info("Emoji thread is starting...");
+    std::string request_url = "/emojis";
+    int code = request(request_url, request_type_emoji);
+    if (code != 0) {
+      spdlog::error("Request url: {} with error: {}", request_url, code);
+    }
+    spdlog::info("Emoji thread stopped");
+    semaphore--;
+  });
+  emojis_thread.detach();
+
+  semaphore++;
   std::thread info_thread([=]() {
     spdlog::info("Info thread is starting...");
     while (!stopping) {
       int user_count = database->count_user();
-      int user_org = database->count_org();
-      spdlog::info("Database have users: {}, orgs: {}", user_count, user_org);
+      int org_count = database->count_org();
+      spdlog::info("Database have users: {}, orgs: {}", user_count, org_count);
+
+      fort::char_table table;
+      table.set_border_style(FT_DOUBLE2_STYLE);
+      table << fort::header
+            << "Catalog"
+            << "Count" << fort::endr
+            << "users"
+            << user_count << fort::endr
+            << "orgs"
+            << org_count << fort::endr;
+
+      table.column(1).set_cell_text_align(fort::text_align::center);
+
+      std::cout << std::endl
+                << table.to_string() << std::endl;
       std::this_thread::sleep_for(std::chrono::seconds(5));
     }
     spdlog::info("Info thread stopped");
@@ -148,7 +176,11 @@ int Request::startup() {
 }
 
 int Request::request(const std::string &url, enum request_type type) {
-  spdlog::info("crawler url: {}", url);
+  if (stopping) {
+    return EXIT_SUCCESS;
+  }
+
+  spdlog::info("Crawler url: {}", url);
 
   std::string _useragent = USERAGENT;
   if (!config.crawler_useragent.empty()) {
@@ -259,6 +291,12 @@ int Request::request(const std::string &url, enum request_type type) {
       spdlog::error("Database with error: {}", code);
     }
     break;
+  case request_type_emoji:
+    code = request_emoji(content);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
+    }
+    break;
   default:
     return UNKNOWN_REQUEST_TYPE;
   }
@@ -297,30 +335,14 @@ int Request::request_followx(nlohmann::json content) {
 
 int Request::request_orgs_members(nlohmann::json content) {
   for (auto con : content) {
-    User user;
-    if (con["hireable"].dump() != "true") {
-      con["hireable"] = false;
+    std::string request_url = "/users/" + con["login"].get<std::string>();
+    int code = request(request_url, request_type_user);
+    if (code != 0) {
+      return code;
     }
-    user.login = content["login"].get<std::string>();
-    user.id = content["id"].get<int64_t>();
-    user.node_id = content["node_id"].get<std::string>();
-    user.type = content["type"].get<std::string>();
-    user.name = content["name"].get<std::string>();
-    user.company = content["company"].get<std::string>();
-    user.blog = content["blog"].get<std::string>();
-    user.location = content["location"].get<std::string>();
-    user.email = content["email"].get<std::string>();
-    user.hireable = content["hireable"].get<bool>();
-    user.bio = content["bio"].get<std::string>();
-    user.created_at = content["created_at"].get<std::string>();
-    user.updated_at = content["updated_at"].get<std::string>();
-    user.public_gists = content["public_gists"].get<int>();
-    user.public_repos = content["public_repos"].get<int>();
-    user.following = content["following"].get<int>();
-    user.followers = content["followers"].get<int>();
-
-    int code = database->create_user(user);
-    return code;
+    if (stopping) {
+      return EXIT_SUCCESS;
+    }
   }
   return EXIT_SUCCESS;
 }
@@ -332,9 +354,13 @@ int Request::request_orgs(nlohmann::json content) {
     org.id = con["id"].get<int64_t>();
     org.node_id = con["node_id"].get<std::string>();
     org.description = con["description"].get<std::string>();
-    spdlog::info("request_type_orgs: {}", con["login"]);
     int code = database->create_org(org);
-    return code;
+    if (code != 0) {
+      return code;
+    }
+    if (stopping) {
+      return EXIT_SUCCESS;
+    }
   }
   return EXIT_SUCCESS;
 }
@@ -363,5 +389,14 @@ int Request::request_user(nlohmann::json content) {
   user.followers = content["followers"].get<int>();
 
   int code = database->create_user(user);
+  return code;
+}
+
+int Request::request_emoji(nlohmann::json content) {
+  std::vector<Emoji> emojis;
+  for (auto it : content.items()) {
+    emojis.push_back(Emoji{it.key(), it.value()});
+  }
+  int code = database->create_emoji(emojis);
   return code;
 }

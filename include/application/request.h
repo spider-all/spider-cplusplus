@@ -5,6 +5,7 @@
 #include <thread>
 #include <utility>
 
+#include <fort.hpp>
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <httplib.h>
 #include <nlohmann/json.hpp>
@@ -28,6 +29,7 @@ enum request_type {
   request_type_orgs,
   request_type_orgs_member,
   request_type_repos,
+  request_type_emoji,
 };
 
 class Request : public Application {
@@ -54,6 +56,7 @@ private:
   int request_orgs(nlohmann::json content);
   int request_user(nlohmann::json content);
   int request_followx(nlohmann::json content);
+  int request_emoji(nlohmann::json content);
 
 public:
   Request(Config, Database *);

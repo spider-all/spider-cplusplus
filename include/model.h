@@ -2,7 +2,7 @@
 
 #pragma once
 
-struct User {
+typedef struct User {
   int64_t id;
   std::string login;
   std::string node_id;
@@ -20,11 +20,16 @@ struct User {
   int public_repos;
   int following;
   int followers;
-};
+} User;
 
-struct Org {
+typedef struct Org {
   int64_t id;
   std::string login;
   std::string node_id;
   std::string description;
-};
+} Org;
+
+typedef struct Emoji {
+  std::string name;
+  std::string url;
+} Emoji;

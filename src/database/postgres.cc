@@ -74,3 +74,11 @@ int64_t Postgres::count_user() {
 int64_t Postgres::count_org() {
   return 0;
 }
+
+int Postgres::create_emoji(std::vector<Emoji> emojis) {
+  return EXIT_SUCCESS;
+}
+
+int64_t Postgres::count_emoji() {
+  return 0;
+}

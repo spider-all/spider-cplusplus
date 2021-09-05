@@ -61,6 +61,9 @@ target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIP
 find_package(libpqxx CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE libpqxx::pqxx)
 
+find_package(libfort CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE libfort::fort)
+
 find_package(ZLIB REQUIRED)
 target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 

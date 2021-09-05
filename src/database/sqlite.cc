@@ -39,6 +39,9 @@ int SQLite3::initialize() {
       "`login` TEXT NOT NULL, "
       "`node_id` TEXT NOT NULL, "
       "`description` TEXT NOT NULL);",
+      "CREATE TABLE IF NOT EXISTS `emojis` ("
+      "`name` TEXT NOT NULL PRIMARY KEY, "
+      "`url` TEXT NOT NULL);",
   };
   for (const std::string &sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);
@@ -107,6 +110,54 @@ int SQLite3::create_user(User user) {
   return EXIT_SUCCESS;
 }
 
+int SQLite3::create_emoji(std::vector<Emoji> emojis) {
+  for (Emoji emoji : emojis) {
+    auto *query = new SQLite::Statement(*db.sqlite, "SELECT `name` FROM `emojis` WHERE `name` = ?");
+    query->bind(1, emoji.name);
+    std::string create_sql;
+    if (query->executeStep()) {
+      create_sql = "UPDATE `emojis` SET `name` = ?, `url` = ? WHERE `name` = ?";
+    } else {
+      create_sql = "INSERT INTO `emojis` VALUES (?, ?)";
+    }
+
+    auto *create_st = new SQLite::Statement(*db.sqlite, create_sql);
+
+    create_st->bind(1, emoji.name);
+    create_st->bind(2, emoji.url);
+
+    if (query->hasRow()) {
+      create_st->bind(3, emoji.name);
+    }
+
+    delete query;
+
+    try {
+      create_st->exec();
+    } catch (const std::exception &e) {
+      spdlog::error("Insert emoji with error: {}", e.what());
+      return DATABASE_SQL_ERROR;
+    }
+
+    delete create_st;
+  }
+  return EXIT_SUCCESS;
+}
+
+int64_t SQLite3::count_emoji() {
+  int64_t count = 0;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(name) FROM `emojis`");
+  try {
+    while (query->executeStep()) {
+      count = query->getColumn(0);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query emojis with error: {}", e.what());
+  }
+  delete query;
+  return count;
+}
+
 int SQLite3::create_org(Org org) {
   auto *query = new SQLite::Statement(*db.sqlite, "SELECT `id` FROM `orgs` WHERE `id` = ?");
   query->bind(1, org.id);
@@ -133,7 +184,7 @@ int SQLite3::create_org(Org org) {
   try {
     create_st->exec();
   } catch (const std::exception &e) {
-    spdlog::error("Insert user with error: {}", e.what());
+    spdlog::error("Insert org with error: {}", e.what());
     return DATABASE_SQL_ERROR;
   }
 

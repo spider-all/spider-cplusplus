@@ -42,4 +42,7 @@ public:
   int create_org(Org) override;
   int64_t count_org() override;
   std::vector<std::string> list_orgs() override;
+
+  int create_emoji(std::vector<Emoji> emojis) override;
+  int64_t count_emoji() override;
 };
