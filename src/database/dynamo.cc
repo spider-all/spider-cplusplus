@@ -191,3 +191,10 @@ int64_t Dynamo::count_user() {
 int64_t Dynamo::count_org() {
   return 0;
 }
+
+int Dynamo::create_emoji(std::vector<Emoji> emojis) {
+  return EXIT_SUCCESS;
+}
+int64_t Dynamo::count_emoji() {
+  return 0;
+}

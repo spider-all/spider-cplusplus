@@ -70,3 +70,11 @@ std::vector<std::string> Mongo::list_orgs() {
 
 int64_t Mongo::count_user() { return 0; }
 int64_t Mongo::count_org() { return 0; }
+
+int Mongo::create_emoji(std::vector<Emoji> emojis) {
+  return EXIT_SUCCESS;
+}
+
+int64_t Mongo::count_emoji() {
+  return 0;
+}

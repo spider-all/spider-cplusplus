@@ -85,8 +85,6 @@ int main(int argc, char const *argv[]) {
     return EXIT_FAILURE;
   }
 
-  return 0;
-
   Application *request = new Request(config, database);
 
   signal(SIGINT, callback);

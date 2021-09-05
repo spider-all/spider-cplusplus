@@ -132,3 +132,11 @@ std::vector<std::string> Level::list_orgs() {
 
 int64_t Level::count_user() { return 0; }
 int64_t Level::count_org() { return 0; }
+
+int Level::create_emoji(std::vector<Emoji> emojis) {
+  return EXIT_SUCCESS;
+}
+
+int64_t Level::count_emoji() {
+  return 0;
+}
