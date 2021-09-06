@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
-    tags:
-      - "*"
   pull_request:
     branches:
       - main
@@ -17,13 +14,29 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: tosone
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Compile docker image
+      - name: Set env
+        run: echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
+      - name: Compile base docker image
+        if: startsWith(github.event.head_commit.message, ':bookmark:')
         run: |
-          docker build -t ghcr.io/spider-all/spider-cplusplus:$GITHUB_SHA .
+          docker build -t ghcr.io/spider-all/spider-cplusplus:base-${{ env.GIT_TAG }} -f Dockerfile.base .
+          docker push ghcr.io/spider-all/spider-cplusplus:base-${{ env.GIT_TAG }}
+      - name: Compile base docker image
+        if: startsWith(github.event.head_commit.message, ':bookmark:')
+        run: |
+          docker build --build-arg SPIDER_VERSION=${{ env.GIT_TAG }} -t ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }} -f Dockerfile .
+          docker push ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }}
+      - name: Compile docker image
+        if: startsWith(github.event.head_commit.message, ':bookmark:') != true
+        run: |
+          docker build --build-arg SPIDER_VERSION=${{ env.GIT_TAG }} -t ghcr.io/spider-all/spider-cplusplus:$GITHUB_SHA .

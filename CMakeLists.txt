@@ -64,6 +64,12 @@ target_link_libraries(spider PRIVATE libpqxx::pqxx)
 find_package(libfort CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE libfort::fort)
 
+find_package(libmysql REQUIRED)
+target_link_libraries(spider PRIVATE ${MYSQL_LIBRARIES})
+
+find_package(Poco CONFIG REQUIRED Net XML Zip Data)
+target_link_libraries(spider PRIVATE Poco::Net Poco::XML Poco::Zip Poco::Data)
+
 find_package(ZLIB REQUIRED)
 target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 

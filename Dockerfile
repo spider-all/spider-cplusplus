@@ -1,9 +1,13 @@
+ARG SPIDER_VERSION
+
+FROM ghcr.io/spider-all/spider-cplusplus:base-${SPIDER_VERSION} as base
+
 FROM buildpack-deps:stable as builder
 
 WORKDIR /app
 
 COPY . .
-COPY --from=ghcr.io/spider-all/spider-cplusplus:base-v1.2.2 /app/pkgs ./pkgs
+COPY --from=base /app/pkgs ./pkgs
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends jq libsasl2-dev ccache cmake && \
   rm -rf /var/lib/apt/lists/* && \
@@ -12,8 +16,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends jq libsasl2-
 FROM debian:buster
 
 WORKDIR /app
-
-ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends libsasl2-dev && \
   rm -rf /var/lib/apt/lists/*
