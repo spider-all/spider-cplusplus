@@ -1,6 +1,6 @@
 {
   "name": "spider",
-  "version": "v1.2.2",
+  "version": "v1.2.3",
   "deps": [
     "zlib",
     "openssl",
@@ -18,7 +18,8 @@
     "mongo-cxx-driver",
     "zstd",
     "libpqxx",
-    "libfort"
+    "libfort",
+    "poco[mysql]"
   ],
   "license": "MIT",
   "author": {
