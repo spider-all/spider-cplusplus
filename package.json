@@ -1,6 +1,6 @@
 {
   "name": "spider",
-  "version": "v1.2.3",
+  "version": "v1.2.4",
   "deps": [
     "zlib",
     "openssl",
@@ -19,7 +19,7 @@
     "zstd",
     "libpqxx",
     "libfort",
-    "poco[mysql]"
+    "soci[boost,mysql,postgresql,sqlite3]"
   ],
   "license": "MIT",
   "author": {
