@@ -5,6 +5,8 @@
 #include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 
+#include <mysql/mysql.h>
+
 #include <config.h>
 
 #include <application/request.h>

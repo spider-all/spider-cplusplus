@@ -83,6 +83,13 @@ find_package(leveldb CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE leveldb::leveldb)
 
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libhiredis.a)
+# target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmysqlclient.a)
+
+find_package(libmysql REQUIRED)
+target_link_libraries(spider PRIVATE ${MYSQL_LIBRARIES})
+
+# find_package(SOCI CONFIG REQUIRED)
+# target_link_libraries(spider PRIVATE SOCI::soci_core_static SOCI::soci_empty_static SOCI::soci_mysql_static SOCI::soci_sqlite3_static)
 
 target_include_directories(spider PRIVATE include)
 

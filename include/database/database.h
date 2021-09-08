@@ -5,6 +5,7 @@
 #include <hiredis/hiredis.h>
 #include <leveldb/db.h>
 #include <mongocxx/client.hpp>
+#include <mysql/mysql.h>
 #include <pqxx/pqxx>
 
 #pragma once
@@ -20,6 +21,7 @@ public:
     Aws::DynamoDB::DynamoDBClient *dynamo;
     mongocxx::client *client;
     pqxx::connection *pg;
+    MYSQL *mysql;
   } db{};
   int code = 0;
   virtual ~Database() = default;
