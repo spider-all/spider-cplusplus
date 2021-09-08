@@ -24,6 +24,9 @@ jobs:
           registry: ghcr.io
           username: tosone
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d')"
       - name: Set env
         run: echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
       - name: Compile base docker image
@@ -31,7 +34,7 @@ jobs:
         run: |
           docker build -t ghcr.io/spider-all/spider-cplusplus:base-${{ env.GIT_TAG }} -f Dockerfile.base .
           docker push ghcr.io/spider-all/spider-cplusplus:base-${{ env.GIT_TAG }}
-      - name: Compile base docker image
+      - name: Compile release docker image
         if: startsWith(github.event.head_commit.message, ':bookmark:')
         run: |
           docker build --build-arg SPIDER_VERSION=${{ env.GIT_TAG }} -t ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }} -f Dockerfile .
@@ -39,4 +42,7 @@ jobs:
       - name: Compile docker image
         if: startsWith(github.event.head_commit.message, ':bookmark:') != true
         run: |
-          docker build --build-arg SPIDER_VERSION=${{ env.GIT_TAG }} -t ghcr.io/spider-all/spider-cplusplus:$GITHUB_SHA .
+          docker build --build-arg SPIDER_VERSION=${{ env.GIT_TAG }} -t ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }}-$TAG_NAME .
+          docker push ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }}-$TAG_NAME
+        env:
+          TAG_NAME: ${{ steps.date.outputs.date }}
