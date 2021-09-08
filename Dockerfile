@@ -13,7 +13,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends jq libsasl2-
   rm -rf /var/lib/apt/lists/* && \
   make release
 
-FROM debian:buster
+FROM debian:bullseye
 
 WORKDIR /app
 
