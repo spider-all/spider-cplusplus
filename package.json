@@ -19,7 +19,7 @@
     "zstd",
     "libpqxx",
     "libfort",
-    "soci[boost,mysql,postgresql,sqlite3]"
+    "libmysql"
   ],
   "license": "MIT",
   "author": {
