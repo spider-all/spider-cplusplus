@@ -23,6 +23,8 @@ public:
   std::vector<std::string> list_users() override;
   int64_t count_user() override;
 
+  int64_t count_x(std::string table, std::string field);
+
   int create_org(Org) override;
   int64_t count_org() override;
   std::vector<std::string> list_orgs() override;

@@ -3,8 +3,8 @@
 Mongo::Mongo(const std::string &string) {
   mongocxx::instance instance{};
   mongocxx::uri uri(string);
-  db.client = new mongocxx::client(uri);
-  auto database = db.client->database("vmapp");
+  db.mongo = new mongocxx::client(uri);
+  auto database = db.mongo->database("vmapp");
   coll = database.collection("test");
 }
 
@@ -13,8 +13,8 @@ int Mongo::initialize() {
 }
 
 Mongo::~Mongo() {
-  if (db.client != nullptr) {
-    delete db.client;
+  if (db.mongo != nullptr) {
+    delete db.mongo;
   }
 }
 
