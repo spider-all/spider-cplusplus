@@ -71,6 +71,21 @@ int SQLite3::initialize() {
   return EXIT_SUCCESS;
 }
 
+int64_t SQLite3::count_x(std::string table, std::string field) {
+  int64_t count = 0;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(" + field + ") FROM `" + table + "`");
+  try {
+    while (query->executeStep()) {
+      count = query->getColumn(0);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query {} with error: {}", table, e.what());
+    return SQL_EXEC_ERROR;
+  }
+  delete query;
+  return count;
+}
+
 int SQLite3::create_user(User user) {
   auto *query = new SQLite::Statement(
       *db.sqlite, "SELECT `id` FROM `users` WHERE `id` = ?");
@@ -84,8 +99,7 @@ int SQLite3::create_user(User user) {
         "`public_gists` = ?, `public_repos` = ?, `following` = ?, `followers` "
         "= ? WHERE `id` = ?";
   } else {
-    create_sql = "INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                 "?, ?, ?, ?, ?, ?)";
+    create_sql = "INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   }
 
   auto *create_st = new SQLite::Statement(*db.sqlite, create_sql);
@@ -161,17 +175,7 @@ int SQLite3::create_emoji(std::vector<Emoji> emojis) {
 }
 
 int64_t SQLite3::count_emoji() {
-  int64_t count = 0;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(name) FROM `emojis`");
-  try {
-    while (query->executeStep()) {
-      count = query->getColumn(0);
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Query emojis with error: {}", e.what());
-  }
-  delete query;
-  return count;
+  return count_x("emojis", "name");
 }
 
 int SQLite3::create_gitignore(Gitignore gitignore) {
@@ -207,31 +211,11 @@ int SQLite3::create_gitignore(Gitignore gitignore) {
 }
 
 int64_t SQLite3::count_gitignore() {
-  int64_t count = 0;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(name) FROM `gitignores`");
-  try {
-    while (query->executeStep()) {
-      count = query->getColumn(0);
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Query gitignores with error: {}", e.what());
-  }
-  delete query;
-  return count;
+  return count_x("gitignores", "name");
 }
 
 int64_t SQLite3::count_license() {
-  int64_t count = 0;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(key) FROM `licenses`");
-  try {
-    while (query->executeStep()) {
-      count = query->getColumn(0);
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Query licenses with error: {}", e.what());
-  }
-  delete query;
-  return count;
+  return count_x("licenses", "key");
 }
 
 int SQLite3::create_license(License license) {
@@ -341,29 +325,9 @@ std::vector<std::string> SQLite3::list_orgs() {
 }
 
 int64_t SQLite3::count_user() {
-  int64_t count = 0;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(id) FROM `users`");
-  try {
-    while (query->executeStep()) {
-      count = query->getColumn(0);
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Query users with error: {}", e.what());
-  }
-  delete query;
-  return count;
+  return count_x("users", "id");
 }
 
 int64_t SQLite3::count_org() {
-  int64_t count = 0;
-  auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(id) FROM `orgs`");
-  try {
-    while (query->executeStep()) {
-      count = query->getColumn(0);
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Query orgs with error: {}", e.what());
-  }
-  delete query;
-  return count;
+  return count_x("orgs", "id");
 }

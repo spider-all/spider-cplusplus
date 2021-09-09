@@ -19,7 +19,7 @@ public:
     SQLite::Database *sqlite;
     redisContext *redis;
     Aws::DynamoDB::DynamoDBClient *dynamo;
-    mongocxx::client *client;
+    mongocxx::client *mongo;
     pqxx::connection *pg;
     MYSQL *mysql;
   } db{};

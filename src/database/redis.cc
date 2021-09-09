@@ -71,13 +71,11 @@ int Redis::create_user(User user) {
   if (code == EXIT_FAILURE) {
     return EXIT_SUCCESS;
   }
-  code = set_value("user:public_gists:" + userId,
-                   std::to_string(user.public_gists));
+  code = set_value("user:public_gists:" + userId, std::to_string(user.public_gists));
   if (code == EXIT_FAILURE) {
     return EXIT_SUCCESS;
   }
-  code = set_value("user:public_repos:" + userId,
-                   std::to_string(user.public_repos));
+  code = set_value("user:public_repos:" + userId, std::to_string(user.public_repos));
   if (code == EXIT_FAILURE) {
     return EXIT_SUCCESS;
   }
@@ -98,8 +96,7 @@ int Redis::create_org(Org) {
 }
 
 int Redis::set_value(const std::string &key, const std::string &value) {
-  auto *reply = (redisReply *)redisCommand(db.redis, "SET %s %s", key.c_str(),
-                                           value.c_str());
+  auto *reply = (redisReply *)redisCommand(db.redis, "SET %s %s", key.c_str(), value.c_str());
 
   int code = 0;
   if (reply == nullptr) {
@@ -141,16 +138,14 @@ std::vector<std::string> Redis::list_users() {
   } else if (reply->type == REDIS_REPLY_ARRAY) {
     for (size_t j = 0; j < reply->elements; j++) {
       std::string value;
-      if (reply->element[j]->str != nullptr)
+      if (reply->element[j]->str != nullptr) {
         get_value(std::string(reply->element[j]->str), &value);
+      }
       users.push_back(value);
     }
   }
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  std::shuffle(
-      users.begin(), users.end(),
-      std::default_random_engine(
-          std::chrono::system_clock::now().time_since_epoch().count()));
+  std::shuffle(users.begin(), users.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
   if (reply != nullptr) {
     freeReplyObject(reply);
   }
