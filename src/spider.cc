@@ -15,7 +15,6 @@
 #include <database/level.h>
 #include <database/mongo.h>
 #include <database/postgres.h>
-#include <database/redis.h>
 #include <database/sqlite3.h>
 
 bool keep_running = true; // test keep running
@@ -29,8 +28,6 @@ Database *switcher(const Config &config) {
   Database *ret = nullptr;
   if (config.database_type == "sqlite3") {
     ret = new SQLite3(config.database_path);
-  } else if (config.database_type == "redis") {
-    ret = new Redis(config.database_host, config.database_port);
   } else if (config.database_type == "leveldb") {
     ret = new Level(config.database_path);
   } else if (config.database_type == "dynamo") {

@@ -9,7 +9,6 @@
     "nlohmann-json",
     "sqlitecpp",
     "sqlite3",
-    "hiredis[ssl]",
     "leveldb",
     "curl[ssl]",
     "cpp-httplib",
@@ -19,7 +18,8 @@
     "zstd",
     "libpqxx",
     "libfort",
-    "libmysql"
+    "libmysql",
+    "abseil[cxx17]"
   ],
   "license": "MIT",
   "author": {
