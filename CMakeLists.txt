@@ -82,10 +82,11 @@ target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
 find_package(leveldb CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE leveldb::leveldb)
 
-target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libhiredis.a)
-
 find_package(libmysql REQUIRED)
 target_link_libraries(spider PRIVATE ${MYSQL_LIBRARIES})
+
+find_package(absl CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE absl::any absl::base absl::bits absl::city)
 
 target_include_directories(spider PRIVATE include)
 
