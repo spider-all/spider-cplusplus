@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
   app.add_option("-c,--config", config_path, "config path");
   CLI11_PARSE(app, argc, argv);
 
-  const std::string default_config = "./etc/config.yaml";
+  const std::string default_config = "/etc/spider-cplusplus/config.yaml";
   if (config_path.empty()) {
     config_path = default_config;
   }
