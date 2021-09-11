@@ -56,8 +56,7 @@ int SQLite3::initialize() {
       "`conditions` TEXT, "
       "`limitations` TEXT, "
       "`body` TEXT NOT NULL, "
-      "`featured` NUMERIC, "
-      "`source` TEXT NOT NULL);",
+      "`featured` NUMERIC);",
   };
   for (const std::string &sql : CreateSentence) {
     spdlog::info("Initialize sql: {}", sql);

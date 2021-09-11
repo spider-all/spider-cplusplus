@@ -9,6 +9,9 @@ int Config::initialize(const char *config_path) {
 
   database_path = config["database"]["path"].as<std::string>();
   database_type = config["database"]["type"].as<std::string>();
+  if (database_type == "leveldb") {
+    database_leveldb_path = config["database"]["leveldb"]["path"].as<std::string>();
+  }
   database_host = config["database"]["host"].as<std::string>();
   database_port = config["database"]["port"].as<int>();
   database_aws_region = config["database"]["aws_region"].as<std::string>();

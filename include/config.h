@@ -20,6 +20,8 @@ public:
   int database_port;
   std::string database_aws_region;
 
+  std::string database_leveldb_path;
+
   std::string crawler_entry_username; // entry user name
   std::string crawler_token;          // client id
   std::string crawler_useragent;      // useragent

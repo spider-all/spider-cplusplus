@@ -85,9 +85,6 @@ target_link_libraries(spider PRIVATE leveldb::leveldb)
 find_package(libmysql REQUIRED)
 target_link_libraries(spider PRIVATE ${MYSQL_LIBRARIES})
 
-find_package(absl CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE absl::any absl::base absl::bits absl::city)
-
 target_include_directories(spider PRIVATE include)
 
 message("System info: ${CMAKE_SYSTEM}")
