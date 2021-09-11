@@ -2,6 +2,7 @@
 #include <random>
 
 #include <leveldb/db.h>
+#include <leveldb/write_batch.h>
 #include <spdlog/spdlog.h>
 
 #pragma once
@@ -16,6 +17,8 @@ public:
   explicit Level(const std::string &);
   ~Level() override;
   int initialize() override;
+
+  int64_t count_x(std::string table, std::string field);
 
   int create_user(User) override;
   int64_t count_user() override;

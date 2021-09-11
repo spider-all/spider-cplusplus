@@ -5,8 +5,6 @@
 #include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 
-#include <mysql/mysql.h>
-
 #include <config.h>
 
 #include <application/request.h>
@@ -29,7 +27,7 @@ Database *switcher(const Config &config) {
   if (config.database_type == "sqlite3") {
     ret = new SQLite3(config.database_path);
   } else if (config.database_type == "leveldb") {
-    ret = new Level(config.database_path);
+    ret = new Level(config.database_leveldb_path);
   } else if (config.database_type == "dynamo") {
     ret = new Dynamo(config.database_aws_region);
   } else if (config.database_type == "mongodb") {

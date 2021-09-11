@@ -476,7 +476,7 @@ int Request::request_gitignore_info(nlohmann::json content) {
 
 int Request::request_license_list(nlohmann::json content) {
   for (auto con : content) {
-    std::string request_url = "/licenses/" + con.get<std::string>();
+    std::string request_url = "/licenses/" + con["key"].get<std::string>();
     int code = request(request_url, request_type_license_info);
     if (code != 0) {
       return code;
@@ -500,7 +500,7 @@ int Request::request_license_info(nlohmann::json content) {
       .conditions = content["conditions"].dump(),
       .limitations = content["limitations"].dump(),
       .body = content["body"].get<std::string>(),
-      .featured = content["body"].get<bool>(),
+      .featured = content["featured"].get<bool>(),
   };
   int code = database->create_license(license);
   return code;

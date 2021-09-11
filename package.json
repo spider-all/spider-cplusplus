@@ -18,8 +18,7 @@
     "zstd",
     "libpqxx",
     "libfort",
-    "libmysql",
-    "abseil[cxx17]"
+    "libmysql"
   ],
   "license": "MIT",
   "author": {
