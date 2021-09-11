@@ -6,9 +6,11 @@
 #include <pqxx/pqxx>
 #include <spdlog/spdlog.h>
 
-#pragma once
+#include <error.h>
 
 #include <database/database.h>
+
+#pragma once
 
 class Postgres : public Database {
 private:

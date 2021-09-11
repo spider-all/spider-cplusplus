@@ -5,9 +5,11 @@
 #include <leveldb/write_batch.h>
 #include <spdlog/spdlog.h>
 
-#pragma once
+#include <error.h>
 
 #include <database/database.h>
+
+#pragma once
 
 class Level : public Database {
 private:

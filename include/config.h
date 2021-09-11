@@ -36,5 +36,5 @@ public:
   std::string crawler_useragent;      // useragent
   std::string crawler_timezone;       // timezone
 
-  int initialize(const char *config_path);
+  int initialize(const std::string &config_path);
 };

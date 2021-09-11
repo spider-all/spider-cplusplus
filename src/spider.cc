@@ -66,7 +66,7 @@ int main(int argc, char const *argv[]) {
   }
 
   Config config;
-  int code = config.initialize(default_config.c_str());
+  int code = config.initialize(config_path);
   if (code != 0) {
     spdlog::error("Parse config with error: {}", code);
     return EXIT_FAILURE;
