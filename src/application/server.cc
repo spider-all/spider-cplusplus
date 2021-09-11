@@ -30,7 +30,7 @@ int Server::startup() {
     });
     int port = 3000;
     spdlog::info("Server running at port {}", port);
-    svr.listen("127.0.0.1", port);
+    svr.listen("0.0.0.0", port);
     semaphore--;
   });
   server_thread.detach();

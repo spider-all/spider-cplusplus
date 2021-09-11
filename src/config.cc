@@ -1,6 +1,6 @@
 #include <config.h>
 
-int Config::initialize(const char *config_path) {
+int Config::initialize(const std::string &config_path) {
   YAML::Node config = YAML::LoadFile(config_path);
   crawler_entry_username = config["name"].as<std::string>();
   crawler_token = config["token"].as<std::string>();

@@ -353,8 +353,12 @@ int Request::request(const std::string &url, enum request_type type) {
 
   std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
-  std::string header = response->headers.find("Link")->second;
-  while (regex_search(header, result, pieces_regex)) {
+  std::string header_link;
+  httplib::Headers::iterator it = response->headers.find("Link");
+  if (response->headers.end() != it && !it->second.empty()) {
+    header_link = it->second;
+  }
+  while (!header_link.empty() && regex_search(header_link, result, pieces_regex)) {
     if (result.size() == 3 && result[2] == "next") {
       auto u = std::string(result[1]);
       size_t pos = u.find(url_prefix);
@@ -364,7 +368,7 @@ int Request::request(const std::string &url, enum request_type type) {
 
       return request(u, type);
     }
-    header = result.suffix().str();
+    header_link = result.suffix().str();
   }
 
   return EXIT_SUCCESS;

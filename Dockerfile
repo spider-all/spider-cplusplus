@@ -15,15 +15,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends jq libsasl2-
 
 FROM debian:bullseye
 
-WORKDIR /app
-
-RUN apt-get update -y && apt-get install -y --no-install-recommends libsasl2-dev && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends libsasl2-dev ca-certificates && \
   rm -rf /var/lib/apt/lists/*
 
-COPY etc/config.yaml.sample etc/config.yaml
-COPY --from=builder /app/release/spider .
+COPY etc/config.yaml.sample /etc/spider-cplusplus/config.yaml
+COPY --from=builder /app/release/spider /usr/bin
 
-VOLUME "/app/etc"
-VOLUME "/app/db"
-
-CMD ["/app/spider", "-c", "/app/etc/config.yaml"]
+CMD ["spider", "-c", "/etc/spider-cplusplus/config.yaml"]

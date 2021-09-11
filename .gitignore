@@ -169,8 +169,9 @@ pkgs/
 debug/
 release/
 
-*.yaml
+etc/*.yaml
 *.db
 
 build/
 data/
+manifests/spider-cplusplus/charts/*.tgz

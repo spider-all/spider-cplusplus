@@ -1,0 +1,12 @@
+apiVersion: v2
+name: spider-cplusplus
+description: Crawl GitHub APIs and store the discovered orgs, repos, commits...
+type: application
+version: 0.1.0
+appVersion: "v1.2.5"
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
