@@ -11,7 +11,7 @@
 #pragma once
 
 #include <database/database.h>
-#include <error.hpp>
+#include <error.h>
 #include <model.h>
 
 class SQLite3 : public Database {

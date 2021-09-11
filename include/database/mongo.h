@@ -12,7 +12,7 @@
 #include <mongocxx/uri.hpp>
 #include <spdlog/spdlog.h>
 
-#include <error.hpp>
+#include <error.h>
 
 #pragma once
 

@@ -18,7 +18,7 @@
 
 #include <common.h>
 #include <config.h>
-#include <error.hpp>
+#include <error.h>
 
 #pragma once
 

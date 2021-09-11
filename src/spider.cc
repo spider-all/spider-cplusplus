@@ -6,10 +6,10 @@
 #include <spdlog/spdlog.h>
 
 #include <config.h>
+#include <const.h>
 
 #include <application/request.h>
 #include <application/server.h>
-#include <database/dynamo.h>
 #include <database/level.h>
 #include <database/mongo.h>
 #include <database/postgres.h>
@@ -24,15 +24,13 @@ void callback(int) {
 
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
-  if (config.database_type == "sqlite3") {
+  if (config.database_type == DATABASE_SQLTE3) {
     ret = new SQLite3(config.database_path);
-  } else if (config.database_type == "leveldb") {
+  } else if (config.database_type == DATABASE_LEVELDB) {
     ret = new Level(config.database_leveldb_path);
-  } else if (config.database_type == "dynamo") {
-    ret = new Dynamo(config.database_aws_region);
-  } else if (config.database_type == "mongodb") {
+  } else if (config.database_type == DATABASE_MONGODB) {
     ret = new Mongo(config.database_host);
-  } else if (config.database_type == "postgresql") {
+  } else if (config.database_type == DATABASE_POSTGRESQL) {
     ret = new Postgres(config.database_host);
   }
   if (ret == nullptr) {
