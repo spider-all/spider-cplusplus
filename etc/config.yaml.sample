@@ -4,9 +4,26 @@ timezone: "Asia/Shanghai"
 token: github_token
 
 database:
-  path: ./data/spider.db
+  # type: leveldb
+  # leveldb:
+  #   path: ./data/leveldb
+  #
+  # type: mongodb
+  # mongodb:
+  #   dsn: ""
+  #
+  # type: mysql
+  # mysql:
+  #   host: "127.0.0.1"
+  #   user: "root"
+  #   password: "8541539655"
+  #   db: "test"
+  #   port: 3306
+  #
+  # type: postgresql
+  # postgresql:
+  #   dsn: ""
+  #
   type: sqlite3
-  host: ""
-  port: 0
-
-  aws_region: ap-east-1
+  sqlite3:
+    path: ./data/spider.db

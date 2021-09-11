@@ -7,7 +7,6 @@ int Config::initialize(const char *config_path) {
   crawler_useragent = config["useragent"].as<std::string>();
   crawler_timezone = config["timezone"].as<std::string>();
 
-  database_path = config["database"]["path"].as<std::string>();
   database_type = config["database"]["type"].as<std::string>();
   if (database_type == DATABASE_SQLTE3) {
     database_sqlite3_path = config["database"][DATABASE_SQLTE3]["path"].as<std::string>();
@@ -15,9 +14,15 @@ int Config::initialize(const char *config_path) {
     database_leveldb_path = config["database"][DATABASE_LEVELDB]["path"].as<std::string>();
   } else if (database_type == DATABASE_MONGODB) {
     database_mongodb_dsn = config["database"][DATABASE_MONGODB]["dsn"].as<std::string>();
+  } else if (database_type == DATABASE_MYSQL) {
+    database_mysql_host = config["database"][DATABASE_MYSQL]["host"].as<std::string>();
+    database_mysql_user = config["database"][DATABASE_MYSQL]["user"].as<std::string>();
+    database_mysql_password = config["database"][DATABASE_MYSQL]["password"].as<std::string>();
+    database_mysql_db = config["database"][DATABASE_MYSQL]["db"].as<std::string>();
+    database_mysql_port = config["database"][DATABASE_MYSQL]["port"].as<unsigned int>();
+  } else if (database_type == DATABASE_POSTGRESQL) {
+    database_mongodb_dsn = config["database"][DATABASE_POSTGRESQL]["dsn"].as<std::string>();
   }
-  database_host = config["database"]["host"].as<std::string>();
-  database_port = config["database"]["port"].as<int>();
 
   if (crawler_entry_username.empty() || crawler_token.empty()) {
     spdlog::error("Config {0} have not the import value.", config_path);

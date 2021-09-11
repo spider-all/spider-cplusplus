@@ -12,7 +12,8 @@
 class MySQL : public Database {
 private:
 public:
-  MySQL(const std::string &);
+  MySQL(const std::string host, const std::string user,
+        const std::string password, const std::string db, unsigned int port);
   ~MySQL() override;
   int initialize() override;
 
