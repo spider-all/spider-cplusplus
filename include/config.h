@@ -15,16 +15,21 @@
 class Config {
 private:
 public:
-  std::string database_path;
   std::string database_type;
-  std::string database_host;
-  int database_port;
 
   std::string database_leveldb_path;
 
   std::string database_sqlite3_path;
 
   std::string database_mongodb_dsn;
+
+  std::string database_mysql_host;
+  std::string database_mysql_user;
+  std::string database_mysql_password;
+  std::string database_mysql_db;
+  unsigned int database_mysql_port;
+
+  std::string database_postgresql_dsn;
 
   std::string crawler_entry_username; // entry user name
   std::string crawler_token;          // client id

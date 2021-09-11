@@ -1,9 +1,10 @@
 #include <database/mysql.h>
 
-MySQL::MySQL(const std::string &host) {
+MySQL::MySQL(const std::string host, const std::string user,
+             const std::string password, const std::string db_name, unsigned int port) {
   mysql_library_init(0, NULL, NULL);
   db.mysql = mysql_init(NULL);
-  if (mysql_real_connect(db.mysql, "127.0.0.1", "root", "8541539655", "test", 3306, NULL, 0) == nullptr) {
+  if (mysql_real_connect(db.mysql, host.c_str(), user.c_str(), password.c_str(), db_name.c_str(), port, NULL, 0) == nullptr) {
     spdlog::error("Database connect with error {}", mysql_error(db.mysql));
   }
 }
