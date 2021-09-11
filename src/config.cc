@@ -9,12 +9,15 @@ int Config::initialize(const char *config_path) {
 
   database_path = config["database"]["path"].as<std::string>();
   database_type = config["database"]["type"].as<std::string>();
-  if (database_type == "leveldb") {
-    database_leveldb_path = config["database"]["leveldb"]["path"].as<std::string>();
+  if (database_type == DATABASE_SQLTE3) {
+    database_sqlite3_path = config["database"][DATABASE_SQLTE3]["path"].as<std::string>();
+  } else if (database_type == DATABASE_LEVELDB) {
+    database_leveldb_path = config["database"][DATABASE_LEVELDB]["path"].as<std::string>();
+  } else if (database_type == DATABASE_MONGODB) {
+    database_mongodb_dsn = config["database"][DATABASE_MONGODB]["dsn"].as<std::string>();
   }
   database_host = config["database"]["host"].as<std::string>();
   database_port = config["database"]["port"].as<int>();
-  database_aws_region = config["database"]["aws_region"].as<std::string>();
 
   if (crawler_entry_username.empty() || crawler_token.empty()) {
     spdlog::error("Config {0} have not the import value.", config_path);

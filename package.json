@@ -12,7 +12,6 @@
     "leveldb",
     "curl[ssl]",
     "cpp-httplib",
-    "aws-sdk-cpp[dynamodb]",
     "cli11",
     "mongo-cxx-driver",
     "zstd",

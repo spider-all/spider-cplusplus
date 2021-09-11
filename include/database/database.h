@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include <SQLiteCpp/SQLiteCpp.h>
-#include <aws/dynamodb/DynamoDBClient.h>
 #include <leveldb/db.h>
 #include <mongocxx/client.hpp>
 #include <mysql/mysql.h>
@@ -16,7 +15,6 @@ public:
   struct db {
     leveldb::DB *leveldb;
     SQLite::Database *sqlite;
-    Aws::DynamoDB::DynamoDBClient *dynamo;
     mongocxx::client *mongo;
     pqxx::connection *pg;
     MYSQL *mysql;

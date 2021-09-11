@@ -27,18 +27,6 @@ endif ()
 find_package(CLI11 CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE CLI11::CLI11)
 
-find_package(aws-cpp-sdk-core CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE aws-cpp-sdk-core)
-
-find_package(aws-cpp-sdk-dynamodb CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE aws-cpp-sdk-dynamodb)
-
-find_package(aws-cpp-sdk-kinesis CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE aws-cpp-sdk-kinesis)
-
-find_package(aws-cpp-sdk-s3 CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE aws-cpp-sdk-s3)
-
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
 
