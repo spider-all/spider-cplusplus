@@ -3,38 +3,93 @@ image:
   pullPolicy: IfNotPresent
   tag: "v1.2.5-202109120131"
 
-spider:
-  name: tosone
-  useragent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36"
-  timezone: "Asia/Shanghai"
-  token: ""
+config:
+  spider:
+    entry: tosone
+    useragent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36"
+    timezone: "Asia/Shanghai"
+    token: ""
   database:
-    type: leveldb
+    type: sqlite3
+    sqlite3:
+      path: /data/spider-cplusplus/spider.db
     leveldb:
       path: /spider-cplusplus/data
-    #
-    # type: mongodb
-    # mongodb:
-    #   dsn: ""
-    #
-    # type: mysql
-    # mysql:
-    #   host: "127.0.0.1"
-    #   user: "root"
-    #   password: "8541539655"
-    #   db: "test"
-    #   port: 3306
-    #
-    # type: postgresql
-    # postgresql:
-    #   dsn: ""
-    #
-    # type: sqlite3
-    # sqlite3:
-    #   path: /spider-cplusplus/data/spider.db
+
+externalDatabase:
+  enabled: false
+  type: sqlite3
+  mongodb:
+    dsn: ""
+  mysql:
+    host: "127.0.0.1"
+    user: "root"
+    password: "8541539655"
+    db: "test"
+    port: 3306
+  postgresql:
+    dsn: ""
+
+mongodb:
+  enabled: false
+  architecture: standalone
+  auth:
+    enabled: true
+    rootPassword: "spider-cplusplus"
+    username: "spider-cplusplus"
+    password: "spider-cplusplus"
+    database: "spider-cplusplus"
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 8Gi
+  service:
+    type: ClusterIP
+    port: 27017
+
+postgresql:
+  enabled: false
+  postgresqlPostgresPassword: "spider-cplusplus"
+  postgresqlUsername: "spider-cplusplus"
+  postgresqlPassword: "spider-cplusplus"
+  postgresqlDatabase: "spider-cplusplus"
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 8Gi
+  service:
+    type: ClusterIP
+    port: 5432
+
+mysql:
+  enabled: false
+  architecture: standalone
+  auth:
+    rootPassword: "spider-cplusplus"
+    database: "spider-cplusplus"
+    username: "spider-cplusplus"
+    password: "spider-cplusplus"
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 8Gi
+  service:
+    type: ClusterIP
+    port: 3306
 
 commonAnnotations:
   helm.sh/resource-policy: "keep"
+
+clusterDomain: cluster.local
 
 commonLabels: {}
 
@@ -57,7 +112,7 @@ podSecurityContext:
 securityContext:
   capabilities:
     drop:
-    - ALL
+      - ALL
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
@@ -69,7 +124,8 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:

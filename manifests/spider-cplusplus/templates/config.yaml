@@ -1,3 +1,5 @@
+{{- $fullname := include "spider-cplusplus.fullname" . }}
+{{- $releaseNamespace := include "spider-cplusplus.namespace" . }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,4 +7,39 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   config.yaml: |
-{{ toYaml .Values.spider | indent 4 }}
+    entry: {{ .Values.config.spider.entry | quote }}
+    useragent: {{ .Values.config.spider.useragent | quote }}
+    timezone: {{ .Values.config.spider.timezone | quote }}
+    token: {{ .Values.config.spider.token | quote }}
+    database:
+      type: {{ .Values.config.database.type | quote }}
+      sqlite3:
+        path: {{ .Values.config.database.sqlite3.path | quote }}
+      leveldb:
+        path: {{ .Values.config.database.leveldb.path | quote }}
+      mongodb:
+      {{- if .Values.externalDatabase.enabled }}
+        dsn: {{ .Values.externalDatabase.mongodb.dsn | quote }}
+      {{- else }}
+        dsn: mongodb://{{ .Values.mongodb.auth.username }}:{{ .Values.mongodb.auth.password }}@{{ printf "%s-mongodb" $fullname }}.{{ $releaseNamespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.mongodb.service.port }}/{{ .Values.mongodb.auth.database }}
+      {{- end }}
+      postgresql:
+      {{- if .Values.externalDatabase.enabled }}
+        dsn: {{ .Values.externalDatabase.postgresql.dsn }}
+      {{- else }}
+        dsn: postgresql://{{ .Values.postgresql.postgresqlUsername }}:{{ .Values.postgresql.postgresqlPassword }}@{{ printf "%s-postgresql" $fullname }}.{{ $releaseNamespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.postgresql.service.port }}/{{ .Values.mongodb.auth.database }}
+      {{- end }}
+      mysql:
+      {{- if .Values.externalDatabase.enabled }}
+        host: {{ .Values.externalDatabase.mysql.host | quote }}
+        user: {{ .Values.externalDatabase.mysql.user | quote }}
+        password: {{ .Values.externalDatabase.mysql.password | quote }}
+        db: {{ .Values.externalDatabase.mysql.db | quote }}
+        port: {{ .Values.externalDatabase.mysql.port | quote }}
+      {{- else }}
+        host: {{ printf "%s-mysql" $fullname | quote }}
+        user: {{ .Values.mysql.auth.username | quote }}
+        password: {{ .Values.mysql.auth.password | quote }}
+        db: {{ .Values.mysql.auth.database | quote }}
+        port: {{ .Values.mysql.service.port }}
+      {{- end }}
