@@ -6,6 +6,7 @@ int Config::initialize(const std::string &config_path) {
   crawler_token = config["token"].as<std::string>();
   crawler_useragent = config["useragent"].as<std::string>();
   crawler_timezone = config["timezone"].as<std::string>();
+  crawler_sleep_each_request = config["sleep"].as<int64_t>();
 
   database_type = config["database"]["type"].as<std::string>();
   if (database_type == DATABASE_SQLTE3) {

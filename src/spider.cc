@@ -86,6 +86,7 @@ int main(int argc, char const *argv[]) {
   Application *request = new Request(config, database);
 
   signal(SIGINT, callback);
+  signal(SIGTERM, callback);
 
   code = request->startup();
   if (code != 0) {
