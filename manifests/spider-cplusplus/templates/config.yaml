@@ -11,6 +11,7 @@ data:
     useragent: {{ .Values.config.spider.useragent | quote }}
     timezone: {{ .Values.config.spider.timezone | quote }}
     token: {{ .Values.config.spider.token | quote }}
+    sleep: {{ int .Values.config.spider.sleep }}
     database:
       type: {{ .Values.config.database.type | quote }}
       sqlite3:

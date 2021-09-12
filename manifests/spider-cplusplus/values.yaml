@@ -1,7 +1,7 @@
 image:
   repository: ghcr.io/spider-all/spider-cplusplus
   pullPolicy: IfNotPresent
-  tag: "v1.2.5-202109120131"
+  tag: "v1.2.5-202109121313"
 
 config:
   spider:
@@ -9,6 +9,7 @@ config:
     useragent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36"
     timezone: "Asia/Shanghai"
     token: ""
+    sleep: 10000
   database:
     type: sqlite3
     sqlite3:
@@ -18,14 +19,13 @@ config:
 
 externalDatabase:
   enabled: false
-  type: sqlite3
   mongodb:
     dsn: ""
   mysql:
     host: "127.0.0.1"
-    user: "root"
-    password: "8541539655"
-    db: "test"
+    user: "spider-cplusplus"
+    password: "spider-cplusplus"
+    db: "spider-cplusplus"
     port: 3306
   postgresql:
     dsn: ""
@@ -124,8 +124,7 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations:
-    {}
+  annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:

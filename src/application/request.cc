@@ -351,6 +351,8 @@ int Request::request(const std::string &url, enum request_type type) {
     return UNKNOWN_REQUEST_TYPE;
   }
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(config.crawler_sleep_each_request));
+
   std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
   std::string header_link;

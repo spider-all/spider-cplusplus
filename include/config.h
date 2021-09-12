@@ -35,6 +35,7 @@ public:
   std::string crawler_token;          // client id
   std::string crawler_useragent;      // useragent
   std::string crawler_timezone;       // timezone
+  int64_t crawler_sleep_each_request; // sleep each request
 
   int initialize(const std::string &config_path);
 };

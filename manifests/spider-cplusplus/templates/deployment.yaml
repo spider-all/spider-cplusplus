@@ -51,9 +51,9 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "spider-cplusplus.fullname" . }}-config
-              mountPath: /etc/{{ include "spider-cplusplus.fullname" . }}
+              mountPath: /etc/spider-cplusplus/
             - name: {{ include "spider-cplusplus.fullname" . }}-data
-              mountPath: /spider-cplusplus/data
+              mountPath: /data/spider-cplusplus/
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
