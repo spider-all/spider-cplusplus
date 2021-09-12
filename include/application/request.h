@@ -54,14 +54,14 @@ private:
   const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
 
-  int request_orgs_members(nlohmann::json content);
-  int request_orgs(nlohmann::json content);
+  int request_orgs_members(const nlohmann::json& content);
+  int request_orgs(const nlohmann::json& content);
   int request_user(nlohmann::json content);
-  int request_followx(nlohmann::json content);
+  int request_followx(const nlohmann::json& content);
   int request_emoji(nlohmann::json content);
-  int request_gitignore_list(nlohmann::json content);
+  int request_gitignore_list(const nlohmann::json& content);
   int request_gitignore_info(nlohmann::json content);
-  int request_license_list(nlohmann::json content);
+  int request_license_list(const nlohmann::json& content);
   int request_license_info(nlohmann::json content);
 
 public:

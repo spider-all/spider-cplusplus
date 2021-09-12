@@ -70,7 +70,7 @@ int SQLite3::initialize() {
   return EXIT_SUCCESS;
 }
 
-int64_t SQLite3::count_x(std::string table, std::string field) {
+int64_t SQLite3::count_x(const std::string &table, const std::string &field) {
   int64_t count = 0;
   auto *query = new SQLite::Statement(*db.sqlite, "SELECT COUNT(" + field + ") FROM `" + table + "`");
   try {
@@ -140,7 +140,7 @@ int SQLite3::create_user(User user) {
 }
 
 int SQLite3::create_emoji(std::vector<Emoji> emojis) {
-  for (Emoji emoji : emojis) {
+  for (const Emoji &emoji : emojis) {
     auto *query = new SQLite::Statement(*db.sqlite, "SELECT `name` FROM `emojis` WHERE `name` = ?");
     query->bind(1, emoji.name);
     std::string create_sql;
@@ -291,6 +291,23 @@ int SQLite3::create_org(Org org) {
   delete create_st;
 
   return EXIT_SUCCESS;
+}
+
+std::vector<User> SQLite3::list_usersx(common_args args) {
+  std::vector<User> users;
+  auto *query = new SQLite::Statement(*db.sqlite, "SELECT `login` FROM `users` limit " + std::to_string(args.limit) + " offset " + std::to_string((args.page - 1) * args.limit));
+  try {
+    while (query->executeStep()) {
+      User user;
+      std::string name = query->getColumn(0);
+      user.login = name;
+      users.push_back(user);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Query user with error: {}", e.what());
+  }
+  delete query;
+  return users;
 }
 
 std::vector<std::string> SQLite3::list_users() {

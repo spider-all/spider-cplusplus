@@ -17,7 +17,7 @@ int Level::initialize() {
   return EXIT_SUCCESS;
 }
 
-int64_t Level::count_x(std::string table, std::string field) {
+int64_t Level::count_x(const std::string& table, const std::string& field) {
   int64_t count = 0;
   std::string key = table + ":" + field;
   leveldb::Iterator *iter = db.leveldb->NewIterator(leveldb::ReadOptions());
@@ -88,6 +88,11 @@ int Level::create_org(Org org) {
   return EXIT_SUCCESS;
 }
 
+std::vector<User> Level::list_usersx(common_args args) {
+    std::vector<User> users;
+    return users;
+}
+
 std::vector<std::string> Level::list_orgs() {
   std::vector<std::string> orgs;
   leveldb::Iterator *iter = db.leveldb->NewIterator(leveldb::ReadOptions());
@@ -107,12 +112,11 @@ std::vector<std::string> Level::list_orgs() {
 
 int64_t Level::count_org() {
   return count_x("orgs", "id");
-  return 0;
 }
 
 int Level::create_emoji(std::vector<Emoji> emojis) {
   leveldb::WriteBatch batch;
-  for (Emoji emoji : emojis) {
+  for (const Emoji& emoji : emojis) {
     batch.Put("emojis:name:" + emoji.name, emoji.name);
     batch.Put("emojis:url:" + emoji.name, emoji.url);
   }

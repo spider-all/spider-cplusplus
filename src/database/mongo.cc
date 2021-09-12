@@ -13,9 +13,7 @@ int Mongo::initialize() {
 }
 
 Mongo::~Mongo() {
-  if (db.mongo != nullptr) {
     delete db.mongo;
-  }
 }
 
 int Mongo::create_user(User user) {
@@ -52,6 +50,11 @@ int Mongo::create_user(User user) {
     }
   }
   return 0;
+}
+
+std::vector<User> Mongo::list_usersx(common_args args) {
+    std::vector<User> users;
+    return users;
 }
 
 int Mongo::create_org(Org) {

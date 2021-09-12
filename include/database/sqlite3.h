@@ -19,11 +19,13 @@ public:
   explicit SQLite3(const std::string &);
   ~SQLite3() override;
   int initialize() override;
+
+  int64_t count_x(const std::string &table, const std::string &field);
+
   int create_user(User) override;
   std::vector<std::string> list_users() override;
   int64_t count_user() override;
-
-  int64_t count_x(std::string table, std::string field);
+  std::vector<User> list_usersx(common_args args) override;
 
   int create_org(Org) override;
   int64_t count_org() override;
