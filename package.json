@@ -17,7 +17,8 @@
     "zstd",
     "libpqxx",
     "libfort",
-    "libmysql"
+    "libmysql",
+    "prometheus-cpp[pull]"
   ],
   "license": "MIT",
   "author": {

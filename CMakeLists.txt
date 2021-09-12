@@ -73,6 +73,9 @@ target_link_libraries(spider PRIVATE leveldb::leveldb)
 find_package(libmysql REQUIRED)
 target_link_libraries(spider PRIVATE ${MYSQL_LIBRARIES})
 
+find_package(prometheus-cpp CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
+
 target_include_directories(spider PRIVATE include)
 
 message("System info: ${CMAKE_SYSTEM}")
