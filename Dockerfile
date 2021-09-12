@@ -15,7 +15,9 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends jq libsasl2-
 
 FROM debian:bullseye
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends libsasl2-dev ca-certificates && \
+ENV TZ=Asia/Shanghai
+
+RUN apt-get update -y && apt-get install -y --no-install-recommends tzdata libsasl2-dev ca-certificates && \
   rm -rf /var/lib/apt/lists/*
 
 COPY etc/config.yaml.sample /etc/spider-cplusplus/config.yaml

@@ -225,7 +225,20 @@ int Request::request(const std::string &url, enum request_type type) {
       {"Time-Zone", _timezone},
       {"Authorization", "Bearer " + config.crawler_token},
   };
-  auto response = client.Get(url.c_str(), headers);
+
+  httplib::Result response(nullptr, httplib::Unknown, httplib::Headers{});
+  try {
+    response = client.Get(url.c_str(), headers);
+  } catch (const std::exception &e) {
+    spdlog::error("Request with error: {}, {}", url, e.what());
+    return REQUEST_ERROR;
+  }
+
+  if (response == nullptr) {
+    spdlog::error("Request with error: {}", url);
+    return REQUEST_ERROR;
+  }
+
   for (const auto &header : response->headers) {
     if (header.first == "X-RateLimit-Limit") {
       rate_limit_limit = std::stoi(header.second, nullptr);
@@ -245,11 +258,12 @@ int Request::request(const std::string &url, enum request_type type) {
   }
 
   if (response->status == 403) {
-    auto current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    auto now = std::chrono::system_clock::now();
+    auto current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
     for (;;) {
       spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
       std::this_thread::sleep_for(std::chrono::seconds(30));
-      current = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
       if (rate_limit_reset - current <= 0) {
         break;
       }
