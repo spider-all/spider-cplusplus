@@ -20,11 +20,12 @@ public:
   ~Level() override;
   int initialize() override;
 
-  int64_t count_x(std::string table, std::string field);
+  int64_t count_x(const std::string &table, const std::string &field);
 
   int create_user(User) override;
   int64_t count_user() override;
   std::vector<std::string> list_users() override;
+  std::vector<User> list_usersx(common_args args) override;
 
   int create_org(Org) override;
   int64_t count_org() override;

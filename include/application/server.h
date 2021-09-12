@@ -1,8 +1,10 @@
 #include <iostream>
 
 #include <httplib.h>
+#include <nlohmann/json.hpp>
 
 #include <config.h>
+#include <model.h>
 
 #include <application/application.h>
 #include <database/database.h>
@@ -23,4 +25,6 @@ public:
   Server(Config, Database *);
   ~Server() override;
   int startup() override;
+
+  static common_args helper(const httplib::Request &req);
 };

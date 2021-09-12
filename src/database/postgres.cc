@@ -53,6 +53,11 @@ int Postgres::initialize() {
 
 int Postgres::create_user(User user) { return EXIT_SUCCESS; }
 
+std::vector<User> Postgres::list_usersx(common_args args) {
+    std::vector<User> users;
+    return users;
+}
+
 int Postgres::create_org(Org org) { return EXIT_SUCCESS; }
 
 std::vector<std::string> Postgres::list_users() {

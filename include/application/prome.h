@@ -19,7 +19,7 @@ private:
   int semaphore = 0; // 执行过程中的信号量
   bool stopping = false;
 
-  prometheus::Exposer *exposer;
+  prometheus::Exposer *exposer{};
 
 public:
   Prome(Config, Database *);

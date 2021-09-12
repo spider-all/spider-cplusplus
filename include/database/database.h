@@ -27,6 +27,8 @@ public:
   virtual int64_t count_user() = 0;
   virtual std::vector<std::string> list_users() = 0;
 
+  virtual std::vector<User> list_usersx(common_args args) = 0;
+
   virtual int create_org(Org) = 0;
   virtual int64_t count_org() = 0;
   virtual std::vector<std::string> list_orgs() = 0;

@@ -2,6 +2,11 @@
 
 #pragma once
 
+typedef struct {
+  unsigned long long page;
+  unsigned long long limit;
+} common_args;
+
 typedef struct User {
   int64_t id;
   std::string login;
@@ -59,7 +64,7 @@ typedef struct Repo {
   std::string name;
   std::string full_name;
   bool xprivate;     // private
-  std::string owner; // ower login
+  std::string owner; // owner login
   std::string description;
   bool fork;
   std::string created_at;

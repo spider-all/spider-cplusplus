@@ -390,7 +390,7 @@ int Request::request(const std::string &url, enum request_type type) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_followx(nlohmann::json content) {
+int Request::request_followx(const nlohmann::json& content) {
   for (auto i : content) {
     int code = request("/users/" + i["login"].get<std::string>(), request_type_user);
     if (code != 0) {
@@ -403,7 +403,7 @@ int Request::request_followx(nlohmann::json content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_orgs_members(nlohmann::json content) {
+int Request::request_orgs_members(const nlohmann::json& content) {
   for (auto con : content) {
     std::string request_url = "/users/" + con["login"].get<std::string>();
     int code = request(request_url, request_type_user);
@@ -417,7 +417,7 @@ int Request::request_orgs_members(nlohmann::json content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_orgs(nlohmann::json content) {
+int Request::request_orgs(const nlohmann::json& content) {
   for (auto con : content) {
     Org org;
     org.login = con["login"].get<std::string>();
@@ -464,15 +464,15 @@ int Request::request_user(nlohmann::json content) {
 
 int Request::request_emoji(nlohmann::json content) {
   std::vector<Emoji> emojis;
-  for (auto it : content.items()) {
+  for (const auto& it : content.items()) {
     emojis.push_back(Emoji{it.key(), it.value()});
   }
   int code = database->create_emoji(emojis);
   return code;
 }
 
-int Request::request_gitignore_list(nlohmann::json content) {
-  for (auto con : content) {
+int Request::request_gitignore_list(const nlohmann::json& content) {
+  for (const auto& con : content) {
     std::string request_url = "/gitignore/templates/" + con.get<std::string>();
     int code = request(request_url, request_type_gitignore_info);
     if (code != 0) {
@@ -494,7 +494,7 @@ int Request::request_gitignore_info(nlohmann::json content) {
   return code;
 }
 
-int Request::request_license_list(nlohmann::json content) {
+int Request::request_license_list(const nlohmann::json& content) {
   for (auto con : content) {
     std::string request_url = "/licenses/" + con["key"].get<std::string>();
     int code = request(request_url, request_type_license_info);
