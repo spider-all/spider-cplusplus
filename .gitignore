@@ -174,4 +174,3 @@ etc/*.yaml
 
 build/
 data/
-manifests/spider-cplusplus/charts/*.tgz

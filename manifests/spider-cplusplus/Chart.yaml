@@ -4,9 +4,22 @@ description: Crawl GitHub APIs and store the discovered orgs, repos, commits...
 type: application
 version: 0.1.0
 appVersion: "v1.2.5"
+engine: gotpl
 dependencies:
   - name: common
     repository: https://charts.bitnami.com/bitnami
     tags:
       - bitnami-common
     version: 1.x.x
+  - condition: mysql.enabled
+    name: mysql
+    repository: https://charts.bitnami.com/bitnami
+    version: 8.x.x
+  - condition: postgresql.enabled
+    name: postgresql
+    repository: https://charts.bitnami.com/bitnami
+    version: 10.x.x
+  - condition: mongodb.enabled
+    name: mongodb
+    repository: https://charts.bitnami.com/bitnami
+    version: 10.x.x
