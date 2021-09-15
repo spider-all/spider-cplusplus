@@ -163,6 +163,8 @@ Temporary Items
 
 # End of https://www.gitignore.io/api/macos,visualstudiocode,jetbrains,c++
 
+*.tgz
+
 .idea/
 .vscode/
 pkgs/

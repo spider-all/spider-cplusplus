@@ -9,15 +9,15 @@ WORKDIR /app
 COPY . .
 COPY --from=base /app/pkgs ./pkgs
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends jq libsasl2-dev ccache cmake && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends jq ccache cmake && \
   rm -rf /var/lib/apt/lists/* && \
   make release
 
-FROM debian:bullseye
+FROM debian:bullseye-slim
 
 ENV TZ=Asia/Shanghai
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends tzdata libsasl2-dev ca-certificates && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && \
   rm -rf /var/lib/apt/lists/*
 
 COPY etc/config.yaml.sample /etc/spider-cplusplus/config.yaml

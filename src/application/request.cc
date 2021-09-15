@@ -21,7 +21,7 @@ int Request::startup() {
   spdlog::info("Spider is running...");
   std::string request_url = "/users/" + config.crawler_entry_username;
 
-  int code = request(request_url, request_type_user);
+  int code = request(request_url, request_type_user, true);
   if (code != 0) {
     return code;
   }
@@ -201,7 +201,7 @@ int Request::startup() {
   return EXIT_SUCCESS;
 }
 
-int Request::request(const std::string &url, enum request_type type) {
+int Request::request(const std::string &url, enum request_type type, bool skip_sleep) {
   if (stopping) {
     return EXIT_SUCCESS;
   }
@@ -365,7 +365,9 @@ int Request::request(const std::string &url, enum request_type type) {
     return UNKNOWN_REQUEST_TYPE;
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(config.crawler_sleep_each_request));
+  if (!skip_sleep) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(config.crawler_sleep_each_request));
+  }
 
   std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
@@ -390,7 +392,7 @@ int Request::request(const std::string &url, enum request_type type) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_followx(const nlohmann::json& content) {
+int Request::request_followx(const nlohmann::json &content) {
   for (auto i : content) {
     int code = request("/users/" + i["login"].get<std::string>(), request_type_user);
     if (code != 0) {
@@ -403,7 +405,7 @@ int Request::request_followx(const nlohmann::json& content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_orgs_members(const nlohmann::json& content) {
+int Request::request_orgs_members(const nlohmann::json &content) {
   for (auto con : content) {
     std::string request_url = "/users/" + con["login"].get<std::string>();
     int code = request(request_url, request_type_user);
@@ -417,7 +419,7 @@ int Request::request_orgs_members(const nlohmann::json& content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_orgs(const nlohmann::json& content) {
+int Request::request_orgs(const nlohmann::json &content) {
   for (auto con : content) {
     Org org;
     org.login = con["login"].get<std::string>();
@@ -464,15 +466,15 @@ int Request::request_user(nlohmann::json content) {
 
 int Request::request_emoji(nlohmann::json content) {
   std::vector<Emoji> emojis;
-  for (const auto& it : content.items()) {
+  for (const auto &it : content.items()) {
     emojis.push_back(Emoji{it.key(), it.value()});
   }
   int code = database->create_emoji(emojis);
   return code;
 }
 
-int Request::request_gitignore_list(const nlohmann::json& content) {
-  for (const auto& con : content) {
+int Request::request_gitignore_list(const nlohmann::json &content) {
+  for (const auto &con : content) {
     std::string request_url = "/gitignore/templates/" + con.get<std::string>();
     int code = request(request_url, request_type_gitignore_info);
     if (code != 0) {
@@ -494,7 +496,7 @@ int Request::request_gitignore_info(nlohmann::json content) {
   return code;
 }
 
-int Request::request_license_list(const nlohmann::json& content) {
+int Request::request_license_list(const nlohmann::json &content) {
   for (auto con : content) {
     std::string request_url = "/licenses/" + con["key"].get<std::string>();
     int code = request(request_url, request_type_license_info);
