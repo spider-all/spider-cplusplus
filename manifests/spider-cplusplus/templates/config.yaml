@@ -10,7 +10,8 @@ data:
     entry: {{ .Values.config.spider.entry | quote }}
     useragent: {{ .Values.config.spider.useragent | quote }}
     timezone: {{ .Values.config.spider.timezone | quote }}
-    token: {{ .Values.config.spider.token | quote }}
+    token:
+      {{ toYaml .Values.config.spider.token }}
     sleep: {{ int .Values.config.spider.sleep }}
     database:
       type: {{ .Values.config.database.type | quote }}

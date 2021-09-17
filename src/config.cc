@@ -3,7 +3,7 @@
 int Config::initialize(const std::string &config_path) {
   YAML::Node config = YAML::LoadFile(config_path);
   crawler_entry_username = config["entry"].as<std::string>();
-  crawler_token = config["token"].as<std::string>();
+  crawler_token = config["token"].as<std::vector<std::string>>();
   crawler_useragent = config["useragent"].as<std::string>();
   crawler_timezone = config["timezone"].as<std::string>();
   crawler_sleep_each_request = config["sleep"].as<int64_t>();
