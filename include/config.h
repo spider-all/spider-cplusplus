@@ -31,11 +31,11 @@ public:
 
   std::string database_postgresql_dsn;
 
-  std::string crawler_entry_username; // entry user name
-  std::string crawler_token;          // client id
-  std::string crawler_useragent;      // useragent
-  std::string crawler_timezone;       // timezone
-  int64_t crawler_sleep_each_request; // sleep each request
+  std::string crawler_entry_username;     // entry username
+  std::vector<std::string> crawler_token; // client id
+  std::string crawler_useragent;          // useragent
+  std::string crawler_timezone;           // timezone
+  int64_t crawler_sleep_each_request;     // sleep each request
 
   int initialize(const std::string &config_path);
 };

@@ -1,6 +1,12 @@
 #include <database/sqlite3.h>
 
 SQLite3::SQLite3(const std::string &path) {
+  this->path = path;
+}
+
+SQLite3::~SQLite3() { delete db.sqlite; }
+
+int SQLite3::initialize() {
   try {
     unsigned flags = unsigned(SQLite::OPEN_CREATE) |
                      unsigned(SQLite::OPEN_READWRITE) |
@@ -10,11 +16,6 @@ SQLite3::SQLite3(const std::string &path) {
     spdlog::error("Open database with error: {}", e.what());
     code = DATABASE_OPEN_ERROR;
   }
-}
-
-SQLite3::~SQLite3() { delete db.sqlite; }
-
-int SQLite3::initialize() {
   const std::string CreateSentence[] = {
       "CREATE TABLE IF NOT EXISTS `users` ("
       "`id` NUMERIC NOT NULL PRIMARY KEY, "

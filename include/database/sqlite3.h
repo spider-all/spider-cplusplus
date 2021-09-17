@@ -15,6 +15,9 @@
 #include <model.h>
 
 class SQLite3 : public Database {
+private:
+  std::string path;
+
 public:
   explicit SQLite3(const std::string &);
   ~SQLite3() override;

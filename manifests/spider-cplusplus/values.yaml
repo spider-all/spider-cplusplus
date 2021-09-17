@@ -8,7 +8,8 @@ config:
     entry: tosone
     useragent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36"
     timezone: "Asia/Shanghai"
-    token: ""
+    token:
+      - "token"
     sleep: 10000
   database:
     type: sqlite3
@@ -124,7 +125,8 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:

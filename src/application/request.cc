@@ -223,16 +223,19 @@ int Request::request(const std::string &url, enum request_type type, bool skip_s
       {"Host", url_host},
       {"User-Agent", _useragent},
       {"Time-Zone", _timezone},
-      {"Authorization", "Bearer " + config.crawler_token},
+      {"Authorization", "Bearer " + config.crawler_token[token_index]},
   };
 
+  request_locker.lock();
   httplib::Result response(nullptr, httplib::Unknown, httplib::Headers{});
   try {
     response = client.Get(url.c_str(), headers);
   } catch (const std::exception &e) {
+    request_locker.unlock();
     spdlog::error("Request with error: {}, {}", url, e.what());
     return REQUEST_ERROR;
   }
+  request_locker.unlock();
 
   if (response == nullptr) {
     spdlog::error("Request with error: {}", url);
@@ -260,14 +263,12 @@ int Request::request(const std::string &url, enum request_type type, bool skip_s
   if (response->status == 403) {
     auto now = std::chrono::system_clock::now();
     auto current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-    for (;;) {
-      spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
-      std::this_thread::sleep_for(std::chrono::seconds(30));
-      current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-      if (rate_limit_reset - current <= 0) {
-        break;
-      }
-    }
+
+    spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
+    spdlog::info("Change token to next and retry");
+    token_index++;
+    token_index = token_index % config.crawler_token.size();
+
     return request(url, type);
   }
 
