@@ -1,10 +1,11 @@
 #include <database/mysql.h>
 
-MySQL::MySQL(const std::string& host, const std::string& user,
-             const std::string& password, const std::string& db_name, unsigned int port) {
+MySQL::MySQL(const std::string &host, const std::string &user,
+             const std::string &password, const std::string &db_name, unsigned int port) {
   mysql_library_init(0, nullptr, nullptr);
   db.mysql = mysql_init(nullptr);
-  if (mysql_real_connect(db.mysql, host.c_str(), user.c_str(), password.c_str(), db_name.c_str(), port, nullptr, 0) == nullptr) {
+  if (mysql_real_connect(db.mysql, host.c_str(), user.c_str(), password.c_str(),
+                         db_name.c_str(), port, nullptr, 0) == nullptr) {
     spdlog::error("Database connect with error {}", mysql_error(db.mysql));
   }
 }
@@ -30,8 +31,8 @@ std::vector<std::string> MySQL::list_users() {
 }
 
 std::vector<User> MySQL::list_usersx(common_args args) {
-    std::vector<User> users;
-    return users;
+  std::vector<User> users;
+  return users;
 }
 
 std::vector<std::string> MySQL::list_orgs() {
