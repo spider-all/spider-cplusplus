@@ -73,7 +73,7 @@ std::vector<User> Mongo::list_usersx(common_args args) {
 
     bsoncxx::document::value option_sort = bsoncxx::builder::stream::document{} << "id" << 1 << bsoncxx::builder::stream::finalize;
     option.sort(option_sort.view());
-    option.skip((int64_t)(args.page - 1) * args.limit);
+    option.skip((args.page - 1) * args.limit);
     option.limit(args.limit);
     mongocxx::cursor _val = coll.find(bsoncxx::document::view{});
     for (auto &&doc : _val) {

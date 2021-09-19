@@ -3,8 +3,9 @@
 #pragma once
 
 typedef struct {
-  unsigned long long page;
-  unsigned long long limit;
+  long long page;
+  long long limit;
+  std::string query;
 } common_args;
 
 typedef struct User {

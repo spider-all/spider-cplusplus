@@ -23,24 +23,26 @@ Server::~Server() {
 }
 
 common_args Server::helper(const httplib::Request &req) {
-  common_args args{0, 0};
+  common_args args{0, 0, ""};
   if (req.has_param("page")) {
-    args.page = std::stoull(req.get_param_value("page"));
+    args.page = std::stoll(req.get_param_value("page"));
     if (args.page == 0) {
       args.page = 1;
     }
   }
   if (req.has_param("limit")) {
-    args.limit = std::stoull(req.get_param_value("limit"));
+    args.limit = std::stoll(req.get_param_value("limit"));
     if (args.limit == 0 || args.limit > 100) {
       args.limit = 100;
     }
   }
+  if (req.has_param("query")) {
+    args.query = req.get_param_value("query");
+  }
   return args;
 }
 
-void to_json(nlohmann::json& j, const User& p)
-{
+void to_json(nlohmann::json &j, const User &p) {
   j = {{"login", p.login}};
 }
 
@@ -52,8 +54,7 @@ int Server::startup() {
     });
     svr.Get("/users", [=](const httplib::Request &req, httplib::Response &res) {
       common_args args = helper(req);
-      spdlog::info("{}, {}", args.limit,args.page);
-      std::vector<User> users  = this->database->list_usersx(args);
+      std::vector<User> users = this->database->list_usersx(args);
       nlohmann::json content = users;
       res.set_content(content.dump(), "application/json");
     });
