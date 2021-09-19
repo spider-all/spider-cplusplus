@@ -29,152 +29,168 @@ int Request::startup() {
     return EXIT_SUCCESS;
   }
 
-  semaphore++;
-  std::thread followers_thread([=]() {
-    spdlog::info("Followers thread is starting...");
-    while (!stopping) {
-      std::vector<std::string> users = database->list_users();
-      for (const std::string &u : users) {
-        std::string request_url = "/users/" + u + "/followers";
-        int code = request(request_url, request_type_followers);
-        if (code != 0) {
-          spdlog::error("Request url: {} with error: {}", request_url, code);
+  if (config.crawler_type_followers) {
+    semaphore++;
+    std::thread followers_thread([=]() {
+      spdlog::info("Followers thread is starting...");
+      while (!stopping) {
+        std::vector<std::string> users = database->list_users();
+        for (const std::string &u : users) {
+          std::string request_url = "/users/" + u + "/followers";
+          int code = request(request_url, request_type_followers);
+          if (code != 0) {
+            spdlog::error("Request url: {} with error: {}", request_url, code);
+          }
+          if (stopping) {
+            break;
+          }
         }
-        if (stopping) {
-          break;
-        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    spdlog::info("Followers thread stopped");
-    semaphore--;
-  });
-  followers_thread.detach();
+      spdlog::info("Followers thread stopped");
+      semaphore--;
+    });
+    followers_thread.detach();
+  }
 
-  semaphore++;
-  std::thread followings_thread([=]() {
-    spdlog::info("Following thread is starting...");
-    while (!stopping) {
-      std::vector<std::string> users = database->list_users();
-      for (const std::string &u : users) {
-        std::string request_url = "/users/" + u + "/following";
-        int code = request(request_url, request_type_following);
-        if (code != 0) {
-          spdlog::error("Request url: {} with error: {}", request_url, code);
+  if (config.crawler_type_followings) {
+    semaphore++;
+    std::thread followings_thread([=]() {
+      spdlog::info("Following thread is starting...");
+      while (!stopping) {
+        std::vector<std::string> users = database->list_users();
+        for (const std::string &u : users) {
+          std::string request_url = "/users/" + u + "/following";
+          int code = request(request_url, request_type_following);
+          if (code != 0) {
+            spdlog::error("Request url: {} with error: {}", request_url, code);
+          }
+          if (stopping) {
+            break;
+          }
         }
-        if (stopping) {
-          break;
-        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    spdlog::info("Following thread stopped");
-    semaphore--;
-  });
-  followings_thread.detach();
+      spdlog::info("Following thread stopped");
+      semaphore--;
+    });
+    followings_thread.detach();
+  }
 
-  semaphore++;
-  std::thread orgs_thread([=]() {
-    spdlog::info("Orgs thread is starting...");
-    while (!stopping) {
-      std::vector<std::string> users = database->list_users();
-      for (const std::string &u : users) {
-        std::string request_url = "/users/" + u + "/orgs";
-        int code = request(request_url, request_type_orgs);
-        if (code != 0) {
-          spdlog::error("Request url: {} with error: {}", request_url, code);
+  if (config.crawler_type_orgs) {
+    semaphore++;
+    std::thread orgs_thread([=]() {
+      spdlog::info("Orgs thread is starting...");
+      while (!stopping) {
+        std::vector<std::string> users = database->list_users();
+        for (const std::string &u : users) {
+          std::string request_url = "/users/" + u + "/orgs";
+          int code = request(request_url, request_type_orgs);
+          if (code != 0) {
+            spdlog::error("Request url: {} with error: {}", request_url, code);
+          }
+          if (stopping) {
+            break;
+          }
         }
-        if (stopping) {
-          break;
-        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    spdlog::info("Orgs thread stopped");
-    semaphore--;
-  });
-  orgs_thread.detach();
+      spdlog::info("Orgs thread stopped");
+      semaphore--;
+    });
+    orgs_thread.detach();
+  }
 
-  semaphore++;
-  std::thread orgs_member_thread([=]() {
-    spdlog::info("Orgs thread is starting...");
-    while (!stopping) {
-      std::vector<std::string> orgs = database->list_orgs();
-      for (const std::string &org : orgs) {
-        std::string request_url = "/orgs/" + org + "/public_members";
-        int code = request(request_url, request_type_orgs_member);
-        if (code != 0) {
-          spdlog::error("Request url: {} with error: {}", request_url, code);
+  if (config.crawler_type_orgs_member) {
+    semaphore++;
+    std::thread orgs_member_thread([=]() {
+      spdlog::info("Orgs thread is starting...");
+      while (!stopping) {
+        std::vector<std::string> orgs = database->list_orgs();
+        for (const std::string &org : orgs) {
+          std::string request_url = "/orgs/" + org + "/public_members";
+          int code = request(request_url, request_type_orgs_member);
+          if (code != 0) {
+            spdlog::error("Request url: {} with error: {}", request_url, code);
+          }
+          if (stopping) {
+            break;
+          }
         }
-        if (stopping) {
-          break;
-        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    spdlog::info("Orgs member thread stopped");
-    semaphore--;
-  });
-  orgs_member_thread.detach();
+      spdlog::info("Orgs member thread stopped");
+      semaphore--;
+    });
+    orgs_member_thread.detach();
+  }
 
-  semaphore++;
-  std::thread repos_thread([=]() {
-    spdlog::info("Repos thread is starting...");
-    // while (!stopping) {
-    //   int count = database->count_user();
-    //   spdlog::info("Database have users: {}", count);
-    //   std::this_thread::sleep_for(std::chrono::seconds(5));
-    // }
-    spdlog::info("Repos thread stopped");
-    semaphore--;
-  });
-  repos_thread.detach();
+  if (config.crawler_type_repos) {
+    semaphore++;
+    std::thread repos_thread([=]() {
+      spdlog::info("Repos thread is starting...");
+      // while (!stopping) {
+      //   int count = database->count_user();
+      //   spdlog::info("Database have users: {}", count);
+      //   std::this_thread::sleep_for(std::chrono::seconds(5));
+      // }
+      spdlog::info("Repos thread stopped");
+      semaphore--;
+    });
+    repos_thread.detach();
+  }
 
-  semaphore++;
-  std::thread emojis_thread([=]() {
-    spdlog::info("Emoji thread is starting...");
-    std::string request_url = "/emojis";
-    int code = request(request_url, request_type_emoji);
-    if (code != 0) {
-      spdlog::error("Request url: {} with error: {}", request_url, code);
-    }
-    spdlog::info("Emoji thread stopped");
-    semaphore--;
-  });
-  emojis_thread.detach();
+  if (config.crawler_type_emojis) {
+    semaphore++;
+    std::thread emojis_thread([=]() {
+      spdlog::info("Emoji thread is starting...");
+      std::string request_url = "/emojis";
+      int code = request(request_url, request_type_emoji);
+      if (code != 0) {
+        spdlog::error("Request url: {} with error: {}", request_url, code);
+      }
+      spdlog::info("Emoji thread stopped");
+      semaphore--;
+    });
+    emojis_thread.detach();
+  }
 
-  semaphore++;
-  std::thread gitignore_list_thread([=]() {
-    spdlog::info("Gitignore list thread is starting...");
-    std::string request_url = "/gitignore/templates";
-    int code = request(request_url, request_type_gitignore_list);
-    if (code != 0) {
-      spdlog::error("Request url: {} with error: {}", request_url, code);
-    }
-    spdlog::info("Gitignore list thread stopped");
-    semaphore--;
-  });
-  gitignore_list_thread.detach();
+  if (config.crawler_type_gitignore_list) {
+    semaphore++;
+    std::thread gitignore_list_thread([=]() {
+      spdlog::info("Gitignore list thread is starting...");
+      std::string request_url = "/gitignore/templates";
+      int code = request(request_url, request_type_gitignore_list);
+      if (code != 0) {
+        spdlog::error("Request url: {} with error: {}", request_url, code);
+      }
+      spdlog::info("Gitignore list thread stopped");
+      semaphore--;
+    });
+    gitignore_list_thread.detach();
+  }
 
-  semaphore++;
-  std::thread license_list_thread([=]() {
-    spdlog::info("License list thread is starting...");
-    std::string request_url = "/licenses";
-    int code = request(request_url, request_type_license_list);
-    if (code != 0) {
-      spdlog::error("Request url: {} with error: {}", request_url, code);
-    }
-    spdlog::info("License list thread stopped");
-    semaphore--;
-  });
-  license_list_thread.detach();
+  if (config.crawler_type_license_list) {
+    semaphore++;
+    std::thread license_list_thread([=]() {
+      spdlog::info("License list thread is starting...");
+      std::string request_url = "/licenses";
+      int code = request(request_url, request_type_license_list);
+      if (code != 0) {
+        spdlog::error("Request url: {} with error: {}", request_url, code);
+      }
+      spdlog::info("License list thread stopped");
+      semaphore--;
+    });
+    license_list_thread.detach();
+  }
 
   semaphore++;
   std::thread info_thread([=]() {
     spdlog::info("Info thread is starting...");
     while (!stopping) {
-      int user_count = database->count_user();
-      int org_count = database->count_org();
+      int64_t user_count = database->count_user();
+      int64_t org_count = database->count_org();
       spdlog::info("Database have users: {}, orgs: {}", user_count, org_count);
 
       fort::char_table table;
@@ -398,6 +414,7 @@ int Request::request_followx(const nlohmann::json &content) {
     int code = request("/users/" + i["login"].get<std::string>(), request_type_user);
     if (code != 0) {
       spdlog::error("Request userinfo with error: {}", code);
+      return code;
     }
     if (stopping) {
       return EXIT_SUCCESS;

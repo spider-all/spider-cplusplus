@@ -5,6 +5,16 @@ token:
   - github_token
 sleep: 100
 
+crawler_type:
+  followers: true
+  followings: true
+  orgs: true
+  orgs_member: true
+  repos: true
+  emojis: true
+  gitignore_list: true
+  license_list: true
+
 database:
   type: sqlite3
   sqlite3:

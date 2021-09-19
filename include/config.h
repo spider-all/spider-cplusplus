@@ -37,5 +37,14 @@ public:
   std::string crawler_timezone;           // timezone
   int64_t crawler_sleep_each_request;     // sleep each request
 
+  bool crawler_type_followers;
+  bool crawler_type_followings;
+  bool crawler_type_orgs;
+  bool crawler_type_orgs_member;
+  bool crawler_type_repos;
+  bool crawler_type_emojis;
+  bool crawler_type_gitignore_list;
+  bool crawler_type_license_list;
+
   int initialize(const std::string &config_path);
 };
