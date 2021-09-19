@@ -2,7 +2,6 @@
 
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <leveldb/db.h>
-#include <mongocxx/client.hpp>
 #include <mysql/mysql.h>
 #include <pqxx/pqxx>
 
@@ -15,7 +14,6 @@ public:
   struct db {
     leveldb::DB *leveldb;
     SQLite::Database *sqlite;
-    mongocxx::client *mongo;
     pqxx::connection *pg;
     MYSQL *mysql;
   } db{};

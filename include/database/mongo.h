@@ -8,6 +8,7 @@
 #include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
+#include <mongocxx/pool.hpp>
 #include <mongocxx/stdx.hpp>
 #include <mongocxx/uri.hpp>
 #include <spdlog/spdlog.h>
@@ -20,7 +21,9 @@
 
 class Mongo : public Database {
 private:
-  mongocxx::collection coll;
+  std::string dsn;
+  mongocxx::uri *uri{};
+  mongocxx::pool *pool{};
 
 public:
   explicit Mongo(const std::string &);
