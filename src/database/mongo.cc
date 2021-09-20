@@ -16,9 +16,14 @@ Mongo::Mongo(const std::string &dsn) {
 }
 
 int Mongo::initialize() {
-  mongocxx::instance instance{};
-  this->uri = new mongocxx::uri(dsn);
-  this->pool = new mongocxx::pool(*this->uri);
+  try {
+    mongocxx::instance instance{};
+    this->uri = new mongocxx::uri(dsn);
+    this->pool = new mongocxx::pool(*this->uri);
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+    return DATABASE_OPEN_ERROR;
+  }
   return 0;
 }
 
@@ -27,10 +32,14 @@ Mongo::~Mongo() {
   delete this->uri;
 }
 
+int64_t Mongo::count_x(const std::string &c) {
+  GET_CONNECTION(this->uri->database(), c)
+  return coll.count_documents({});
+}
+
 int Mongo::create_user(User user) {
   try {
     GET_CONNECTION(this->uri->database(), "users")
-    auto builder = bsoncxx::builder::stream::document{};
     bsoncxx::document::value doc_value = make_document(
         kvp("id", user.id),
         kvp("login", user.login),
@@ -60,9 +69,9 @@ int Mongo::create_user(User user) {
       }
     }
   } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occured: {}", e.what());
+    spdlog::error("Something mongodb error occurred: {}", e.what());
   }
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 std::vector<User> Mongo::list_usersx(common_args args) {
@@ -80,12 +89,32 @@ std::vector<User> Mongo::list_usersx(common_args args) {
       std::cout << doc["login"].get_utf8().value << "\n";
     }
   } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occured: {}", e.what());
+    spdlog::error("Something mongodb error occurred: {}", e.what());
   }
   return users;
 }
 
-int Mongo::create_org(Org) {
+int Mongo::create_org(Org org) {
+  try {
+    GET_CONNECTION(this->uri->database(), "orgs")
+    bsoncxx::document::value doc_value = make_document(
+        kvp("id", org.id),
+        kvp("login", org.login),
+        kvp("node_id", org.node_id),
+        kvp("description", org.description));
+
+    bsoncxx::document::view view = doc_value.view();
+
+    optional<value> val = coll.find_one_and_update(make_document(kvp("id", org.id)), view);
+    if (!val) {
+      optional<insert_one> result = coll.insert_one(view);
+      if (!result) {
+        return SQL_EXEC_ERROR;
+      }
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+  }
   return EXIT_SUCCESS;
 }
 
@@ -103,7 +132,7 @@ std::vector<std::string> Mongo::list_users() {
       users.emplace_back(doc["login"].get_utf8().value.data());
     }
   } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occured: {}", e.what());
+    spdlog::error("Something mongodb error occurred: {}", e.what());
   }
   return users;
 }
@@ -114,35 +143,98 @@ std::vector<std::string> Mongo::list_orgs() {
 }
 
 int64_t Mongo::count_user() {
-  GET_CONNECTION(this->uri->database(), "users")
-  return coll.count_documents({});
+  return this->count_x("users");
 }
 
 int64_t Mongo::count_org() {
-  GET_CONNECTION(this->uri->database(), "users")
-  return coll.count_documents({});
+  return this->count_x("orgs");
 }
 
 int Mongo::create_emoji(std::vector<Emoji> emojis) {
+  try {
+    GET_CONNECTION(this->uri->database(), "emojis")
+    for (const Emoji &emoji : emojis) {
+      bsoncxx::document::value doc_value = make_document(
+          kvp("name", emoji.name),
+          kvp("url", emoji.url));
+
+      bsoncxx::document::view view = doc_value.view();
+
+      optional<value> val = coll.find_one_and_update(make_document(kvp("name", emoji.name)), view);
+      if (!val) {
+        optional<insert_one> result = coll.insert_one(view);
+        if (!result) {
+          return SQL_EXEC_ERROR;
+        }
+      }
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+  }
   return EXIT_SUCCESS;
 }
 
 int64_t Mongo::count_emoji() {
-  return 0;
+  return this->count_x("emojis");
 }
 
 int64_t Mongo::count_gitignore() {
-  return 0;
+  return this->count_x("gitignores");
 }
 
 int Mongo::create_gitignore(Gitignore gitignore) {
+  try {
+    GET_CONNECTION(this->uri->database(), "gitignores")
+    bsoncxx::document::value doc_value = make_document(
+        kvp("name", gitignore.name),
+        kvp("source", gitignore.source));
+
+    bsoncxx::document::view view = doc_value.view();
+
+    optional<value> val = coll.find_one_and_update(make_document(kvp("name", gitignore.name)), view);
+    if (!val) {
+      optional<insert_one> result = coll.insert_one(view);
+      if (!result) {
+        return SQL_EXEC_ERROR;
+      }
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+  }
   return EXIT_SUCCESS;
 }
 
 int64_t Mongo::count_license() {
-  return 0;
+  return this->count_x("licenses");
 }
 
 int Mongo::create_license(License license) {
+  try {
+    GET_CONNECTION(this->uri->database(), "licenses")
+    bsoncxx::document::value doc_value = make_document(
+        kvp("key", license.key),
+        kvp("name", license.name),
+        kvp("spdx_id", license.spdx_id),
+        kvp("node_id", license.node_id),
+        kvp("description", license.description),
+        kvp("implementation", license.implementation),
+        kvp("permissions", license.permissions),
+        kvp("conditions", license.conditions),
+        kvp("limitations", license.limitations),
+        kvp("body", license.body),
+        kvp("featured", license.featured));
+
+    bsoncxx::document::view view = doc_value.view();
+
+    optional<value> val = coll.find_one_and_update(make_document(kvp("key", license.key)), view);
+    if (!val) {
+      optional<insert_one> result = coll.insert_one(view);
+      if (!result) {
+        return SQL_EXEC_ERROR;
+      }
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+  }
   return EXIT_SUCCESS;
 }
