@@ -1,20 +1,11 @@
 #include <iostream>
 
-#include <SQLiteCpp/SQLiteCpp.h>
-#include <leveldb/db.h>
-#include <pqxx/pqxx>
-
 #pragma once
 
 #include <model.h>
 
 class Database {
 public:
-  struct db {
-    leveldb::DB *leveldb;
-    SQLite::Database *sqlite;
-    pqxx::connection *pg;
-  } db{};
   int code = 0;
   virtual ~Database() = default;
   virtual int initialize() = 0;

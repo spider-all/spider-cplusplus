@@ -10,11 +10,7 @@
 
 #include <application/request.h>
 #include <application/server.h>
-#include <database/level.h>
 #include <database/mongo.h>
-#include <database/mysql.h>
-#include <database/postgres.h>
-#include <database/sqlite3.h>
 
 bool keep_running = true; // test keep running
 
@@ -25,16 +21,8 @@ void callback(int) {
 
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
-  if (config.database_type == DATABASE_SQLTE3) {
-    ret = new SQLite3(config.database_sqlite3_path);
-  } else if (config.database_type == DATABASE_LEVELDB) {
-    ret = new Level(config.database_leveldb_path);
-  } else if (config.database_type == DATABASE_MONGODB) {
+  if (config.database_type == DATABASE_MONGODB) {
     ret = new Mongo(config.database_mongodb_dsn);
-  } else if (config.database_type == DATABASE_POSTGRESQL) {
-    ret = new Postgres(config.database_postgresql_dsn);
-  } else if (config.database_type == DATABASE_MYSQL) {
-    ret = new MySQL(config.database_mysql_host, config.database_mysql_user, config.database_mysql_password, config.database_mysql_db, config.database_mysql_port);
   }
   if (ret == nullptr) {
     return nullptr;
