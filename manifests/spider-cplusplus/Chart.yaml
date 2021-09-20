@@ -11,14 +11,6 @@ dependencies:
     tags:
       - bitnami-common
     version: 1.x.x
-  - condition: mysql.enabled
-    name: mysql
-    repository: https://charts.bitnami.com/bitnami
-    version: 8.x.x
-  - condition: postgresql.enabled
-    name: postgresql
-    repository: https://charts.bitnami.com/bitnami
-    version: 10.x.x
   - condition: mongodb.enabled
     name: mongodb
     repository: https://charts.bitnami.com/bitnami

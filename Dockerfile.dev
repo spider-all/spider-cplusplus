@@ -1,4 +1,4 @@
-ARG SPIDER_VERSION
+ARG SPIDER_VERSION=v1.4.0
 
 FROM ghcr.io/spider-all/spider-cplusplus:base-${SPIDER_VERSION} as base
 
@@ -6,10 +6,10 @@ FROM buildpack-deps:stable
 
 WORKDIR /app
 
-COPY --from=base /app/pkgs ./pkgs
+COPY --from=base /app/pkgs /pkgs
 
 RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
   sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends ccache cmake && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends ccache cmake libsasl2-dev jq && \
   rm -rf /var/lib/apt/lists/*

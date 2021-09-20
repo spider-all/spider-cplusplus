@@ -14,12 +14,6 @@ project(spider)
 FILE(GLOB source src/*.cc src/application/*.cc src/database/*.cc)
 add_executable(spider ${source})
 
-if (UNIX AND NOT APPLE)
-  target_link_libraries(spider PRIVATE stdc++fs)
-endif ()
-
-target_link_libraries(spider PRIVATE stdc++ pthread dl)
-
 if (CMAKE_BUILD_TYPE STREQUAL release)
   add_custom_command(TARGET spider POST_BUILD COMMAND strip spider)
 endif ()
@@ -46,9 +40,6 @@ target_link_libraries(spider PRIVATE resolv)
 
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
 
-find_package(libpqxx CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE libpqxx::pqxx)
-
 find_package(libfort CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE libfort::fort)
 
@@ -58,25 +49,22 @@ target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE spdlog::spdlog)
 
-find_package(SQLiteCpp CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE SQLiteCpp)
-
 find_package(CURL CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE CURL::libcurl)
 
 find_path(CPP_HTTPLIB_INCLUDE_DIRS "httplib.h")
 target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
 
-find_package(leveldb CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE leveldb::leveldb)
-
-find_package(libmysql REQUIRED)
-target_link_libraries(spider PRIVATE ${MYSQL_LIBRARIES})
-
 find_package(prometheus-cpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
 
 target_include_directories(spider PRIVATE include)
+
+target_link_libraries(spider PRIVATE stdc++ pthread dl)
+
+if (UNIX AND NOT APPLE)
+  target_link_libraries(spider PRIVATE rt stdc++fs)
+endif ()
 
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")

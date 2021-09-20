@@ -12,23 +12,11 @@ config:
       - "token"
     sleep: 10000
   database:
-    type: sqlite3
-    sqlite3:
-      path: /data/spider-cplusplus/spider.db
-    leveldb:
-      path: /spider-cplusplus/data
+    type: mongodb
 
 externalDatabase:
   enabled: false
   mongodb:
-    dsn: ""
-  mysql:
-    host: "127.0.0.1"
-    user: "spider-cplusplus"
-    password: "spider-cplusplus"
-    db: "spider-cplusplus"
-    port: 3306
-  postgresql:
     dsn: ""
 
 mongodb:
@@ -50,42 +38,6 @@ mongodb:
   service:
     type: ClusterIP
     port: 27017
-
-postgresql:
-  enabled: false
-  postgresqlPostgresPassword: "spider-cplusplus"
-  postgresqlUsername: "spider-cplusplus"
-  postgresqlPassword: "spider-cplusplus"
-  postgresqlDatabase: "spider-cplusplus"
-  persistence:
-    enabled: true
-    existingClaim: ""
-    storageClass: ""
-    accessModes:
-      - ReadWriteOnce
-    size: 8Gi
-  service:
-    type: ClusterIP
-    port: 5432
-
-mysql:
-  enabled: false
-  architecture: standalone
-  auth:
-    rootPassword: "spider-cplusplus"
-    database: "spider-cplusplus"
-    username: "spider-cplusplus"
-    password: "spider-cplusplus"
-  persistence:
-    enabled: true
-    existingClaim: ""
-    storageClass: ""
-    accessModes:
-      - ReadWriteOnce
-    size: 8Gi
-  service:
-    type: ClusterIP
-    port: 3306
 
 commonAnnotations:
   helm.sh/resource-policy: "keep"
@@ -125,8 +77,7 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations:
-    {}
+  annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:

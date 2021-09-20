@@ -16,22 +16,6 @@ crawler_type:
   license_list: true
 
 database:
-  type: sqlite3
-  sqlite3:
-    path: ./data/spider.db
-
-  leveldb:
-    path: ./data/leveldb
-
+  type: mongodb
   mongodb:
-    dsn: ""
-
-  mysql:
-    host: "127.0.0.1"
-    user: "root"
-    password: "8541539655"
-    db: "test"
-    port: 3306
-
-  postgresql:
     dsn: ""
