@@ -25,6 +25,8 @@ private:
   mongocxx::uri *uri{};
   mongocxx::pool *pool{};
 
+  int64_t count_x(const std::string &c);
+
 public:
   explicit Mongo(const std::string &);
   ~Mongo() override;

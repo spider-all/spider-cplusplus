@@ -27,8 +27,7 @@ int Prome::startup() {
                                .Name("observed_packets_total")
                                .Help("Number of observed packets")
                                .Register(*registry);
-    auto &tcp_rx_counter =
-        packet_counter.Add({{"protocol", "tcp"}, {"direction", "rx"}});
+    auto &tcp_rx_counter = packet_counter.Add({{"protocol", "tcp"}, {"direction", "rx"}});
     tcp_rx_counter.Increment();
     exposer->RegisterCollectable(registry);
     semaphore--;
