@@ -153,21 +153,15 @@ int64_t Mongo::count_org() {
 int Mongo::create_emoji(std::vector<Emoji> emojis) {
   try {
     GET_CONNECTION(this->uri->database(), "emojis")
+    coll.drop();
+    using bsoncxx::builder::basic::document;
+    document builder{};
+    std::vector<bsoncxx::document::value> docs;
     for (const Emoji &emoji : emojis) {
-      bsoncxx::document::value doc_value = make_document(
-          kvp("name", emoji.name),
-          kvp("url", emoji.url));
-
-      bsoncxx::document::view view = doc_value.view();
-
-      optional<value> val = coll.find_one_and_update(make_document(kvp("name", emoji.name)), view);
-      if (!val) {
-        optional<insert_one> result = coll.insert_one(view);
-        if (!result) {
-          return SQL_EXEC_ERROR;
-        }
-      }
+      bsoncxx::document::value doc = make_document(kvp("name", emoji.name), kvp("url", emoji.url));
+      docs.push_back(doc);
     }
+    coll.insert_many(docs);
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
   }

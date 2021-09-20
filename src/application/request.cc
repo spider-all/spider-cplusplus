@@ -247,16 +247,16 @@ int Request::request(const std::string &url, enum request_type type, bool skip_s
       {"Authorization", "Bearer " + config.crawler_token[token_index]},
   };
 
-  request_locker.lock();
+  // request_locker.lock();
   httplib::Result response(nullptr, httplib::Unknown, httplib::Headers{});
   try {
     response = client.Get(url.c_str(), headers);
   } catch (const std::exception &e) {
-    request_locker.unlock();
+    // request_locker.unlock();
     spdlog::error("Request with error: {}, {}", url, e.what());
     return REQUEST_ERROR;
   }
-  request_locker.unlock();
+  // request_locker.unlock();
 
   if (response == nullptr) {
     spdlog::error("Request with error: {}", url);
