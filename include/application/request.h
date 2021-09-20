@@ -45,7 +45,7 @@ private:
   int rate_limit_limit{};
   int rate_limit_reset{};
 
-  std::mutex request_locker;
+ 
 
   unsigned long token_index = 0;
 

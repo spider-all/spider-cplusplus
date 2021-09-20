@@ -2,7 +2,6 @@
 
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <leveldb/db.h>
-#include <mysql/mysql.h>
 #include <pqxx/pqxx>
 
 #pragma once
@@ -15,7 +14,6 @@ public:
     leveldb::DB *leveldb;
     SQLite::Database *sqlite;
     pqxx::connection *pg;
-    MYSQL *mysql;
   } db{};
   int code = 0;
   virtual ~Database() = default;
