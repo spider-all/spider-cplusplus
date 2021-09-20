@@ -13,6 +13,16 @@
 
 class MySQL : public Database {
 private:
+  MYSQL *client;
+
+  std::string host;
+  std::string user;
+  std::string password;
+  std::string db_name;
+  unsigned int port;
+
+  std::mutex database_locker;
+
 public:
   MySQL(const std::string &host, const std::string &user,
         const std::string &password, const std::string &db, unsigned int port);
