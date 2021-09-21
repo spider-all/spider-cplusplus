@@ -11,6 +11,16 @@ config:
     token:
       - "token"
     sleep: 10000
+  crawler:
+    followers: true
+    followings: true
+    orgs: true
+    orgs_member: true
+    users_repos: true
+    orgs_repos: true
+    emojis: true
+    gitignore_list: true
+    license_list: true
   database:
     type: mongodb
 
@@ -20,7 +30,7 @@ externalDatabase:
     dsn: ""
 
 mongodb:
-  enabled: false
+  enabled: true
   architecture: standalone
   auth:
     enabled: true
@@ -77,7 +87,8 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:

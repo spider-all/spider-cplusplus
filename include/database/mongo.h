@@ -49,4 +49,7 @@ public:
 
   int create_license(License license) override;
   int64_t count_license() override;
+
+  int create_repo(Repo repo) override;
+  int64_t count_repo() override;
 };

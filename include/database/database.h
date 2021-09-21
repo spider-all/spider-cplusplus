@@ -28,4 +28,7 @@ public:
 
   virtual int create_license(License license) = 0;
   virtual int64_t count_license() = 0;
+
+  virtual int create_repo(Repo repo) = 0;
+  virtual int64_t count_repo() = 0;
 };

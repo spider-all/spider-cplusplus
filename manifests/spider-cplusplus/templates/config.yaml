@@ -11,8 +11,10 @@ data:
     useragent: {{ .Values.config.spider.useragent | quote }}
     timezone: {{ .Values.config.spider.timezone | quote }}
     token:
-      {{ toYaml .Values.config.spider.token }}
+{{ toYaml .Values.config.spider.token | indent 6 }}
     sleep: {{ int .Values.config.spider.sleep }}
+    crawler:
+{{ toYaml .Values.config.crawler | indent 6 }}
     database:
       type: {{ .Values.config.database.type | quote }}
       mongodb:

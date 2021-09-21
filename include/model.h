@@ -64,8 +64,9 @@ typedef struct Repo {
   std::string node_id;
   std::string name;
   std::string full_name;
-  bool xprivate;     // private
-  std::string owner; // owner login
+  bool xprivate;          // private
+  std::string owner;      // owner login
+  std::string owner_type; // owner type
   std::string description;
   bool fork;
   std::string created_at;
@@ -77,12 +78,9 @@ typedef struct Repo {
   int64_t watchers_count;
   int64_t forks_count;
   std::string language;
-  std::string license; // license spdx
+  std::string license; // license key
   int64_t forks;
   int64_t open_issues;
   int64_t watchers;
   std::string default_branch;
-  int64_t network_count;
-  int64_t subscribers_count;
-  std::string organization; // organization login
 } Repo;
