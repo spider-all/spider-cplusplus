@@ -29,7 +29,8 @@ public:
   bool crawler_type_followings;
   bool crawler_type_orgs;
   bool crawler_type_orgs_member;
-  bool crawler_type_repos;
+  bool crawler_type_users_repos;
+  bool crawler_type_orgs_repos;
   bool crawler_type_emojis;
   bool crawler_type_gitignore_list;
   bool crawler_type_license_list;

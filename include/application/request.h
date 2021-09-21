@@ -28,7 +28,8 @@ enum request_type {
   request_type_user,
   request_type_orgs,
   request_type_orgs_member,
-  request_type_repos,
+  request_type_users_repos,
+  request_type_orgs_repos,
   request_type_emoji,
   request_type_gitignore_list,
   request_type_gitignore_info,
@@ -45,7 +46,7 @@ private:
   int rate_limit_limit{};
   int rate_limit_reset{};
 
- 
+  std::mutex request_locker;
 
   unsigned long token_index = 0;
 
@@ -67,6 +68,7 @@ private:
   int request_gitignore_info(nlohmann::json content);
   int request_license_list(const nlohmann::json &content);
   int request_license_info(nlohmann::json content);
+  int request_repo_list(nlohmann::json content);
 
 public:
   Request(Config, Database *);
