@@ -17,7 +17,7 @@ FROM debian:bullseye-slim
 
 ENV TZ=Asia/Shanghai
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends libsasl2-2 ca-certificates && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && \
   rm -rf /var/lib/apt/lists/*
 
 COPY etc/config.yaml.sample /etc/spider-cplusplus/config.yaml
