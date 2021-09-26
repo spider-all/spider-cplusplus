@@ -2,6 +2,21 @@
 
 #pragma once
 
+enum request_type {
+  request_type_followers,
+  request_type_following,
+  request_type_user,
+  request_type_orgs,
+  request_type_orgs_member,
+  request_type_users_repos,
+  request_type_orgs_repos,
+  request_type_emoji,
+  request_type_gitignore_list,
+  request_type_gitignore_info,
+  request_type_license_list,
+  request_type_license_info,
+};
+
 typedef struct {
   long long page;
   long long limit;

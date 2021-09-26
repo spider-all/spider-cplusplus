@@ -5,6 +5,7 @@
     "zlib",
     "openssl",
     "yaml-cpp",
+    "fmt",
     "spdlog",
     "nlohmann-json",
     "curl[ssl]",

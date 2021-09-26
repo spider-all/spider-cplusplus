@@ -46,6 +46,9 @@ target_link_libraries(spider PRIVATE libfort::fort)
 find_package(ZLIB REQUIRED)
 target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE fmt::fmt-header-only)
+
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE spdlog::spdlog)
 
