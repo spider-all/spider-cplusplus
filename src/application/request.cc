@@ -21,7 +21,7 @@ int Request::startup() {
   spdlog::info("Spider is running...");
   std::string request_url = "/users/" + config.crawler_entry_username;
 
-  int code = request(request_url, request_type_user, true);
+  int code = request(request_url, request_type_user, request_type_user, true);
   if (code != 0) {
     return code;
   }
@@ -34,10 +34,10 @@ int Request::startup() {
     std::thread followers_thread([=]() {
       spdlog::info("Followers thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users();
+        std::vector<std::string> users = database->list_users_random("followers");
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/followers";
-          int code = request(request_url, request_type_followers);
+          int code = request(request_url, request_type_followers, request_type_followers);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
           }
@@ -58,10 +58,10 @@ int Request::startup() {
     std::thread followings_thread([=]() {
       spdlog::info("Following thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users();
+        std::vector<std::string> users = database->list_users_random("");
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/following";
-          int code = request(request_url, request_type_following);
+          int code = request(request_url, request_type_following, request_type_following);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
           }
@@ -82,10 +82,10 @@ int Request::startup() {
     std::thread orgs_thread([=]() {
       spdlog::info("Orgs thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users();
+        std::vector<std::string> users = database->list_users_random("");
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/orgs";
-          int code = request(request_url, request_type_orgs);
+          int code = request(request_url, request_type_orgs, request_type_orgs);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
           }
@@ -109,7 +109,7 @@ int Request::startup() {
         std::vector<std::string> orgs = database->list_orgs();
         for (const std::string &org : orgs) {
           std::string request_url = "/orgs/" + org + "/public_members";
-          int code = request(request_url, request_type_orgs_member);
+          int code = request(request_url, request_type_orgs_member, request_type_orgs_member);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
           }
@@ -130,10 +130,10 @@ int Request::startup() {
     std::thread users_repos_thread([=]() {
       spdlog::info("Users repos thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users();
+        std::vector<std::string> users = database->list_users_random("");
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/repos?per_page=100";
-          int code = request(request_url, request_type_users_repos);
+          int code = request(request_url, request_type_users_repos, request_type_users_repos);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
           }
@@ -157,7 +157,7 @@ int Request::startup() {
         std::vector<std::string> users = database->list_orgs();
         for (const std::string &u : users) {
           std::string request_url = "/orgs/" + u + "/repos?per_page=100";
-          int code = request(request_url, request_type_orgs_repos);
+          int code = request(request_url, request_type_orgs_repos, request_type_orgs_repos);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
           }
@@ -178,7 +178,7 @@ int Request::startup() {
     std::thread emojis_thread([=]() {
       spdlog::info("Emoji thread is starting...");
       std::string request_url = "/emojis";
-      int code = request(request_url, request_type_emoji);
+      int code = request(request_url, request_type_emoji, request_type_emoji);
       if (code != 0) {
         spdlog::error("Request url: {} with error: {}", request_url, code);
       }
@@ -193,7 +193,7 @@ int Request::startup() {
     std::thread gitignore_list_thread([=]() {
       spdlog::info("Gitignore list thread is starting...");
       std::string request_url = "/gitignore/templates";
-      int code = request(request_url, request_type_gitignore_list);
+      int code = request(request_url, request_type_gitignore_list, request_type_gitignore_list);
       if (code != 0) {
         spdlog::error("Request url: {} with error: {}", request_url, code);
       }
@@ -208,7 +208,7 @@ int Request::startup() {
     std::thread license_list_thread([=]() {
       spdlog::info("License list thread is starting...");
       std::string request_url = "/licenses";
-      int code = request(request_url, request_type_license_list);
+      int code = request(request_url, request_type_license_list, request_type_license_list);
       if (code != 0) {
         spdlog::error("Request url: {} with error: {}", request_url, code);
       }
@@ -255,7 +255,7 @@ int Request::startup() {
   return EXIT_SUCCESS;
 }
 
-int Request::request(const std::string &url, enum request_type type, bool skip_sleep) {
+int Request::request(const std::string &url, enum request_type type, enum request_type type_from, bool skip_sleep) {
   if (stopping) {
     return EXIT_SUCCESS;
   }
@@ -323,7 +323,7 @@ int Request::request(const std::string &url, enum request_type type, bool skip_s
     token_index++;
     token_index = token_index % config.crawler_token.size();
 
-    return request(url, type);
+    return request(url, type, type_from);
   }
 
   if (response->status != 200) {
@@ -363,61 +363,61 @@ int Request::request(const std::string &url, enum request_type type, bool skip_s
   switch (type) {
   case request_type_following:
   case request_type_followers:
-    code = request_followx(content);
+    code = request_followx(content, type_from);
     if (code != 0) {
       spdlog::error("Request userinfo with error: {}", code);
     }
     break;
   case request_type_orgs:
-    code = request_orgs(content);
+    code = request_orgs(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
     break;
   case request_type_orgs_member:
-    code = request_orgs_members(content);
+    code = request_orgs_members(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
     break;
   case request_type_user:
-    code = request_user(content);
+    code = request_user(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
     break;
   case request_type_emoji:
-    code = request_emoji(content);
+    code = request_emoji(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
     break;
   case request_type_gitignore_list:
-    code = request_gitignore_list(content);
+    code = request_gitignore_list(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
     break;
   case request_type_gitignore_info:
-    code = request_gitignore_info(content);
+    code = request_gitignore_info(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
     break;
   case request_type_license_list:
-    code = request_license_list(content);
+    code = request_license_list(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
     break;
   case request_type_license_info:
-    code = request_license_info(content);
+    code = request_license_info(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
   case request_type_orgs_repos:
   case request_type_users_repos:
-    code = this->request_repo_list(content);
+    code = this->request_repo_list(content, type_from);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
@@ -445,7 +445,7 @@ int Request::request(const std::string &url, enum request_type type, bool skip_s
         u.erase(pos, url_prefix.length());
       }
 
-      return request(u, type);
+      return request(u, type, type_from);
     }
     header_link = result.suffix().str();
   }
@@ -453,9 +453,9 @@ int Request::request(const std::string &url, enum request_type type, bool skip_s
   return EXIT_SUCCESS;
 }
 
-int Request::request_followx(const nlohmann::json &content) {
+int Request::request_followx(const nlohmann::json &content, enum request_type type_from) {
   for (auto i : content) {
-    int code = request("/users/" + i["login"].get<std::string>(), request_type_user);
+    int code = request("/users/" + i["login"].get<std::string>(), request_type_user, type_from);
     if (code != 0) {
       spdlog::error("Request userinfo with error: {}", code);
       return code;
@@ -467,10 +467,10 @@ int Request::request_followx(const nlohmann::json &content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_orgs_members(const nlohmann::json &content) {
+int Request::request_orgs_members(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
     std::string request_url = "/users/" + con["login"].get<std::string>();
-    int code = request(request_url, request_type_user);
+    int code = request(request_url, request_type_user, type_from);
     if (code != 0) {
       return code;
     }
@@ -481,7 +481,7 @@ int Request::request_orgs_members(const nlohmann::json &content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_orgs(const nlohmann::json &content) {
+int Request::request_orgs(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
     Org org;
     org.login = con["login"].get<std::string>();
@@ -499,7 +499,7 @@ int Request::request_orgs(const nlohmann::json &content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_user(nlohmann::json content) {
+int Request::request_user(nlohmann::json content, enum request_type type_from) {
   User user;
   if (content["hireable"].dump() != "true") {
     content["hireable"] = false;
@@ -522,11 +522,11 @@ int Request::request_user(nlohmann::json content) {
   user.following = content["following"].get<int>();
   user.followers = content["followers"].get<int>();
 
-  int code = database->create_user(user);
+  int code = database->create_user(user, type_from);
   return code;
 }
 
-int Request::request_emoji(nlohmann::json content) {
+int Request::request_emoji(nlohmann::json content, enum request_type type_from) {
   std::vector<Emoji> emojis;
   for (const auto &it : content.items()) {
     emojis.push_back(Emoji{it.key(), it.value()});
@@ -535,10 +535,10 @@ int Request::request_emoji(nlohmann::json content) {
   return code;
 }
 
-int Request::request_gitignore_list(const nlohmann::json &content) {
+int Request::request_gitignore_list(const nlohmann::json &content, enum request_type type_from) {
   for (const auto &con : content) {
     std::string request_url = "/gitignore/templates/" + con.get<std::string>();
-    int code = request(request_url, request_type_gitignore_info);
+    int code = request(request_url, request_type_gitignore_info, type_from);
     if (code != 0) {
       return code;
     }
@@ -549,7 +549,7 @@ int Request::request_gitignore_list(const nlohmann::json &content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_gitignore_info(nlohmann::json content) {
+int Request::request_gitignore_info(nlohmann::json content, enum request_type type_from) {
   Gitignore gitignore = {
       content["name"].get<std::string>(),
       content["source"].get<std::string>(),
@@ -558,10 +558,10 @@ int Request::request_gitignore_info(nlohmann::json content) {
   return code;
 }
 
-int Request::request_license_list(const nlohmann::json &content) {
+int Request::request_license_list(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
     std::string request_url = "/licenses/" + con["key"].get<std::string>();
-    int code = request(request_url, request_type_license_info);
+    int code = request(request_url, request_type_license_info, type_from);
     if (code != 0) {
       return code;
     }
@@ -572,7 +572,7 @@ int Request::request_license_list(const nlohmann::json &content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_license_info(nlohmann::json content) {
+int Request::request_license_info(nlohmann::json content, enum request_type type_from) {
   License license = {
       .key = content["key"].get<std::string>(),
       .name = content["name"].get<std::string>(),
@@ -590,7 +590,7 @@ int Request::request_license_info(nlohmann::json content) {
   return code;
 }
 
-int Request::request_repo_list(nlohmann::json content) {
+int Request::request_repo_list(nlohmann::json content, enum request_type type_from) {
   int code = 0;
   for (auto &&con : content) {
     Repo repo{

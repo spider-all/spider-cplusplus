@@ -19,23 +19,9 @@
 #include <common.h>
 #include <config.h>
 #include <error.h>
+#include <model.h>
 
 #pragma once
-
-enum request_type {
-  request_type_followers,
-  request_type_following,
-  request_type_user,
-  request_type_orgs,
-  request_type_orgs_member,
-  request_type_users_repos,
-  request_type_orgs_repos,
-  request_type_emoji,
-  request_type_gitignore_list,
-  request_type_gitignore_info,
-  request_type_license_list,
-  request_type_license_info,
-};
 
 class Request : public Application {
 private:
@@ -59,16 +45,16 @@ private:
   const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
 
-  int request_orgs_members(const nlohmann::json &content);
-  int request_orgs(const nlohmann::json &content);
-  int request_user(nlohmann::json content);
-  int request_followx(const nlohmann::json &content);
-  int request_emoji(nlohmann::json content);
-  int request_gitignore_list(const nlohmann::json &content);
-  int request_gitignore_info(nlohmann::json content);
-  int request_license_list(const nlohmann::json &content);
-  int request_license_info(nlohmann::json content);
-  int request_repo_list(nlohmann::json content);
+  int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
+  int request_orgs(const nlohmann::json &content, enum request_type type_from);
+  int request_user(nlohmann::json content, enum request_type type_from);
+  int request_followx(const nlohmann::json &content, enum request_type type_from);
+  int request_emoji(nlohmann::json content, enum request_type type_from);
+  int request_gitignore_list(const nlohmann::json &content, enum request_type type_from);
+  int request_gitignore_info(nlohmann::json content, enum request_type type_from);
+  int request_license_list(const nlohmann::json &content, enum request_type type_from);
+  int request_license_info(nlohmann::json content, enum request_type type_from);
+  int request_repo_list(nlohmann::json content, enum request_type type_from);
 
 public:
   Request(Config, Database *);
@@ -76,5 +62,5 @@ public:
 
   int startup() override;
 
-  int request(const std::string &url, enum request_type type, bool skip_sleep = false);
+  int request(const std::string &url, enum request_type type, enum request_type type_from, bool skip_sleep = false);
 };
