@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - test
+      - dev
   pull_request:
     branches:
       - main
@@ -24,25 +26,34 @@ jobs:
           registry: ghcr.io
           username: tosone
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
       - name: Set env
-        run: echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
+        id: vars
+        run: |
+          echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
+          echo "::set-output name=tag::$(jq --raw-output '.version' package.json | tr -d '')"
+          echo "::set-output name=msg::$(git log --format=%B -n 1 $(git log -1 --pretty=format:"%h") | cat - | xargs)"
+      - name: Set env
+        run: echo "GIT_MSG=`echo $(git log --format=%B -n 1 $(git log -1 --pretty=format:"%h") | cat - | xargs)`" >> $GITHUB_ENV
+
+      - name: Condition default
+        run: echo "condition=false" >> $GITHUB_ENV
+      - name: Condition commit message
+        id: check
+        if: ${{ startsWith(env.GIT_MSG, ':arrow_down:') || startsWith(env.GIT_MSG, ':arrow_up:') || startsWith(env.GIT_MSG, ':heavy_minus_sign:') || startsWith(env.GIT_MSG, ':heavy_plus_sign:') }}
+        run: echo "condition=true" >> $GITHUB_ENV
+
       - name: Compile base docker image
-        if: startsWith(github.event.head_commit.message, ':bookmark:')
+        if: ${{ env.condition == true }}
         run: |
-          docker build -t ghcr.io/spider-all/spider-cplusplus:base-${{ env.GIT_TAG }} -f Dockerfile.base .
-          docker push ghcr.io/spider-all/spider-cplusplus:base-${{ env.GIT_TAG }}
+          docker build -t ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-base -f Dockerfile.base .
+          docker push ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-base
       - name: Compile release docker image
-        if: startsWith(github.event.head_commit.message, ':bookmark:')
+        if: ${{ env.condition == true }}
         run: |
-          docker build --build-arg SPIDER_VERSION=${{ env.GIT_TAG }} -t ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }} -f Dockerfile .
-          docker push ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }}
+          docker build --build-arg SPIDER_VERSION=${{ steps.vars.outputs.tag }} -t ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }} -f Dockerfile .
+          docker push ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}
       - name: Compile docker image
-        if: startsWith(github.event.head_commit.message, ':bookmark:') != true
+        if: ${{ env.condition != true }}
         run: |
-          docker build --build-arg SPIDER_VERSION=${{ env.GIT_TAG }} -t ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }}-$TAG_NAME .
-          docker push ghcr.io/spider-all/spider-cplusplus:${{ env.GIT_TAG }}-$TAG_NAME
-        env:
-          TAG_NAME: ${{ steps.date.outputs.date }}
+          docker build --build-arg SPIDER_VERSION=${{ steps.vars.outputs.tag }} -t ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-${{ steps.vars.outputs.date }} .
+          docker push ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-${{ steps.vars.outputs.date }}
