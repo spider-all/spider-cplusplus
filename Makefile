@@ -1,7 +1,6 @@
 deps     = $(shell jq --raw-output '.deps | join(" ")' package.json | tr -d "")
 version  = $(shell jq --raw-output '.version' package.json | tr -d "")
 vcpkg   ?= vcpkg
-tag     ?= $(shell git describe --tags --abbrev=0)
 
 .PHONY: build
 build: debug
@@ -20,7 +19,11 @@ deps:
 
 .PHONY: image
 image:
-	docker build --build-arg SPIDER_VERSION=$(tag) -t ghcr.io/spider-all/spider-cplusplus:$(tag)-$(shell date +'%Y%m%d%H%M') .
+	docker build --build-arg SPIDER_VERSION=$(version) -t ghcr.io/spider-all/spider-cplusplus:$(version)-$(shell date +'%Y%m%d%H%M') .
+
+.PHONY: changelog
+changelog:
+	git-chglog --next-tag $(version) -o CHANGELOG.md
 
 .PHONY: clean
 clean:
