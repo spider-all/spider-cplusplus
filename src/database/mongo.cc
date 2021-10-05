@@ -92,7 +92,7 @@ int Mongo::create_user(User user, enum request_type type) {
     coll.update_one(make_document(kvp("id", user.id)), make_document(kvp("$set", doc_value)), option);
 
     {
-      auto coll = database[fmt::format("${}_version", type)];
+      auto coll = database[fmt::format("${}_version", request_type_string(type))];
       mongocxx::options::update option;
       option.upsert(true);
       int64_t version = 0;
@@ -106,7 +106,6 @@ int Mongo::create_user(User user, enum request_type type) {
                                     kvp("version", version)),
                       option);
     }
-
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
   }
@@ -145,28 +144,28 @@ int Mongo::create_org(Org org) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> Mongo::list_users_random(std::string type) {
+std::vector<std::string> Mongo::list_users_random(enum request_type type) {
   std::vector<std::string> users;
   try {
     GET_CONNECTION(this->uri->database(), "users")
     mongocxx::pipeline stages;
 
     stages.lookup(make_document(
-        kvp("from", fmt::format("{}_version", type)),
+        kvp("from", fmt::format("{}_version", request_type_string(type))),
         kvp("localField", "login"),
         kvp("foreignField", "login"),
         kvp("as", fmt::format("{}_version", type))));
 
-    stages.unwind(make_document(kvp("path", fmt::format("${}_version", type))));
+    stages.unwind(make_document(kvp("path", fmt::format("${}_version", request_type_string(type)))));
 
     int64_t version = 0;
-    if (type == "followers") {
+    if (type == request_type_followers) {
       version = this->followers_version;
-    } else if (type == "following") {
+    } else if (type == request_type_following) {
       version = this->following_version;
     }
 
-    stages.match(make_document(kvp(fmt::format("{}_version", type), make_document(kvp("$lt", version)))));
+    stages.match(make_document(kvp(fmt::format("{}_version", request_type_string(type)), make_document(kvp("$lt", version)))));
 
     stages.sample(100);
 
@@ -181,8 +180,8 @@ std::vector<std::string> Mongo::list_users_random(std::string type) {
       auto coll = database["versions"];
       mongocxx::options::update option;
       option.upsert(true);
-      coll.update_one(make_document(kvp("type", type)),
-                      make_document(kvp("type", type),
+      coll.update_one(make_document(kvp("type", request_type_string(type))),
+                      make_document(kvp("type", request_type_string(type)),
                                     kvp("version", this->followers_version)),
                       option);
     }

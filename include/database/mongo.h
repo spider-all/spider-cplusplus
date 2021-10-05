@@ -42,7 +42,7 @@ public:
 
   int create_user(User user, enum request_type type) override;
   int64_t count_user() override;
-  std::vector<std::string> list_users_random(std::string type) override;
+  std::vector<std::string> list_users_random(enum request_type type) override;
   std::vector<User> list_usersx(common_args args) override;
 
   int create_org(Org) override;
