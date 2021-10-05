@@ -17,6 +17,17 @@ enum request_type {
   request_type_license_info,
 };
 
+inline const std::string request_type_string(request_type v) {
+  switch (v) {
+  case request_type_followers:
+    return "followers";
+  case request_type_following:
+    return "following";
+  default:
+    return "Unknown type";
+  }
+}
+
 typedef struct {
   long long page;
   long long limit;

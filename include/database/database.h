@@ -13,7 +13,7 @@ public:
 
   virtual int create_user(User user, enum request_type type) = 0;
   virtual int64_t count_user() = 0;
-  virtual std::vector<std::string> list_users_random(std::string type) = 0;
+  virtual std::vector<std::string> list_users_random(enum request_type type) = 0;
 
   virtual std::vector<User> list_usersx(common_args args) = 0;
 
