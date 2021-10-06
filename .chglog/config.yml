@@ -14,6 +14,10 @@ options:
         - fire
         - truck
         - bookmark
+        - heavy_plus_sign
+        - heavy_minus_sign
+        - arrow_down
+        - arrow_up
   commit_groups:
     title_maps:
       sparkles: Features
@@ -23,6 +27,10 @@ options:
       fire: Remove files
       truck: Rename files
       bookmark: Release version
+      heavy_plus_sign: Dependencies
+      heavy_minus_sign: Dependencies
+      arrow_down: Dependencies
+      arrow_up: Dependencies
     group_by: Type
   header:
     pattern: "^:(\\w*)\\:\\s(.*)$"
