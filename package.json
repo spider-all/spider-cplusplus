@@ -14,7 +14,8 @@
     "mongo-cxx-driver",
     "zstd",
     "libfort",
-    "prometheus-cpp[pull]"
+    "prometheus-cpp[pull]",
+    "boost-algorithm"
   ],
   "license": "MIT",
   "author": {

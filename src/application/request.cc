@@ -21,7 +21,7 @@ int Request::startup() {
   spdlog::info("Spider is running...");
   std::string request_url = "/users/" + config.crawler_entry_username;
 
-  int code = request(request_url, request_type_user, request_type_user, true);
+  int code = request(request_url, request_type_user, request_type_followers, true);
   if (code != 0) {
     return code;
   }
@@ -34,7 +34,7 @@ int Request::startup() {
     std::thread followers_thread([=]() {
       spdlog::info("Followers thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random("followers");
+        std::vector<std::string> users = database->list_users_random(request_type_followers);
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/followers";
           int code = request(request_url, request_type_followers, request_type_followers);
@@ -58,7 +58,7 @@ int Request::startup() {
     std::thread followings_thread([=]() {
       spdlog::info("Following thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random("");
+        std::vector<std::string> users = database->list_users_random(request_type_following);
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/following";
           int code = request(request_url, request_type_following, request_type_following);
@@ -82,7 +82,7 @@ int Request::startup() {
     std::thread orgs_thread([=]() {
       spdlog::info("Orgs thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random("");
+        std::vector<std::string> users = database->list_users_random(request_type_orgs);
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/orgs";
           int code = request(request_url, request_type_orgs, request_type_orgs);
@@ -106,7 +106,7 @@ int Request::startup() {
     std::thread orgs_member_thread([=]() {
       spdlog::info("Orgs thread is starting...");
       while (!stopping) {
-        std::vector<std::string> orgs = database->list_orgs();
+        std::vector<std::string> orgs = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &org : orgs) {
           std::string request_url = "/orgs/" + org + "/public_members";
           int code = request(request_url, request_type_orgs_member, request_type_orgs_member);
@@ -130,7 +130,7 @@ int Request::startup() {
     std::thread users_repos_thread([=]() {
       spdlog::info("Users repos thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random("");
+        std::vector<std::string> users = database->list_users_random(request_type_users_repos);
         for (const std::string &u : users) {
           std::string request_url = "/users/" + u + "/repos?per_page=100";
           int code = request(request_url, request_type_users_repos, request_type_users_repos);
@@ -154,7 +154,7 @@ int Request::startup() {
     std::thread orgs_repos_thread([=]() {
       spdlog::info("Repos thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_orgs();
+        std::vector<std::string> users = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &u : users) {
           std::string request_url = "/orgs/" + u + "/repos?per_page=100";
           int code = request(request_url, request_type_orgs_repos, request_type_orgs_repos);
