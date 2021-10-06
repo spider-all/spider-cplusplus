@@ -23,6 +23,10 @@ inline const std::string request_type_string(request_type v) {
     return "followers";
   case request_type_following:
     return "following";
+  case request_type_license_info:
+    return "license";
+  case request_type_orgs:
+    return "orgs";
   default:
     return "Unknown type";
   }

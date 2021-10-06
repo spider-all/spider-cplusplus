@@ -1,6 +1,6 @@
 ARG SPIDER_VERSION
 
-FROM ghcr.io/spider-all/spider-cplusplus:base-${SPIDER_VERSION} as base
+FROM ghcr.io/spider-all/spider-cplusplus:${SPIDER_VERSION}-base as base
 
 FROM buildpack-deps:stable as builder
 

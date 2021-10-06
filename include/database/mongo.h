@@ -2,6 +2,8 @@
 #include <random>
 #include <thread>
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <bsoncxx/builder/stream/array.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/stream/helpers.hpp>
@@ -29,10 +31,14 @@ private:
   mongocxx::uri *uri{};
   mongocxx::pool *pool{};
 
+  const int32_t sample_size = 100;
+
   int64_t count_x(const std::string &c);
 
-  int64_t followers_version = 0;
-  int64_t following_version = 0;
+  static std::string function_name_helper(std::string func_name);
+
+  int64_t followers_version = 1;
+  int64_t following_version = 1;
 
 public:
   explicit Mongo(const std::string &);
@@ -47,7 +53,7 @@ public:
 
   int create_org(Org) override;
   int64_t count_org() override;
-  std::vector<std::string> list_orgs() override;
+  std::vector<std::string> list_orgs_random(enum request_type type) override;
 
   int create_emoji(std::vector<Emoji> emojis) override;
   int64_t count_emoji() override;

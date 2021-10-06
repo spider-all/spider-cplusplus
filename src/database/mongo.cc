@@ -9,6 +9,15 @@ Mongo::Mongo(const std::string &dsn) {
   this->dsn = dsn;
 }
 
+std::string Mongo::function_name_helper(std::string func_name) {
+  std::vector<std::string> result;
+  result = boost::split(result, func_name, boost::is_any_of("_"));
+  if (result.size() != 3) {
+    return "";
+  }
+  return result[1];
+}
+
 int Mongo::initialize() {
   try {
     mongocxx::instance instance{};
@@ -18,7 +27,7 @@ int Mongo::initialize() {
     spdlog::error("Something mongodb error occurred: {}", e.what());
     return DATABASE_OPEN_ERROR;
   }
-  return 0;
+  return this->initialize_version();
 }
 
 int Mongo::initialize_version() {
@@ -29,29 +38,35 @@ int Mongo::initialize_version() {
     bsoncxx::document::element type = doc["type"];
     bsoncxx::document::element version = doc["version"];
 
-    if ((type && type.type() == bsoncxx::type::k_utf8) &&
+    if ((type && type.type() == bsoncxx::type::k_int64) &&
         (version && version.type() == bsoncxx::type::k_int64)) {
-      std::string type_string(type.get_utf8().value.data());
-      if (type_string == "followers") {
+      int64_t type_int64 = type.get_int64().value;
+      if (type_int64 == request_type_followers) {
         this->followers_version = version.get_int64().value;
         if (this->followers_version == 0) {
           this->followers_version = 1;
           mongocxx::options::update option;
           option.upsert(true);
-          coll.update_one(make_document(kvp("type", type_string)),
-                          make_document(kvp("type", type_string),
-                                        kvp("version", this->followers_version)),
+          coll.update_one(make_document(kvp("type", type_int64)),
+                          make_document(
+                              kvp("$set",
+                                  make_document(
+                                      kvp("type", type_int64),
+                                      kvp("version", this->followers_version)))),
                           option);
         }
-      } else if (type_string == "following") {
+      } else if (type_int64 == request_type_following) {
         this->following_version = version.get_int64().value;
         if (this->following_version == 0) {
           this->following_version = 1;
           mongocxx::options::update option;
           option.upsert(true);
-          coll.update_one(make_document(kvp("type", type_string)),
-                          make_document(kvp("type", type_string),
-                                        kvp("version", this->following_version)),
+          coll.update_one(make_document(kvp("type", type_int64)),
+                          make_document(
+                              kvp("$set",
+                                  make_document(
+                                      kvp("type", type_int64),
+                                      kvp("version", this->following_version)))),
                           option);
         }
       }
@@ -92,7 +107,7 @@ int Mongo::create_user(User user, enum request_type type) {
     coll.update_one(make_document(kvp("id", user.id)), make_document(kvp("$set", doc_value)), option);
 
     {
-      auto coll = database[fmt::format("${}_version", request_type_string(type))];
+      auto coll = database[fmt::format("{}_version", request_type_string(type))];
       mongocxx::options::update option;
       option.upsert(true);
       int64_t version = 0;
@@ -101,9 +116,11 @@ int Mongo::create_user(User user, enum request_type type) {
       } else if (type == request_type_following) {
         version = this->following_version;
       }
-      coll.update_one(make_document(kvp("type", type)),
-                      make_document(kvp("type", type),
-                                    kvp("version", version)),
+      coll.update_one(make_document(kvp("login", user.login)),
+                      make_document(
+                          kvp("$set",
+                              make_document(kvp("login", user.login),
+                                            kvp("version", version)))),
                       option);
     }
   } catch (const std::exception &e) {
@@ -147,7 +164,76 @@ int Mongo::create_org(Org org) {
 std::vector<std::string> Mongo::list_users_random(enum request_type type) {
   std::vector<std::string> users;
   try {
-    GET_CONNECTION(this->uri->database(), "users")
+    std::string func_name = this->function_name_helper(__func__);
+    GET_CONNECTION(this->uri->database(), func_name)
+    mongocxx::pipeline stages;
+    spdlog::info("{} {}", request_type_string(type), func_name);
+    std::string type_string = request_type_string(type);
+    stages.lookup(make_document(
+        kvp("from", fmt::format("{}_version", type_string)),
+        kvp("localField", "login"),
+        kvp("foreignField", "login"),
+        kvp("as", fmt::format("{}_version", type_string))));
+
+    stages.unwind(make_document(kvp("path", fmt::format("${}_version", type_string))));
+
+    int64_t version = 0;
+    if (type == request_type_followers) {
+      version = this->followers_version;
+    } else if (type == request_type_following) {
+      version = this->following_version;
+    }
+
+    stages.match(make_document(kvp(fmt::format("{}_version.version", type_string), make_document(kvp("$lt", version)))));
+
+    stages.sample(this->sample_size);
+
+    mongocxx::options::aggregate option;
+    option.max_time(std::chrono::milliseconds(5000));
+    auto cursor = coll.aggregate(stages, option);
+    for (auto &&doc : cursor) {
+      users.emplace_back(doc["login"].get_utf8().value.data());
+    }
+    if (users.empty()) {
+      this->followers_version++;
+      auto coll = database["versions"];
+      mongocxx::options::update option;
+      option.upsert(true);
+      coll.update_one(make_document(kvp("type", type)),
+                      make_document(
+                          kvp("$set", make_document(
+                                          kvp("type", type),
+                                          kvp("version", this->followers_version)))),
+                      option);
+    } else {
+      for (auto user : users) {
+        auto coll = database[fmt::format("{}_version", request_type_string(type))];
+        mongocxx::options::update option;
+        option.upsert(true);
+        int64_t version = 0;
+        if (type == request_type_followers) {
+          version = this->followers_version;
+        } else if (type == request_type_following) {
+          version = this->following_version;
+        }
+        coll.update_one(make_document(kvp("login", user)),
+                        make_document(
+                            kvp("$set",
+                                make_document(kvp("login", user),
+                                              kvp("version", version)))),
+                        option);
+      }
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+  }
+  return users;
+}
+
+std::vector<std::string> Mongo::list_orgs_random(enum request_type type) {
+  std::vector<std::string> orgs;
+  try {
+    GET_CONNECTION(this->uri->database(), "orgs")
     mongocxx::pipeline stages;
 
     stages.lookup(make_document(
@@ -167,15 +253,15 @@ std::vector<std::string> Mongo::list_users_random(enum request_type type) {
 
     stages.match(make_document(kvp(fmt::format("{}_version", request_type_string(type)), make_document(kvp("$lt", version)))));
 
-    stages.sample(100);
+    stages.sample(this->sample_size);
 
-    auto option = mongocxx::options::aggregate{};
+    mongocxx::options::aggregate option;
     option.max_time(std::chrono::milliseconds(5000));
     auto cursor = coll.aggregate(stages, option);
-    for (auto doc : cursor) {
-      users.push_back(std::string(doc["login"].get_utf8().value.data()));
+    for (auto &&doc : cursor) {
+      orgs.emplace_back(doc["login"].get_utf8().value.data());
     }
-    if (users.size() == 0) {
+    if (orgs.empty()) {
       this->followers_version++;
       auto coll = database["versions"];
       mongocxx::options::update option;
@@ -185,24 +271,7 @@ std::vector<std::string> Mongo::list_users_random(enum request_type type) {
                                     kvp("version", this->followers_version)),
                       option);
     }
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-  }
-  return users;
-}
 
-std::vector<std::string> Mongo::list_orgs() {
-  std::vector<std::string> orgs;
-  try {
-    GET_CONNECTION(this->uri->database(), "orgs")
-    mongocxx::pipeline stages;
-    stages.sample(100);
-    auto option = mongocxx::options::aggregate{};
-    option.max_time(std::chrono::milliseconds(5000));
-    auto cursor = coll.aggregate(stages, option);
-    for (auto doc : cursor) {
-      orgs.emplace_back(doc["login"].get_utf8().value.data());
-    }
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
   }
