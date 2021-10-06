@@ -1,5 +1,21 @@
 # Chnagelog
 
+## [v1.5.0](https://github.com/spider-all/spider-cplusplus/compare/v1.4.0...v1.5.0) (2021-10-06)
+
+### Dependencies
+
+* Add boost ([005d547](https://github.com/spider-all/spider-cplusplus/commit/005d547952815b31cc767ccc26deae35ab61ce1b))
+
+### Features
+
+* Convert request type to string ([8bb841f](https://github.com/spider-all/spider-cplusplus/commit/8bb841fd7cd83ca9453538d7814be957e63a80dd))
+* Add crawler version ([915da04](https://github.com/spider-all/spider-cplusplus/commit/915da04a266d8ffc6f804ecab3de5195e7aa4296))
+* Add users repo ([6eeadac](https://github.com/spider-all/spider-cplusplus/commit/6eeadac3d0373c03fd27435e160ff7922aaf5b90))
+
+### Remove files
+
+* Remove useless code ([f7671e8](https://github.com/spider-all/spider-cplusplus/commit/f7671e84b5d869a104c9fb5d3b49a9f534554d45))
+
 ## [v1.4.0](https://github.com/spider-all/spider-cplusplus/compare/v1.3.0...v1.4.0) (2021-09-20)
 
 ### Bug Fixes
@@ -70,6 +86,26 @@
 * Change cli return type. ([5b74276](https://github.com/spider-all/spider-cplusplus/commit/5b74276853434eda06cbf30f3368771536de1414))
 * Rename the database files ([cce323e](https://github.com/spider-all/spider-cplusplus/commit/cce323eb97f8f779e9bf35d5e62e77dd3485a2c8))
 * Compile with os lib. ([855eb8a](https://github.com/spider-all/spider-cplusplus/commit/855eb8aa64684c2e76a2aa2c5d67de30908a014f))
+
+### Dependencies
+
+* Remove all of 3rdparty deps. ([01185be](https://github.com/spider-all/spider-cplusplus/commit/01185be7425ddb193bfcfafa6e9064fcee6ad2e0))
+
+### Dependencies
+
+* Upgrade vcpkg to 2021.05.12 ([90fc446](https://github.com/spider-all/spider-cplusplus/commit/90fc446f5653ce37cdc2157dbc6d9b28d8204e6e))
+* Upgrade vcpkg to 2021.04.30 ([f637262](https://github.com/spider-all/spider-cplusplus/commit/f637262a2a0bdaaa95c2c73a14bfb15ce19f1003))
+* Upgrade deps. ([ce3fac4](https://github.com/spider-all/spider-cplusplus/commit/ce3fac42a229c6db6b43bf8b9532b2e19b3ecdc6))
+
+### Dependencies
+
+* Add cli11 as command line tool ([5afb6f4](https://github.com/spider-all/spider-cplusplus/commit/5afb6f47a65b925378ed4ae0ed73d2d05f46e77f))
+* Add aws dynamo sdk ([abb2641](https://github.com/spider-all/spider-cplusplus/commit/abb26413cdcf58bd5c6f8e0428923abddda45390))
+* Add spdlog deps. ([73b4f05](https://github.com/spider-all/spider-cplusplus/commit/73b4f055f156e85eb09a45947174b50ee5f07704))
+* Add cpp httplib deps. ([c917734](https://github.com/spider-all/spider-cplusplus/commit/c917734922202bb1d1c11a2bb10d54bc351a0d71))
+* Add json deps. ([cf6576c](https://github.com/spider-all/spider-cplusplus/commit/cf6576c7c257daf9bc8eed66627f01b296d7c696))
+* Add cpr deps. ([0358c9e](https://github.com/spider-all/spider-cplusplus/commit/0358c9e5023529df373f86d9fe1097577b3b45bb))
+* Add SQLiteCpp deps. ([ba7481a](https://github.com/spider-all/spider-cplusplus/commit/ba7481a99aa0c570dd9b1078260c311f5cfab416))
 
 ### Features
 
