@@ -5,6 +5,7 @@ on:
     branches:
       - dep
       - deps
+      - release
 
 jobs:
   image:
