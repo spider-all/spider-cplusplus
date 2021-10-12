@@ -488,7 +488,7 @@ int Request::request_orgs(const nlohmann::json &content, enum request_type type_
     org.id = con["id"].get<int64_t>();
     org.node_id = con["node_id"].get<std::string>();
     org.description = con["description"].get<std::string>();
-    int code = database->create_org(org);
+    int code = database->create_org(org, type_from);
     if (code != 0) {
       return code;
     }
@@ -586,7 +586,7 @@ int Request::request_license_info(nlohmann::json content, enum request_type type
       .body = content["body"].get<std::string>(),
       .featured = content["featured"].get<bool>(),
   };
-  int code = database->create_license(license);
+  int code = database->create_license(license, type_from);
   return code;
 }
 
@@ -620,7 +620,7 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
     if (!con["license"].is_string()) {
       repo.license = con["license"]["key"].get<std::string>();
     }
-    code = database->create_repo(repo);
+    code = database->create_repo(repo, type_from);
     if (code != 0) {
       return code;
     }
