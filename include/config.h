@@ -13,7 +13,6 @@
 #pragma once
 
 class Config {
-private:
 public:
   std::string database_type;
 
