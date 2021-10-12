@@ -17,7 +17,7 @@ public:
 
   virtual std::vector<User> list_usersx(common_args args) = 0;
 
-  virtual int create_org(Org) = 0;
+  virtual int create_org(Org org, enum request_type type) = 0;
   virtual int64_t count_org() = 0;
   virtual std::vector<std::string> list_orgs_random(enum request_type type) = 0;
 
@@ -27,9 +27,9 @@ public:
   virtual int create_gitignore(Gitignore gitignore) = 0;
   virtual int64_t count_gitignore() = 0;
 
-  virtual int create_license(License license) = 0;
+  virtual int create_license(License license, enum request_type type) = 0;
   virtual int64_t count_license() = 0;
 
-  virtual int create_repo(Repo repo) = 0;
+  virtual int create_repo(Repo repo, enum request_type type) = 0;
   virtual int64_t count_repo() = 0;
 };

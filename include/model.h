@@ -24,6 +24,7 @@ inline const std::string request_type_string(request_type v) {
   case request_type_following:
     return "following";
   case request_type_license_info:
+  case request_type_license_list:
     return "license";
   case request_type_orgs:
     return "orgs";

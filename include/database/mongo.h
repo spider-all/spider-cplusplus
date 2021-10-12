@@ -39,6 +39,12 @@ private:
 
   int64_t followers_version = 1;
   int64_t following_version = 1;
+  int64_t orgs_version = 1;
+  int64_t orgs_member_version = 1;
+  int64_t users_repos_version = 1;
+  int64_t orgs_repos_version = 1;
+  int64_t gitignore_list_version = 1;
+  int64_t license_list_version = 1;
 
 public:
   explicit Mongo(const std::string &);
@@ -51,7 +57,7 @@ public:
   std::vector<std::string> list_users_random(enum request_type type) override;
   std::vector<User> list_usersx(common_args args) override;
 
-  int create_org(Org) override;
+  int create_org(Org org, enum request_type type) override;
   int64_t count_org() override;
   std::vector<std::string> list_orgs_random(enum request_type type) override;
 
@@ -61,9 +67,9 @@ public:
   int create_gitignore(Gitignore gitignore) override;
   int64_t count_gitignore() override;
 
-  int create_license(License license) override;
+  int create_license(License license, enum request_type type) override;
   int64_t count_license() override;
 
-  int create_repo(Repo repo) override;
+  int create_repo(Repo repo, enum request_type type) override;
   int64_t count_repo() override;
 };
