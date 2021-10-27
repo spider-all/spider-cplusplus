@@ -24,6 +24,7 @@
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
+using bsoncxx::builder::basic::make_array;
 
 class Mongo : public Database {
 private:
@@ -53,6 +54,8 @@ public:
   int initialize_version() override;
 
   int create_user(User user, enum request_type type) override;
+  int update_user_version(User user, enum request_type type) override;
+  int upsert_user(User user) override;
   int64_t count_user() override;
   std::vector<std::string> list_users_random(enum request_type type) override;
   std::vector<User> list_usersx(common_args args) override;

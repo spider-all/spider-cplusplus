@@ -68,6 +68,63 @@ Mongo::~Mongo() {
   delete this->uri;
 }
 
+int Mongo::upsert_user(User user) {
+  bsoncxx::document::value doc_value = make_document(
+      kvp("id", user.id),
+      kvp("login", user.login),
+      kvp("node_id", user.node_id),
+      kvp("type", user.type),
+      kvp("name", user.name),
+      kvp("company", user.company),
+      kvp("blog", user.blog),
+      kvp("location", user.location),
+      kvp("email", user.email),
+      kvp("hireable", user.hireable),
+      kvp("bio", user.bio),
+      kvp("created_at", user.created_at),
+      kvp("updated_at", user.updated_at),
+      kvp("public_gists", user.public_gists),
+      kvp("public_repos", user.public_repos),
+      kvp("following", user.following),
+      kvp("followers", user.followers));
+
+  mongocxx::options::update option;
+  option.upsert(true);
+
+  try {
+    GET_CONNECTION(this->uri->database(), "users")
+    coll.update_one(make_document(kvp("id", user.id)), make_document(kvp("$set", doc_value)), option);
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+    return SQL_EXEC_ERROR;
+  }
+  return EXIT_SUCCESS;
+}
+
+int Mongo::update_user_version(User user, enum request_type type) {
+  int64_t version = 0;
+  if (type == request_type_followers) {
+    version = this->followers_version;
+  } else if (type == request_type_following) {
+    version = this->following_version;
+  }
+
+  mongocxx::options::update option;
+  option.upsert(true);
+
+  try {
+    GET_CONNECTION(this->uri->database(), "users")
+    coll = database[fmt::format("{}_version", request_type_string(type))];
+
+    bsoncxx::document::value record = make_document(kvp("login", user.login), kvp("version", version));
+    coll.update_one(make_document(kvp("login", user.login)), make_document(kvp("$set", record)), option);
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+    return SQL_EXEC_ERROR;
+  }
+  return EXIT_SUCCESS;
+}
+
 int Mongo::create_user(User user, enum request_type type) {
   try {
     GET_CONNECTION(this->uri->database(), "users")
@@ -185,8 +242,6 @@ std::vector<std::string> Mongo::list_users_random(enum request_type type) {
         kvp("foreignField", "login"),
         kvp("as", fmt::format("{}_version", type_string))));
 
-    stages.unwind(make_document(kvp("path", fmt::format("${}_version", type_string))));
-
     int64_t version = 1;
     if (type == request_type_followers) {
       version = this->followers_version;
@@ -194,7 +249,9 @@ std::vector<std::string> Mongo::list_users_random(enum request_type type) {
       version = this->following_version;
     }
 
-    stages.match(make_document(kvp(fmt::format("{}_version.version", type_string), make_document(kvp("$lt", version)))));
+    bsoncxx::document::view_or_value filter1 = make_document(kvp(fmt::format("{}_version.version", type_string), make_document(kvp("$lt", version))));
+    bsoncxx::document::view_or_value filter2 = make_document(kvp(fmt::format("{}_version", type_string), make_document(kvp("$size", 0))));
+    stages.match(make_document(kvp("$or", make_array(filter1, filter2))));
 
     stages.sample(this->sample_size);
 
