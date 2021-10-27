@@ -12,6 +12,8 @@ public:
   virtual int initialize_version() = 0;
 
   virtual int create_user(User user, enum request_type type) = 0;
+  virtual int update_user_version(User user, enum request_type type) = 0;
+  virtual int upsert_user(User user) = 0;
   virtual int64_t count_user() = 0;
   virtual std::vector<std::string> list_users_random(enum request_type type) = 0;
 
