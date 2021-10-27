@@ -17,14 +17,15 @@
 #include <spdlog/spdlog.h>
 
 #include <error.h>
+#include <versions.h>
 
 #pragma once
 
 #include <database/database.h>
 
 using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_document;
 using bsoncxx::builder::basic::make_array;
+using bsoncxx::builder::basic::make_document;
 
 class Mongo : public Database {
 private:
@@ -32,20 +33,13 @@ private:
   mongocxx::uri *uri{};
   mongocxx::pool *pool{};
 
+  Versions *versions;
+
   const int32_t sample_size = 100;
 
   int64_t count_x(const std::string &c);
 
   static std::string function_name_helper(std::string func_name);
-
-  int64_t followers_version = 1;
-  int64_t following_version = 1;
-  int64_t orgs_version = 1;
-  int64_t orgs_member_version = 1;
-  int64_t users_repos_version = 1;
-  int64_t orgs_repos_version = 1;
-  int64_t gitignore_list_version = 1;
-  int64_t license_list_version = 1;
 
 public:
   explicit Mongo(const std::string &);
