@@ -47,8 +47,11 @@ public:
   int initialize() override;
   int initialize_version() override;
 
+  int update_version(std::string key, enum request_type type) override;
+  int update_version(std::vector<std::string> key, enum request_type type) override;
+  int incr_version(enum request_type type) override;
+
   int create_user(User user, enum request_type type) override;
-  int update_user_version(User user, enum request_type type) override;
   int upsert_user(User user) override;
   int64_t count_user() override;
   std::vector<std::string> list_users_random(enum request_type type) override;
