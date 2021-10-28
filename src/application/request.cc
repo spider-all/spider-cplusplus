@@ -488,7 +488,7 @@ int Request::request_orgs(const nlohmann::json &content, enum request_type type_
     org.id = con["id"].get<int64_t>();
     org.node_id = con["node_id"].get<std::string>();
     org.description = con["description"].get<std::string>();
-    int code = database->create_org(org, type_from);
+    int code = database->upsert_org_with_version(org, type_from);
     if (code != 0) {
       return code;
     }
@@ -522,7 +522,7 @@ int Request::request_user(nlohmann::json content, enum request_type type_from) {
   user.following = content["following"].get<int>();
   user.followers = content["followers"].get<int>();
 
-  int code = database->create_user(user, type_from);
+  int code = database->upsert_user_with_version(user, type_from);
   return code;
 }
 
