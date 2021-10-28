@@ -1,50 +1,7 @@
 #include <database/mongo.h>
 
-#define GET_CONNECTION(database_name, collection_name) \
-  auto connect = this->pool->acquire();                \
-  auto database = connect->database(database_name);    \
-  auto coll = database[collection_name];
-
-Mongo::Mongo(const std::string &dsn) {
-  this->dsn = dsn;
-}
-
-std::string Mongo::function_name_helper(std::string func_name) {
-  std::vector<std::string> result;
-  result = boost::split(result, func_name, boost::is_any_of("_"));
-  if (result.size() != 3) {
-    return "";
-  }
-  return result[1];
-}
-
-int Mongo::initialize() {
-  this->versions = new Versions();
-  try {
-    mongocxx::instance instance{};
-    this->uri = new mongocxx::uri(dsn);
-    this->pool = new mongocxx::pool(*this->uri);
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-    return DATABASE_OPEN_ERROR;
-  }
-  return this->initialize_version();
-}
-
-int Mongo::initialize_version() {
-  GET_CONNECTION(this->uri->database(), "versions")
-  mongocxx::cursor _val = coll.find(bsoncxx::document::view{});
-  this->versions->initialize(std::move(_val));
-  return EXIT_SUCCESS;
-}
-
-Mongo::~Mongo() {
-  delete this->pool;
-  delete this->uri;
-}
-
 int Mongo::upsert_user(User user) {
-  bsoncxx::document::value doc_value = make_document(
+  bsoncxx::document::value doc = make_document(
       kvp("id", user.id),
       kvp("login", user.login),
       kvp("node_id", user.node_id),
@@ -62,126 +19,18 @@ int Mongo::upsert_user(User user) {
       kvp("public_repos", user.public_repos),
       kvp("following", user.following),
       kvp("followers", user.followers));
-
-  mongocxx::options::update option;
-  option.upsert(true);
-
-  try {
-    GET_CONNECTION(this->uri->database(), "users")
-    coll.update_one(make_document(kvp("id", user.id)), make_document(kvp("$set", doc_value)), option);
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-    return SQL_EXEC_ERROR;
-  }
-  return EXIT_SUCCESS;
+  bsoncxx::document::value filter = make_document(kvp("id", user.id));
+  return this->upsert_x("users", filter.view(), doc.view());
 }
 
-int Mongo::update_version(std::string key, enum request_type type) {
-  int64_t version = this->versions->get(type);
-
-  mongocxx::options::update option;
-  option.upsert(true);
-
-  try {
-    GET_CONNECTION(this->uri->database(), "users")
-    coll = database[fmt::format("{}_version", request_type_string(type))];
-
-    bsoncxx::document::value record = make_document(kvp("login", key), kvp("version", version));
-    coll.update_one(make_document(kvp("login", key)), make_document(kvp("$set", record)), option);
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-    return SQL_EXEC_ERROR;
+int Mongo::upsert_user_with_version(User user, enum request_type type) {
+  int code = this->upsert_user(user);
+  if (code != 0) {
+    return code;
   }
-  return EXIT_SUCCESS;
-}
-
-int Mongo::update_version(std::vector<std::string> keys, enum request_type type) {
-  int64_t version = this->versions->get(type);
-
-  mongocxx::options::update option;
-  option.upsert(true);
-
-  try {
-    GET_CONNECTION(this->uri->database(), "users")
-    coll = database[fmt::format("{}_version", request_type_string(type))];
-    auto bulk = coll.create_bulk_write();
-    for (std::string key : keys) {
-      bsoncxx::document::value record = make_document(kvp("login", key), kvp("version", version));
-      mongocxx::model::update_one upsert_op{make_document(kvp("login", key)), make_document(kvp("$set", record))};
-      bulk.append(upsert_op);
-    }
-    auto result = bulk.execute();
-    if (!result) {
-      spdlog::error("Something mongodb error occurred: {}", "bulk execute result is null");
-      return SQL_EXEC_ERROR;
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-    return SQL_EXEC_ERROR;
-  }
-  return EXIT_SUCCESS;
-}
-
-int Mongo::incr_version(enum request_type type) {
-  int64_t version = this->versions->incr(type);
-
-  mongocxx::options::update option;
-  option.upsert(true);
-  try {
-    GET_CONNECTION(this->uri->database(), "users")
-    coll = database["versions"];
-    std::string type_string = this->versions->to_string(type);
-    auto filter = make_document(kvp("type", type_string));
-    auto doc = make_document(kvp("$set", make_document(kvp("type", type_string), kvp("version", version))));
-    coll.update_one(filter.view(), doc.view(), option);
-    spdlog::info("Increase {} to {}", fmt::format("{}_version", type_string), version);
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-    return SQL_EXEC_ERROR;
-  }
-  return EXIT_SUCCESS;
-}
-
-int Mongo::create_user(User user, enum request_type type) {
-  try {
-    GET_CONNECTION(this->uri->database(), "users")
-    bsoncxx::document::value doc_value = make_document(
-        kvp("id", user.id),
-        kvp("login", user.login),
-        kvp("node_id", user.node_id),
-        kvp("type", user.type),
-        kvp("name", user.name),
-        kvp("company", user.company),
-        kvp("blog", user.blog),
-        kvp("location", user.location),
-        kvp("email", user.email),
-        kvp("hireable", user.hireable),
-        kvp("bio", user.bio),
-        kvp("created_at", user.created_at),
-        kvp("updated_at", user.updated_at),
-        kvp("public_gists", user.public_gists),
-        kvp("public_repos", user.public_repos),
-        kvp("following", user.following),
-        kvp("followers", user.followers));
-
-    mongocxx::options::update option;
-    option.upsert(true);
-    coll.update_one(make_document(kvp("id", user.id)), make_document(kvp("$set", doc_value)), option);
-
-    {
-      auto coll = database[fmt::format("{}_version", request_type_string(type))];
-      mongocxx::options::update option;
-      option.upsert(true);
-      int64_t version = this->versions->get(type);
-      coll.update_one(make_document(kvp("login", user.login)),
-                      make_document(
-                          kvp("$set",
-                              make_document(kvp("login", user.login),
-                                            kvp("version", version)))),
-                      option);
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
+  code = this->update_version(user.login, type);
+  if (code != 0) {
+    return code;
   }
   return EXIT_SUCCESS;
 }
@@ -200,42 +49,30 @@ std::vector<User> Mongo::list_usersx(common_args args) {
   return users;
 }
 
-int Mongo::create_org(Org org, enum request_type type) {
-  std::string type_string = request_type_string(type);
+int Mongo::upsert_org(Org org) {
+  bsoncxx::document::value doc = make_document(
+      kvp("id", org.id),
+      kvp("login", org.login),
+      kvp("node_id", org.node_id),
+      kvp("description", org.description));
+  bsoncxx::document::value filter = make_document(kvp("id", org.id));
+  return this->upsert_x("orgs", filter.view(), doc.view());
+}
 
-  try {
-    GET_CONNECTION(this->uri->database(), "orgs")
-    bsoncxx::document::value doc_value = make_document(
-        kvp("id", org.id),
-        kvp("login", org.login),
-        kvp("node_id", org.node_id),
-        kvp("description", org.description));
-
-    mongocxx::options::update option;
-    option.upsert(true);
-    coll.update_one(make_document(kvp("id", org.id)), make_document(kvp("$set", doc_value)), option);
-
-    {
-      auto coll = database[fmt::format("{}_version", request_type_string(type))];
-      mongocxx::options::update option;
-      option.upsert(true);
-      int64_t version = this->versions->get(type);
-      coll.update_one(make_document(kvp("login", org.login)),
-                      make_document(
-                          kvp("$set",
-                              make_document(kvp("login", org.login),
-                                            kvp("version", version)))),
-                      option);
-    }
-
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
+int Mongo::upsert_org_with_version(Org org, enum request_type type) {
+  int code = this->upsert_org(org);
+  if (code != 0) {
+    return code;
+  }
+  code = this->update_version(org.login, type);
+  if (code != 0) {
+    return code;
   }
   return EXIT_SUCCESS;
 }
 
 std::vector<std::string> Mongo::list_users_random(enum request_type type) {
-  std::string type_string = request_type_string(type);
+  std::string type_string = this->versions->to_string(type);
 
   std::vector<std::string> users;
   try {
@@ -265,30 +102,9 @@ std::vector<std::string> Mongo::list_users_random(enum request_type type) {
     }
     spdlog::info("version: {}", version);
     if (users.empty()) {
-      version = this->versions->incr(type);
-
-      auto coll = database["versions"];
-      mongocxx::options::update option;
-      option.upsert(true);
-      coll.update_one(make_document(kvp("type", type_string)),
-                      make_document(
-                          kvp("$set", make_document(
-                                          kvp("type", type_string),
-                                          kvp("version", version)))),
-                      option);
-      spdlog::info("Increase {} to {}", fmt::format("{}_version", type_string), version);
+      this->incr_version(type);
     } else {
-      for (auto user : users) {
-        auto coll = database[fmt::format("{}_version", type_string)];
-        mongocxx::options::update option;
-        option.upsert(true);
-        coll.update_one(make_document(kvp("login", user)),
-                        make_document(
-                            kvp("$set",
-                                make_document(kvp("login", user),
-                                              kvp("version", version)))),
-                        option);
-      }
+      this->update_version(users, type);
     }
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
@@ -473,11 +289,6 @@ int Mongo::create_repo(Repo repo, enum request_type type) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
   }
   return EXIT_SUCCESS;
-}
-
-int64_t Mongo::count_x(const std::string &c) {
-  GET_CONNECTION(this->uri->database(), c)
-  return coll.count_documents({});
 }
 
 int64_t Mongo::count_repo() {
