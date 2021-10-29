@@ -15,7 +15,8 @@
     "zstd",
     "libfort",
     "prometheus-cpp[pull]",
-    "boost-algorithm"
+    "boost-algorithm",
+    "pugixml"
   ],
   "license": "MIT",
   "author": {
