@@ -45,6 +45,14 @@ private:
   const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
 
+  int startup_followx();
+  int startup_info();
+  int startup_emojis();
+  int startup_orgs();
+  int startup_gitignore();
+  int startup_license();
+  int startup_xrepos();
+
   int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
   int request_orgs(const nlohmann::json &content, enum request_type type_from);
   int request_user(nlohmann::json content, enum request_type type_from);

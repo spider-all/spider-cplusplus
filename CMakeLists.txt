@@ -11,7 +11,7 @@ add_definitions(-DSPIDER_VERSION=${SPIDER_VERSION})
 
 project(spider)
 
-FILE(GLOB source src/*.cc src/application/*.cc src/database/*/**.cc)
+FILE(GLOB source src/*.cc src/application/*.cc src/application/request/*.cc src/database/mongo/*.cc)
 add_executable(spider ${source})
 
 if (CMAKE_BUILD_TYPE STREQUAL release)
