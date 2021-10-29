@@ -27,6 +27,11 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
+#define GET_CONNECTION(database_name, collection_name) \
+  auto connect = this->pool->acquire();                \
+  auto database = connect->database(database_name);    \
+  auto coll = database[collection_name];
+
 class Mongo : public Database {
 private:
   std::string dsn;
