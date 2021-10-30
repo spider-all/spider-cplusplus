@@ -81,7 +81,7 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
     if (!con["license"].is_string()) {
       repo.license = con["license"]["key"].get<std::string>();
     }
-    code = database->create_repo(repo, type_from);
+    code = database->upsert_repo_with_version(repo, type_from);
     if (code != 0) {
       return code;
     }

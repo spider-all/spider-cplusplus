@@ -73,7 +73,6 @@ public:
   int create_emoji(std::vector<Emoji> emojis) override;
   int64_t count_emoji() override;
 
-  // int create_gitignore(Gitignore gitignore) override;
   int upsert_gitignore(Gitignore gitignore) override;
   int64_t count_gitignore() override;
 
@@ -81,6 +80,7 @@ public:
   int upsert_license_with_version(License license, enum request_type type) override;
   int64_t count_license() override;
 
-  int create_repo(Repo repo, enum request_type type) override;
+  int upsert_repo(Repo repo) override;
+  int upsert_repo_with_version(Repo repo, enum request_type type) override;
   int64_t count_repo() override;
 };

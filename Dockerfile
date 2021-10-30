@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . .
 COPY --from=base /app/pkgs ./pkgs
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends jq ccache cmake libsasl2-dev && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends jq cmake libsasl2-dev && \
   rm -rf /var/lib/apt/lists/* && \
   make release
 

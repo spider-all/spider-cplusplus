@@ -8,7 +8,7 @@ int Request::startup_orgs() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_orgs);
         for (const std::string &u : users) {
-          std::string request_url = "/users/" + u + "/orgs";
+          std::string request_url = "/users/" + u + "/orgs?per_page=100";
           int code = request(request_url, request_type_orgs, request_type_orgs);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
@@ -31,7 +31,7 @@ int Request::startup_orgs() {
       while (!stopping) {
         std::vector<std::string> orgs = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &org : orgs) {
-          std::string request_url = "/orgs/" + org + "/public_members";
+          std::string request_url = "/orgs/" + org + "/public_members?per_page=100";
           int code = request(request_url, request_type_orgs_member, request_type_orgs_member);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);

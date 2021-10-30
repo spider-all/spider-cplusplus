@@ -25,7 +25,7 @@ int Mongo::upsert_user(User user) {
 
 int Mongo::upsert_user_with_version(User user, enum request_type type) {
   WRAP_FUNC(this->upsert_user(user))
-  WRAP_FUNC(this->update_version(user.login, type))
+  WRAP_FUNC(this->update_version(std::to_string(user.id), type))
   return EXIT_SUCCESS;
 }
 

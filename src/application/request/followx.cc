@@ -8,7 +8,7 @@ int Request::startup_followx() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_followers);
         for (const std::string &u : users) {
-          std::string request_url = "/users/" + u + "/followers";
+          std::string request_url = "/users/" + u + "/followers?per_page=100";
           int code = request(request_url, request_type_followers, request_type_followers);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
@@ -31,7 +31,7 @@ int Request::startup_followx() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_following);
         for (const std::string &u : users) {
-          std::string request_url = "/users/" + u + "/following";
+          std::string request_url = "/users/" + u + "/following?per_page=100";
           int code = request(request_url, request_type_following, request_type_following);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_url, code);
