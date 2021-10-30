@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_TOOLCHAIN_FILE pkgs/scripts/buildsystems/vcpkg.cmake)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Os")
-set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 
 add_definitions(-DSPIDER_VERSION=${SPIDER_VERSION})
 
@@ -60,6 +59,9 @@ target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
 
 find_package(prometheus-cpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
+
+find_package(pugixml CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE pugixml pugixml::static pugixml::pugixml)
 
 target_include_directories(spider PRIVATE include)
 
