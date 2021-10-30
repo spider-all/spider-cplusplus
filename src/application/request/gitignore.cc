@@ -37,6 +37,6 @@ int Request::request_gitignore_info(nlohmann::json content, enum request_type ty
       content["name"].get<std::string>(),
       content["source"].get<std::string>(),
   };
-  int code = database->create_gitignore(gitignore);
+  int code = database->upsert_gitignore(gitignore);
   return code;
 }

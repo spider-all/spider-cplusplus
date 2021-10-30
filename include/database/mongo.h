@@ -16,6 +16,7 @@
 #include <mongocxx/uri.hpp>
 #include <spdlog/spdlog.h>
 
+#include <common.h>
 #include <error.h>
 #include <versions.h>
 
@@ -72,10 +73,12 @@ public:
   int create_emoji(std::vector<Emoji> emojis) override;
   int64_t count_emoji() override;
 
-  int create_gitignore(Gitignore gitignore) override;
+  // int create_gitignore(Gitignore gitignore) override;
+  int upsert_gitignore(Gitignore gitignore) override;
   int64_t count_gitignore() override;
 
-  int create_license(License license, enum request_type type) override;
+  int upsert_license(License license) override;
+  int upsert_license_with_version(License license, enum request_type type) override;
   int64_t count_license() override;
 
   int create_repo(Repo repo, enum request_type type) override;

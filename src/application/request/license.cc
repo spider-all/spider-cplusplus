@@ -46,6 +46,6 @@ int Request::request_license_info(nlohmann::json content, enum request_type type
       .body = content["body"].get<std::string>(),
       .featured = content["featured"].get<bool>(),
   };
-  int code = database->create_license(license, type_from);
-  return code;
+  WRAP_FUNC(database->upsert_license_with_version(license, type_from))
+  return EXIT_SUCCESS;
 }

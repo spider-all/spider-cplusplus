@@ -21,21 +21,19 @@ int Request::startup() {
   spdlog::info("Spider is running...");
   std::string request_url = "/users/" + config.crawler_entry_username;
 
-  int code = request(request_url, request_type_user, request_type_followers, true);
-  if (code != 0) {
-    return code;
-  }
+  WRAP_FUNC(request(request_url, request_type_user, request_type_followers, true))
+
   if (stopping) {
     return EXIT_SUCCESS;
   }
 
-  this->startup_followx();
-  this->startup_info();
-  this->startup_emojis();
-  this->startup_orgs();
-  this->startup_gitignore();
-  this->startup_license();
-  this->startup_xrepos();
+  WRAP_FUNC(this->startup_followx())
+  WRAP_FUNC(this->startup_info())
+  WRAP_FUNC(this->startup_emojis())
+  WRAP_FUNC(this->startup_orgs())
+  WRAP_FUNC(this->startup_gitignore())
+  WRAP_FUNC(this->startup_license())
+  WRAP_FUNC(this->startup_xrepos())
 
   return EXIT_SUCCESS;
 }
