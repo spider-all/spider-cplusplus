@@ -5,10 +5,13 @@ int Request::startup_license() {
     semaphore++;
     std::thread license_list_thread([=]() {
       spdlog::info("License list thread is starting...");
-      std::string request_url = "/licenses";
-      int code = request(request_url, request_type_license_list, request_type_license_list);
+      RequestConfig request_config{
+          .host = this->default_url_prefix,
+          .path = "/licenses",
+      };
+      int code = request(request_config, request_type_license_list, request_type_license_list);
       if (code != 0) {
-        spdlog::error("Request url: {} with error: {}", request_url, code);
+        spdlog::error("Request url: {} with error: {}", request_config.path, code);
       }
       spdlog::info("License list thread stopped");
       semaphore--;
@@ -20,8 +23,11 @@ int Request::startup_license() {
 
 int Request::request_license_list(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
-    std::string request_url = "/licenses/" + con["key"].get<std::string>();
-    WRAP_FUNC(request(request_url, request_type_license_info, type_from))
+    RequestConfig request_config{
+        .host = this->default_url_prefix,
+        .path = "/licenses/" + con["key"].get<std::string>(),
+    };
+    WRAP_FUNC(request(request_config, request_type_license_info, type_from))
     if (stopping) {
       return EXIT_SUCCESS;
     }

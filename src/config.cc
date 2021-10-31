@@ -14,15 +14,37 @@ int Config::initialize(const std::string &config_path) {
       database_mongodb_dsn = config["database"][DATABASE_MONGODB]["dsn"].as<std::string>();
     }
 
-    this->crawler_type_followers = config["crawler"]["followers"].as<bool>();
-    this->crawler_type_followings = config["crawler"]["followings"].as<bool>();
-    this->crawler_type_orgs = config["crawler"]["orgs"].as<bool>();
-    this->crawler_type_orgs_member = config["crawler"]["orgs_member"].as<bool>();
-    this->crawler_type_users_repos = config["crawler"]["users_repos"].as<bool>();
-    this->crawler_type_orgs_repos = config["crawler"]["orgs_repos"].as<bool>();
-    this->crawler_type_emojis = config["crawler"]["emojis"].as<bool>();
-    this->crawler_type_gitignore_list = config["crawler"]["gitignore_list"].as<bool>();
-    this->crawler_type_license_list = config["crawler"]["license_list"].as<bool>();
+    auto crawler = config["crawler"];
+    if (crawler) {
+      if (crawler["followers"]) {
+        this->crawler_type_followers = crawler["followers"].as<bool>();
+      }
+      if (crawler["followings"]) {
+        this->crawler_type_followings = crawler["followings"].as<bool>();
+      }
+      if (crawler["orgs"]) {
+        this->crawler_type_orgs = crawler["orgs"].as<bool>();
+      }
+      if (crawler["orgs_member"]) {
+        this->crawler_type_orgs_member = crawler["orgs_member"].as<bool>();
+      }
+      if (crawler["users_repos"]) {
+        this->crawler_type_users_repos = crawler["users_repos"].as<bool>();
+      }
+      if (crawler["orgs_repos"]) {
+        this->crawler_type_orgs_repos = crawler["orgs_repos"].as<bool>();
+      }
+      if (crawler["emojis"]) {
+        this->crawler_type_emojis = crawler["emojis"].as<bool>();
+      }
+      if (crawler["gitignore_list"]) {
+        this->crawler_type_gitignore_list = crawler["gitignore_list"].as<bool>();
+      }
+      if (crawler["license_list"]) {
+        this->crawler_type_license_list = crawler["license_list"].as<bool>();
+      }
+    }
+
     if (crawler_entry_username.empty() || crawler_token.empty()) {
       spdlog::error("Config {0} have not the import value.", config_path);
       return CONFIG_PARSE_ERROR;

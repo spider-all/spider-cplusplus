@@ -8,10 +8,13 @@ int Request::startup_followx() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_followers);
         for (const std::string &u : users) {
-          std::string request_url = "/users/" + u + "/followers?per_page=100";
-          int code = request(request_url, request_type_followers, request_type_followers);
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/users/" + u + "/followers?per_page=100",
+          };
+          int code = request(request_config, request_type_followers, request_type_followers);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_url, code);
+            spdlog::error("Request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -31,10 +34,13 @@ int Request::startup_followx() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_following);
         for (const std::string &u : users) {
-          std::string request_url = "/users/" + u + "/following?per_page=100";
-          int code = request(request_url, request_type_following, request_type_following);
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/users/" + u + "/following?per_page=100",
+          };
+          int code = request(request_config, request_type_following, request_type_following);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_url, code);
+            spdlog::error("Request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -79,7 +85,11 @@ int Request::request_user(nlohmann::json content, enum request_type type_from) {
 
 int Request::request_followx(const nlohmann::json &content, enum request_type type_from) {
   for (auto i : content) {
-    int code = request("/users/" + i["login"].get<std::string>(), request_type_user, type_from);
+    RequestConfig request_config{
+        .host = this->default_url_prefix,
+        .path = "/users/" + i["login"].get<std::string>(),
+    };
+    int code = request(request_config, request_type_user, type_from);
     if (code != 0) {
       spdlog::error("Request userinfo with error: {}", code);
       return code;

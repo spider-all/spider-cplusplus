@@ -8,10 +8,13 @@ int Request::startup_orgs() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_orgs);
         for (const std::string &u : users) {
-          std::string request_url = "/users/" + u + "/orgs?per_page=100";
-          int code = request(request_url, request_type_orgs, request_type_orgs);
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/users/" + u + "/orgs?per_page=100",
+          };
+          int code = request(request_config, request_type_orgs, request_type_orgs);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_url, code);
+            spdlog::error("Request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -31,10 +34,13 @@ int Request::startup_orgs() {
       while (!stopping) {
         std::vector<std::string> orgs = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &org : orgs) {
-          std::string request_url = "/orgs/" + org + "/public_members?per_page=100";
-          int code = request(request_url, request_type_orgs_member, request_type_orgs_member);
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/orgs/" + org + "/public_members?per_page=100",
+          };
+          int code = request(request_config, request_type_orgs_member, request_type_orgs_member);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_url, code);
+            spdlog::error("Request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -52,9 +58,12 @@ int Request::startup_orgs() {
 
 int Request::request_orgs_members(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
-    std::string request_url = "/users/" + con["login"].get<std::string>();
-    WRAP_FUNC(request(request_url, request_type_user, type_from))
-    if (stopping) {
+    RequestConfig request_config{
+        .host = this->default_url_prefix,
+        .path = "/users/" + con["login"].get<std::string>(),
+    };
+    WRAP_FUNC(request(request_config, request_type_user, type_from))
+    if (this->stopping) {
       return EXIT_SUCCESS;
     }
   }
