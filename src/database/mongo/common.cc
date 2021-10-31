@@ -93,3 +93,43 @@ int Mongo::incr_version(enum request_type type) {
   }
   return EXIT_SUCCESS;
 }
+
+std::vector<std::string> Mongo::list_x_random(std::string collection, std::string key, enum request_type type) {
+  std::string type_string = this->versions->to_string(type);
+
+  std::vector<std::string> result;
+
+  mongocxx::pipeline stages;
+  stages.lookup(make_document(
+      kvp("from", fmt::format("{}_version", type_string)),
+      kvp("localField", key),
+      kvp("foreignField", "key"),
+      kvp("as", fmt::format("{}_version", type_string))));
+
+  int64_t version = this->versions->get(type);
+
+  bsoncxx::document::view_or_value filter1 = make_document(kvp(fmt::format("{}_version.version", type_string), make_document(kvp("$lt", version))));
+  bsoncxx::document::view_or_value filter2 = make_document(kvp(fmt::format("{}_version", type_string), make_document(kvp("$size", 0))));
+  stages.match(make_document(kvp("$or", make_array(filter1, filter2))));
+
+  stages.sample(this->sample_size);
+
+  mongocxx::options::aggregate option;
+  option.max_time(std::chrono::milliseconds(5000));
+
+  try {
+    GET_CONNECTION(this->uri->database(), collection)
+    auto cursor = coll.aggregate(stages, option);
+    for (auto &&doc : cursor) {
+      result.emplace_back(doc[key].get_utf8().value.data());
+    }
+    if (result.empty()) {
+      this->incr_version(type);
+    } else {
+      this->update_version(result, type);
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+  }
+  return result;
+}

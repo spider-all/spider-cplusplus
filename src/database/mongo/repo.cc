@@ -34,6 +34,10 @@ int Mongo::upsert_repo_with_version(Repo repo, enum request_type type) {
   return EXIT_SUCCESS;
 }
 
+std::vector<std::string> Mongo::list_repos_random(enum request_type type) {
+  return this->list_x_random("repos", "id", type);
+}
+
 int64_t Mongo::count_repo() {
   return this->count_x("repos");
 }

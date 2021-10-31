@@ -39,5 +39,6 @@ public:
 
   virtual int upsert_repo(Repo repo) = 0;
   virtual int upsert_repo_with_version(Repo repo, enum request_type type) = 0;
+  virtual std::vector<std::string> list_repos_random(enum request_type type) = 0;
   virtual int64_t count_repo() = 0;
 };

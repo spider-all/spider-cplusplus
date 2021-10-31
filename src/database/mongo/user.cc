@@ -44,44 +44,7 @@ std::vector<User> Mongo::list_usersx(common_args args) {
 }
 
 std::vector<std::string> Mongo::list_users_random(enum request_type type) {
-  std::string type_string = this->versions->to_string(type);
-
-  std::vector<std::string> users;
-  try {
-    std::string func_name = this->function_name_helper(__func__);
-    GET_CONNECTION(this->uri->database(), func_name)
-
-    mongocxx::pipeline stages;
-    stages.lookup(make_document(
-        kvp("from", fmt::format("{}_version", type_string)),
-        kvp("localField", "login"),
-        kvp("foreignField", "login"),
-        kvp("as", fmt::format("{}_version", type_string))));
-
-    int64_t version = this->versions->get(type);
-
-    bsoncxx::document::view_or_value filter1 = make_document(kvp(fmt::format("{}_version.version", type_string), make_document(kvp("$lt", version))));
-    bsoncxx::document::view_or_value filter2 = make_document(kvp(fmt::format("{}_version", type_string), make_document(kvp("$size", 0))));
-    stages.match(make_document(kvp("$or", make_array(filter1, filter2))));
-
-    stages.sample(this->sample_size);
-
-    mongocxx::options::aggregate option;
-    option.max_time(std::chrono::milliseconds(5000));
-    auto cursor = coll.aggregate(stages, option);
-    for (auto &&doc : cursor) {
-      users.emplace_back(doc["login"].get_utf8().value.data());
-    }
-    spdlog::info("version: {}", version);
-    if (users.empty()) {
-      this->incr_version(type);
-    } else {
-      this->update_version(users, type);
-    }
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-  }
-  return users;
+  return this->list_x_random("users", "login", type);
 }
 
 int64_t Mongo::count_user() {
