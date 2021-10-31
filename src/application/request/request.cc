@@ -19,9 +19,11 @@ Request::~Request() {
 
 int Request::startup() {
   spdlog::info("Spider is running...");
-  std::string request_url = "/users/" + config.crawler_entry_username;
-
-  WRAP_FUNC(request(request_url, request_type_user, request_type_followers, true))
+  RequestConfig request_config{
+      .host = this->default_url_prefix,
+      .path = "/users/" + config.crawler_entry_username,
+  };
+  WRAP_FUNC(request(request_config, request_type_user, request_type_followers, true))
 
   if (stopping) {
     return EXIT_SUCCESS;
@@ -38,20 +40,25 @@ int Request::startup() {
   return EXIT_SUCCESS;
 }
 
-int Request::request(const std::string &url, enum request_type type, enum request_type type_from, bool skip_sleep) {
-  if (stopping) {
+int Request::request(RequestConfig &request_config, enum request_type type, enum request_type type_from, bool skip_sleep) {
+  if (this->stopping) {
     return EXIT_SUCCESS;
   }
 
-  spdlog::info("Crawler url: {}", url);
+  spdlog::info("Crawler url: {}{}", request_config.host, request_config.path);
 
   std::string _useragent = USERAGENT;
   if (!config.crawler_useragent.empty()) {
-    _useragent = config.crawler_useragent;
+    _useragent = this->config.crawler_useragent;
   }
   std::string _timezone = TIMEZONE;
   if (!config.crawler_timezone.empty()) {
-    _timezone = config.crawler_timezone;
+    _timezone = this->config.crawler_timezone;
+  }
+
+  std::string url_prefix = request_config.host;
+  if (url_prefix.empty()) {
+    url_prefix = this->default_url_prefix;
   }
 
   httplib::Client client(url_prefix.c_str());
@@ -63,19 +70,19 @@ int Request::request(const std::string &url, enum request_type type, enum reques
       {"Authorization", "Bearer " + config.crawler_token[token_index]},
   };
 
-  request_locker.lock();
+  this->request_locker.lock();
   httplib::Result response(nullptr, httplib::Unknown, httplib::Headers{});
   try {
-    response = client.Get(url.c_str(), headers);
+    response = client.Get(request_config.path.c_str(), headers);
   } catch (const std::exception &e) {
-    request_locker.unlock();
-    spdlog::error("Request with error: {}, {}", url, e.what());
+    this->request_locker.unlock();
+    spdlog::error("Request with error: {}, {}", request_config.path, e.what());
     return REQUEST_ERROR;
   }
-  request_locker.unlock();
+  this->request_locker.unlock();
 
   if (response == nullptr) {
-    spdlog::error("Request with error: {}", url);
+    spdlog::error("Request with error: {}", request_config.path);
     return REQUEST_ERROR;
   }
 
@@ -106,11 +113,11 @@ int Request::request(const std::string &url, enum request_type type, enum reques
     token_index++;
     token_index = token_index % config.crawler_token.size();
 
-    return request(url, type, type_from);
+    return request(request_config, type, type_from);
   }
 
   if (response->status != 200) {
-    spdlog::error("Got {} on request url: {}, {}", response->status, url, response->body);
+    spdlog::error("Got {} on request url: {}, {}", response->status, request_config.path, response->body);
     return REQUEST_ERROR;
   }
 
@@ -138,7 +145,7 @@ int Request::request(const std::string &url, enum request_type type, enum reques
         };
     content = nlohmann::json::parse(response->body, cb);
   } catch (nlohmann::detail::parse_error &e) {
-    spdlog::error("Request {} got error: {}", url.c_str(), e.what());
+    spdlog::error("Request {} got error: {}", request_config.path, e.what());
     return REQUEST_ERROR;
   }
 
@@ -227,8 +234,8 @@ int Request::request(const std::string &url, enum request_type type, enum reques
       if (pos != std::string::npos) {
         u.erase(pos, url_prefix.length());
       }
-
-      return request(u, type, type_from);
+      request_config.path = u;
+      return request(request_config, type, type_from);
     }
     header_link = result.suffix().str();
   }

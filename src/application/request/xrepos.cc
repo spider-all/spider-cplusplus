@@ -8,10 +8,13 @@ int Request::startup_xrepos() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_users_repos);
         for (const std::string &u : users) {
-          std::string request_url = "/users/" + u + "/repos?per_page=100";
-          int code = request(request_url, request_type_users_repos, request_type_users_repos);
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/users/" + u + "/repos?per_page=100",
+          };
+          int code = request(request_config, request_type_users_repos, request_type_users_repos);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_url, code);
+            spdlog::error("Request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -32,10 +35,13 @@ int Request::startup_xrepos() {
       while (!stopping) {
         std::vector<std::string> users = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &u : users) {
-          std::string request_url = "/orgs/" + u + "/repos?per_page=100";
-          int code = request(request_url, request_type_orgs_repos, request_type_orgs_repos);
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/orgs/" + u + "/repos?per_page=100",
+          };
+          int code = request(request_config, request_type_orgs_repos, request_type_orgs_repos);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_url, code);
+            spdlog::error("Request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;

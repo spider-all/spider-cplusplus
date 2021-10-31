@@ -1,14 +1,17 @@
 #include <application/request.h>
 
 int Request::startup_emojis() {
-  if (config.crawler_type_emojis) {
-    semaphore++;
+  if (this->config.crawler_type_emojis) {
+    this->semaphore++;
     std::thread emojis_thread([=]() {
       spdlog::info("Emoji thread is starting...");
-      std::string request_url = "/emojis";
-      int code = request(request_url, request_type_emoji, request_type_emoji);
+      RequestConfig request_config{
+          .host = this->default_url_prefix,
+          .path = "/emojis",
+      };
+      int code = request(request_config, request_type_emoji, request_type_emoji);
       if (code != 0) {
-        spdlog::error("Request url: {} with error: {}", request_url, code);
+        spdlog::error("Request url: {} with error: {}", request_config.path, code);
       }
       spdlog::info("Emoji thread stopped");
       semaphore--;

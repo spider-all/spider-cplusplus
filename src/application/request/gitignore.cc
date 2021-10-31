@@ -5,10 +5,13 @@ int Request::startup_gitignore() {
     semaphore++;
     std::thread gitignore_list_thread([=]() {
       spdlog::info("Gitignore list thread is starting...");
-      std::string request_url = "/gitignore/templates";
-      int code = request(request_url, request_type_gitignore_list, request_type_gitignore_list);
+      RequestConfig request_config{
+          .host = this->default_url_prefix,
+          .path = "/gitignore/templates",
+      };
+      int code = request(request_config, request_type_gitignore_list, request_type_gitignore_list);
       if (code != 0) {
-        spdlog::error("Request url: {} with error: {}", request_url, code);
+        spdlog::error("Request url: {} with error: {}", request_config.path, code);
       }
       spdlog::info("Gitignore list thread stopped");
       semaphore--;
@@ -20,8 +23,11 @@ int Request::startup_gitignore() {
 
 int Request::request_gitignore_list(const nlohmann::json &content, enum request_type type_from) {
   for (const auto &con : content) {
-    std::string request_url = "/gitignore/templates/" + con.get<std::string>();
-    WRAP_FUNC(request(request_url, request_type_gitignore_info, type_from))
+    RequestConfig request_config{
+        .host = this->default_url_prefix,
+        .path = "/gitignore/templates/" + con.get<std::string>(),
+    };
+    WRAP_FUNC(request(request_config, request_type_gitignore_info, type_from))
     if (stopping) {
       return EXIT_SUCCESS;
     }

@@ -24,15 +24,15 @@ public:
   std::string crawler_timezone;           // timezone
   int64_t crawler_sleep_each_request;     // sleep each request
 
-  bool crawler_type_followers;
-  bool crawler_type_followings;
-  bool crawler_type_orgs;
-  bool crawler_type_orgs_member;
-  bool crawler_type_users_repos;
-  bool crawler_type_orgs_repos;
-  bool crawler_type_emojis;
-  bool crawler_type_gitignore_list;
-  bool crawler_type_license_list;
+  bool crawler_type_followers = false;
+  bool crawler_type_followings= false;
+  bool crawler_type_orgs= false;
+  bool crawler_type_orgs_member= false;
+  bool crawler_type_users_repos= false;
+  bool crawler_type_orgs_repos= false;
+  bool crawler_type_emojis= false;
+  bool crawler_type_gitignore_list= false;
+  bool crawler_type_license_list= false;
 
   int initialize(const std::string &config_path);
 };

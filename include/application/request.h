@@ -24,6 +24,16 @@
 
 #pragma once
 
+typedef struct RequestConfig {
+  std::string host;
+  std::string path;
+} RequestConfig;
+
+#define REQUEST_CONFIG(url) RequestConfig{ \
+    .host = this->default_url_prefix,      \
+    .path = request_url,                   \
+};
+
 class Request : public Application {
 private:
   Config config;
@@ -41,7 +51,7 @@ private:
   bool stopping = false;
 
   std::string url_host = "api.github.com";
-  std::string url_prefix = "https://" + url_host;
+  std::string default_url_prefix = "https://" + url_host;
 
   const std::string USERAGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36";
   const std::string TIMEZONE = "Asia/Shanghai";
@@ -71,5 +81,5 @@ public:
 
   int startup() override;
 
-  int request(const std::string &url, enum request_type type, enum request_type type_from, bool skip_sleep = false);
+  int request(RequestConfig &url, enum request_type type, enum request_type type_from, bool skip_sleep = false);
 };
