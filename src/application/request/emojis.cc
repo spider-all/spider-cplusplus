@@ -23,6 +23,6 @@ int Request::request_emoji(nlohmann::json content, enum request_type type_from) 
   for (const auto &it : content.items()) {
     emojis.push_back(Emoji{it.key(), it.value()});
   }
-  int code = database->create_emoji(emojis);
-  return code;
+  WRAP_FUNC(database->create_emoji(emojis))
+  return EXIT_SUCCESS;
 }

@@ -21,10 +21,7 @@ int Request::startup_gitignore() {
 int Request::request_gitignore_list(const nlohmann::json &content, enum request_type type_from) {
   for (const auto &con : content) {
     std::string request_url = "/gitignore/templates/" + con.get<std::string>();
-    int code = request(request_url, request_type_gitignore_info, type_from);
-    if (code != 0) {
-      return code;
-    }
+    WRAP_FUNC(request(request_url, request_type_gitignore_info, type_from))
     if (stopping) {
       return EXIT_SUCCESS;
     }
@@ -37,6 +34,6 @@ int Request::request_gitignore_info(nlohmann::json content, enum request_type ty
       content["name"].get<std::string>(),
       content["source"].get<std::string>(),
   };
-  int code = database->upsert_gitignore(gitignore);
-  return code;
+  WRAP_FUNC(database->upsert_gitignore(gitignore))
+  return EXIT_SUCCESS;
 }

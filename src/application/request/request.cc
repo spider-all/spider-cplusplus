@@ -127,7 +127,7 @@ int Request::request(const std::string &url, enum request_type type, enum reques
             std::string str = parsed.dump();
             str.erase(str.begin(), str.begin() + 1);
             str.erase(str.end() - 1, str.end());
-            if (Common::end_with(str, "_url") or str == "url") {
+            if (boost::algorithm::ends_with(str, "_url") or str == "url") {
               return false;
             }
           } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {

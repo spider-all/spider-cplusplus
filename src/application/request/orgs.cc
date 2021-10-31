@@ -53,10 +53,7 @@ int Request::startup_orgs() {
 int Request::request_orgs_members(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
     std::string request_url = "/users/" + con["login"].get<std::string>();
-    int code = request(request_url, request_type_user, type_from);
-    if (code != 0) {
-      return code;
-    }
+    WRAP_FUNC(request(request_url, request_type_user, type_from))
     if (stopping) {
       return EXIT_SUCCESS;
     }
@@ -65,19 +62,19 @@ int Request::request_orgs_members(const nlohmann::json &content, enum request_ty
 }
 
 int Request::request_orgs(const nlohmann::json &content, enum request_type type_from) {
+  std::vector<Org> orgs;
   for (auto con : content) {
-    Org org;
-    org.login = con["login"].get<std::string>();
-    org.id = con["id"].get<int64_t>();
-    org.node_id = con["node_id"].get<std::string>();
-    org.description = con["description"].get<std::string>();
-    int code = database->upsert_org_with_version(org, type_from);
-    if (code != 0) {
-      return code;
-    }
-    if (stopping) {
-      return EXIT_SUCCESS;
-    }
+    Org org{
+        .id = con["id"].get<int64_t>(),
+        .login = con["login"].get<std::string>(),
+        .node_id = con["node_id"].get<std::string>(),
+        .description = con["description"].get<std::string>(),
+    };
+    orgs.push_back(org);
+  }
+  WRAP_FUNC(database->upsert_org_with_version(orgs, type_from))
+  if (stopping) {
+    return EXIT_SUCCESS;
   }
   return EXIT_SUCCESS;
 }

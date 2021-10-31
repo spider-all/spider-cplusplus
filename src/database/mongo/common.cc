@@ -50,16 +50,14 @@ int Mongo::update_version(std::string key, enum request_type type) {
 int Mongo::update_version(std::vector<std::string> keys, enum request_type type) {
   int64_t version = this->versions->get(type);
 
-  mongocxx::options::update option;
-  option.upsert(true);
-
   try {
-    GET_CONNECTION(this->uri->database(), "users")
-    coll = database[fmt::format("{}_version", request_type_string(type))];
+    GET_CONNECTION_RAW(this->uri->database())
+    auto coll = database[fmt::format("{}_version", request_type_string(type))];
     auto bulk = coll.create_bulk_write();
     for (std::string key : keys) {
       bsoncxx::document::value record = make_document(kvp("key", key), kvp("version", version));
       mongocxx::model::update_one upsert_op{make_document(kvp("key", key)), make_document(kvp("$set", record))};
+      upsert_op.upsert(true);
       bulk.append(upsert_op);
     }
     auto result = bulk.execute();
