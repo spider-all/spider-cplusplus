@@ -15,7 +15,7 @@ int Mongo::upsert_x(std::string collection, bsoncxx::document::view_or_value fil
   option.upsert(true);
   try {
     GET_CONNECTION(this->uri->database(), collection)
-    coll.update_one(filter, update, option);
+    coll.update_one(filter, make_document(kvp("$set", update)), option);
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
     return SQL_EXEC_ERROR;
