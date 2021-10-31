@@ -21,10 +21,7 @@ int Request::startup_license() {
 int Request::request_license_list(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
     std::string request_url = "/licenses/" + con["key"].get<std::string>();
-    int code = request(request_url, request_type_license_info, type_from);
-    if (code != 0) {
-      return code;
-    }
+    WRAP_FUNC(request(request_url, request_type_license_info, type_from))
     if (stopping) {
       return EXIT_SUCCESS;
     }

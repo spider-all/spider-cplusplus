@@ -33,6 +33,10 @@ using bsoncxx::builder::basic::make_document;
   auto database = connect->database(database_name);    \
   auto coll = database[collection_name];
 
+#define GET_CONNECTION_RAW(database_name) \
+  auto connect = this->pool->acquire();   \
+  auto database = connect->database(database_name);
+
 class Mongo : public Database {
 private:
   std::string dsn;
@@ -67,7 +71,9 @@ public:
   std::vector<User> list_usersx(common_args args) override;
 
   int upsert_org(Org org) override;
+  int upsert_org(std::vector<Org> orgs) override;
   int upsert_org_with_version(Org org, enum request_type type) override;
+  int upsert_org_with_version(std::vector<Org> orgs, enum request_type type) override;
   int64_t count_org() override;
   std::vector<std::string> list_orgs_random(enum request_type type) override;
 

@@ -23,7 +23,9 @@ public:
   virtual std::vector<User> list_usersx(common_args args) = 0;
 
   virtual int upsert_org(Org org) = 0;
+  virtual int upsert_org(std::vector<Org> orgs) = 0;
   virtual int upsert_org_with_version(Org org, enum request_type type) = 0;
+  virtual int upsert_org_with_version(std::vector<Org> orgs, enum request_type type) = 0;
   virtual int64_t count_org() = 0;
   virtual std::vector<std::string> list_orgs_random(enum request_type type) = 0;
 

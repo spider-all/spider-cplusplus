@@ -10,7 +10,7 @@ release debug:
 	if [ ! -d $@ ]; then mkdir $@; fi
 	cd $@ && \
 	cmake -DCMAKE_BUILD_TYPE=$@ -DSPIDER_VERSION=$(version) .. && \
-	cmake --build . -j 6
+	cmake --build . -j 8
 
 .PHONY: deps
 deps:

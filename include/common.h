@@ -1,5 +1,3 @@
-#include <iostream>
-
 #pragma once
 
 #define WRAP_FUNC(func) \
@@ -11,6 +9,6 @@
   }
 
 class Common {
+private:
 public:
-  static bool end_with(std::string const &, std::string const &);
 };
