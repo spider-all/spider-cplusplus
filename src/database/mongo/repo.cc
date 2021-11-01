@@ -29,43 +29,35 @@ int Mongo::upsert_repo(Repo repo) {
 }
 
 int Mongo::upsert_repo(std::vector<Repo> repos) {
-  try {
-    GET_CONNECTION(this->uri->database(), "repos")
-    auto bulk = coll.create_bulk_write();
-    for (auto repo : repos) {
-      bsoncxx::document::value record = make_document(
-          kvp("id", repo.id),
-          kvp("node_id", repo.node_id),
-          kvp("name", repo.name),
-          kvp("full_name", repo.full_name),
-          kvp("xprivate", repo.xprivate),
-          kvp("owner", repo.owner),
-          kvp("owner_type", repo.owner_type),
-          kvp("fork", repo.fork),
-          kvp("created_at", repo.created_at),
-          kvp("updated_at", repo.updated_at),
-          kvp("pushed_at", repo.pushed_at),
-          kvp("homepage", repo.homepage),
-          kvp("size", repo.size),
-          kvp("stargazers_count", repo.stargazers_count),
-          kvp("watchers_count", repo.watchers_count),
-          kvp("forks_count", repo.forks_count),
-          kvp("language", repo.language),
-          kvp("license", repo.license),
-          kvp("forks", repo.forks),
-          kvp("open_issues", repo.open_issues),
-          kvp("watchers", repo.watchers),
-          kvp("default_branch", repo.default_branch));
-      mongocxx::model::update_one upsert_op{make_document(kvp("id", repo.id)), make_document(kvp("$set", record))};
-      upsert_op.upsert(true);
-      bulk.append(upsert_op);
-    }
-    bulk.execute();
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
-    return SQL_EXEC_ERROR;
+  std::map<std::string, std::string> filters;
+  for (auto repo : repos) {
+    bsoncxx::document::value record = make_document(
+        kvp("id", repo.id),
+        kvp("node_id", repo.node_id),
+        kvp("name", repo.name),
+        kvp("full_name", repo.full_name),
+        kvp("xprivate", repo.xprivate),
+        kvp("owner", repo.owner),
+        kvp("owner_type", repo.owner_type),
+        kvp("fork", repo.fork),
+        kvp("created_at", repo.created_at),
+        kvp("updated_at", repo.updated_at),
+        kvp("pushed_at", repo.pushed_at),
+        kvp("homepage", repo.homepage),
+        kvp("size", repo.size),
+        kvp("stargazers_count", repo.stargazers_count),
+        kvp("watchers_count", repo.watchers_count),
+        kvp("forks_count", repo.forks_count),
+        kvp("language", repo.language),
+        kvp("license", repo.license),
+        kvp("forks", repo.forks),
+        kvp("open_issues", repo.open_issues),
+        kvp("watchers", repo.watchers),
+        kvp("default_branch", repo.default_branch));
+    bsoncxx::document::value filter = make_document(kvp("id", repo.id));
+    filters.insert(std::pair(bsoncxx::to_json(filter), bsoncxx::to_json(record)));
   }
-  return EXIT_SUCCESS;
+  return this->upsert_x("repos", filters);
 }
 
 int Mongo::upsert_repo_with_version(Repo repo, enum request_type type) {

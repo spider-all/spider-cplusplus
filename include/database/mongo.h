@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #include <random>
 #include <thread>
 
@@ -48,11 +49,10 @@ private:
   const int32_t sample_size = 100;
 
   int64_t count_x(const std::string &c);
-  int upsert_x(std::string coll, bsoncxx::document::view_or_value filter,
+  int upsert_x(const std::string &coll, bsoncxx::document::view_or_value filter,
                bsoncxx::document::view_or_value update);
-  std::vector<std::string> list_x_random(std::string collection, std::string key, enum request_type type);
-
-  static std::string function_name_helper(std::string func_name);
+  int upsert_x(const std::string &coll, const std::map<std::string, std::string> &filters);
+  std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type);
 
 public:
   explicit Mongo(const std::string &);

@@ -5,6 +5,8 @@
 
 #include <model.h>
 
+#pragma once
+
 class Versions {
 private:
   int64_t followers_version = 1;
