@@ -1,21 +1,42 @@
 #include <database/mongo.h>
 
-std::string Mongo::function_name_helper(std::string func_name) {
-  std::vector<std::string> result;
-  result = boost::split(result, func_name, boost::is_any_of("_"));
-  if (result.size() < 2) {
-    return "";
-  }
-  return result[1];
-}
+#include <utility>
 
-int Mongo::upsert_x(std::string collection, bsoncxx::document::view_or_value filter,
+// std::string Mongo::function_name_helper(std::string func_name) {
+//   std::vector<std::string> result;
+//   result = boost::split(result, func_name, boost::is_any_of("_"));
+//   if (result.size() < 2) {
+//     return "";
+//   }
+//   return result[1];
+// }
+
+int Mongo::upsert_x(const std::string &collection, bsoncxx::document::view_or_value filter,
                     bsoncxx::document::view_or_value update) {
   mongocxx::options::update option;
   option.upsert(true);
   try {
     GET_CONNECTION(this->uri->database(), collection)
-    coll.update_one(filter, make_document(kvp("$set", update)), option);
+    coll.update_one(std::move(filter), make_document(kvp("$set", update)), option);
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+    return SQL_EXEC_ERROR;
+  }
+  return EXIT_SUCCESS;
+}
+
+int Mongo::upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters) {
+  try {
+    GET_CONNECTION(this->uri->database(), collection)
+    auto bulk = coll.create_bulk_write();
+    for (auto &it : filters) {
+      bsoncxx::document::value filter = bsoncxx::from_json(it.first);
+      bsoncxx::document::value doc = bsoncxx::from_json(it.second);
+      mongocxx::model::update_one upsert_op{filter.view(), make_document(kvp("$set", doc))};
+      upsert_op.upsert(true);
+      bulk.append(upsert_op);
+    }
+    bulk.execute();
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
     return SQL_EXEC_ERROR;
@@ -92,7 +113,7 @@ int Mongo::incr_version(enum request_type type) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> Mongo::list_x_random(std::string collection, std::string key, enum request_type type) {
+std::vector<std::string> Mongo::list_x_random(const std::string &collection, std::string key, enum request_type type) {
   std::string type_string = this->versions->to_string(type);
 
   std::vector<std::string> result;
