@@ -33,14 +33,8 @@ int Mongo::upsert_org(std::vector<Org> orgs) {
 }
 
 int Mongo::upsert_org_with_version(Org org, enum request_type type) {
-  int code = this->upsert_org(org);
-  if (code != 0) {
-    return code;
-  }
-  code = this->update_version(org.login, type);
-  if (code != 0) {
-    return code;
-  }
+  WRAP_FUNC(this->upsert_org(org))
+  WRAP_FUNC(this->update_version(org.login, type))
   return EXIT_SUCCESS;
 }
 
@@ -48,7 +42,7 @@ int Mongo::upsert_org_with_version(std::vector<Org> orgs, enum request_type type
   WRAP_FUNC(this->upsert_org(orgs))
   std::vector<std::string> keys;
   for (auto org : orgs) {
-    keys.push_back(org.login);
+    keys.push_back(std::to_string(org.id));
   }
   WRAP_FUNC(this->update_version(keys, type))
   return EXIT_SUCCESS;

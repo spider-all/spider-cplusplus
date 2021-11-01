@@ -88,7 +88,12 @@ public:
   int64_t count_license() override;
 
   int upsert_repo(Repo repo) override;
+  int upsert_repo(std::vector<Repo> repos) override;
   int upsert_repo_with_version(Repo repo, enum request_type type) override;
+  int upsert_repo_with_version(std::vector<Repo> repos, enum request_type type) override;
   std::vector<std::string> list_repos_random(enum request_type type) override;
   int64_t count_repo() override;
+
+  int upsert_branch(Branch branch) override;
+  int upsert_branch_with_version(Branch branch, enum request_type type) override;
 };

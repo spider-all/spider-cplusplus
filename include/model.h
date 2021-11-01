@@ -17,22 +17,6 @@ enum request_type {
   request_type_license_info,
 };
 
-inline const std::string request_type_string(request_type v) {
-  switch (v) {
-  case request_type_followers:
-    return "followers";
-  case request_type_following:
-    return "following";
-  case request_type_license_info:
-  case request_type_license_list:
-    return "license";
-  case request_type_orgs:
-    return "orgs";
-  default:
-    return "Unknown type";
-  }
-}
-
 typedef struct {
   long long page;
   long long limit;
@@ -115,3 +99,9 @@ typedef struct Repo {
   int64_t watchers;
   std::string default_branch;
 } Repo;
+
+typedef struct Branch {
+  std::string name;
+  std::string commit;
+  std::string repo;
+} Branch;
