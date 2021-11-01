@@ -36,7 +36,7 @@ int Mongo::update_version(std::string key, enum request_type type) {
 
   try {
     GET_CONNECTION(this->uri->database(), "users")
-    coll = database[fmt::format("{}_version", request_type_string(type))];
+    coll = database[fmt::format("{}_version", this->versions->to_string(type))];
 
     bsoncxx::document::value record = make_document(kvp("key", key), kvp("version", version));
     coll.update_one(make_document(kvp("key", key)), make_document(kvp("$set", record)), option);
@@ -52,7 +52,7 @@ int Mongo::update_version(std::vector<std::string> keys, enum request_type type)
 
   try {
     GET_CONNECTION_RAW(this->uri->database())
-    auto coll = database[fmt::format("{}_version", request_type_string(type))];
+    auto coll = database[fmt::format("{}_version", this->versions->to_string(type))];
     auto bulk = coll.create_bulk_write();
     for (std::string key : keys) {
       bsoncxx::document::value record = make_document(kvp("key", key), kvp("version", version));

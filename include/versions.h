@@ -17,9 +17,9 @@ private:
   int64_t license_list_version = 1;
 
 public:
-  int initialize(mongocxx::cursor cursor);
-
   int64_t get(enum request_type type);
   int64_t incr(enum request_type type);
   std::string to_string(enum request_type type);
+
+  int initialize(mongocxx::cursor cursor);
 };

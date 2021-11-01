@@ -8,21 +8,21 @@ int Versions::initialize(mongocxx::cursor cursor) {
       if ((type && type.type() == bsoncxx::type::k_utf8) &&
           (version && version.type() == bsoncxx::type::k_int64)) {
         std::string type_string(type.get_utf8().value.data());
-        if (type_string == request_type_string(request_type_followers)) {
+        if (type_string == this->to_string(request_type_followers)) {
           this->followers_version = version.get_int64().value;
-        } else if (type_string == request_type_string(request_type_following)) {
+        } else if (type_string == this->to_string(request_type_following)) {
           this->following_version = version.get_int64().value;
-        } else if (type_string == request_type_string(request_type_orgs)) {
+        } else if (type_string == this->to_string(request_type_orgs)) {
           this->orgs_version = version.get_int64().value;
-        } else if (type_string == request_type_string(request_type_orgs_member)) {
+        } else if (type_string == this->to_string(request_type_orgs_member)) {
           this->orgs_member_version = version.get_int64().value;
-        } else if (type_string == request_type_string(request_type_users_repos)) {
+        } else if (type_string == this->to_string(request_type_users_repos)) {
           this->users_repos_version = version.get_int64().value;
-        } else if (type_string == request_type_string(request_type_orgs_repos)) {
+        } else if (type_string == this->to_string(request_type_orgs_repos)) {
           this->orgs_repos_version = version.get_int64().value;
-        } else if (type_string == request_type_string(request_type_gitignore_list)) {
+        } else if (type_string == this->to_string(request_type_gitignore_list)) {
           this->gitignore_list_version = version.get_int64().value;
-        } else if (type_string == request_type_string(request_type_license_list)) {
+        } else if (type_string == this->to_string(request_type_license_list)) {
           this->license_list_version = version.get_int64().value;
         }
       }
