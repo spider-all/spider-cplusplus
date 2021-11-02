@@ -29,7 +29,7 @@ public:
   virtual int64_t count_org() = 0;
   virtual std::vector<std::string> list_orgs_random(enum request_type type) = 0;
 
-  virtual int create_emoji(std::vector<Emoji> emojis) = 0;
+  virtual int upsert_emoji(std::vector<Emoji> emojis) = 0;
   virtual int64_t count_emoji() = 0;
 
   virtual int upsert_gitignore(Gitignore gitignore) = 0;
