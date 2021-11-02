@@ -2,14 +2,16 @@ deps     = $(shell jq --raw-output '.deps | join(" ")' package.json | tr -d "")
 version  = $(shell jq --raw-output '.version' package.json | tr -d "")
 vcpkg   ?= vcpkg
 
+BUILD_OUTPUT = build
+
 .PHONY: build
 build: debug
 
 .PHONY: release debug
 release debug:
-	if [ ! -d $@ ]; then mkdir $@; fi
-	cd $@ && \
-	cmake -DCMAKE_BUILD_TYPE=$@ -DSPIDER_VERSION=$(version) .. && \
+	if [ ! -d $(BUILD_OUTPUT)/$@ ]; then mkdir -p $(BUILD_OUTPUT)/$@; fi
+	cd $(BUILD_OUTPUT)/$@ && \
+	cmake -DCMAKE_BUILD_TYPE=$@ -DSPIDER_VERSION=$(version) ../.. && \
 	cmake --build . -j 8
 
 .PHONY: deps
@@ -27,4 +29,4 @@ changelog:
 
 .PHONY: clean
 clean:
-	$(RM) -r release debug
+	$(RM) -r $(BUILD_OUTPUT)

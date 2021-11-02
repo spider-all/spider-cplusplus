@@ -5,4 +5,7 @@
   "extensions": [
     "ms-vscode.cpptools-extension-pack"
   ],
+  "containerEnv": {
+    "VCPKG_DIR": "/"
+  }
 }

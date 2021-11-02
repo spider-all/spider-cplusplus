@@ -1,6 +1,6 @@
-ARG SPIDER_VERSION=v1.4.0
+ARG SPIDER_VERSION=v1.5.0
 
-FROM ghcr.io/spider-all/spider-cplusplus:base-${SPIDER_VERSION} as base
+FROM ghcr.io/spider-all/spider-cplusplus:${SPIDER_VERSION}-base as base
 
 FROM buildpack-deps:stable
 

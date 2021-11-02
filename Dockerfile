@@ -21,6 +21,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certifica
   rm -rf /var/lib/apt/lists/*
 
 COPY etc/config.yaml.sample /etc/spider-cplusplus/config.yaml
-COPY --from=builder /app/release/spider /usr/bin
+COPY --from=builder /app/build/release/spider /usr/bin
 
 CMD ["spider", "-c", "/etc/spider-cplusplus/config.yaml"]
