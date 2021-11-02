@@ -16,7 +16,8 @@
     "libfort",
     "prometheus-cpp[pull]",
     "boost-algorithm",
-    "pugixml"
+    "pugixml",
+    "gtest"
   ],
   "license": "MIT",
   "author": {
