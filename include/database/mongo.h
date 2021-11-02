@@ -77,7 +77,7 @@ public:
   int64_t count_org() override;
   std::vector<std::string> list_orgs_random(enum request_type type) override;
 
-  int create_emoji(std::vector<Emoji> emojis) override;
+  int upsert_emoji(std::vector<Emoji> emojis) override;
   int64_t count_emoji() override;
 
   int upsert_gitignore(Gitignore gitignore) override;

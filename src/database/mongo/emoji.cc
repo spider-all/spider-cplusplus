@@ -1,19 +1,14 @@
 #include <database/mongo.h>
 
-int Mongo::create_emoji(std::vector<Emoji> emojis) {
-  try {
-    GET_CONNECTION(this->uri->database(), "emojis")
-    coll.drop();
-    std::vector<bsoncxx::document::value> docs;
-    for (const Emoji &emoji : emojis) {
-      bsoncxx::document::value doc = make_document(kvp("name", emoji.name), kvp("url", emoji.url));
-      docs.push_back(doc);
-    }
-    coll.insert_many(docs);
-  } catch (const std::exception &e) {
-    spdlog::error("Something mongodb error occurred: {}", e.what());
+int Mongo::upsert_emoji(std::vector<Emoji> emojis) {
+  std::map<std::string, std::string> filters;
+  std::vector<bsoncxx::document::value> docs;
+  for (const Emoji &emoji : emojis) {
+    bsoncxx::document::value record = make_document(kvp("name", emoji.name), kvp("url", emoji.url));
+    bsoncxx::document::value filter = make_document(kvp("name", emoji.name));
+    filters.insert(std::pair(bsoncxx::to_json(filter), bsoncxx::to_json(record)));
   }
-  return EXIT_SUCCESS;
+  return this->upsert_x("emojis", filters);
 }
 
 int64_t Mongo::count_emoji() {

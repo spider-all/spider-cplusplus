@@ -33,7 +33,8 @@ int Mongo::upsert_org_with_version(Org org, enum request_type type) {
 int Mongo::upsert_org_with_version(std::vector<Org> orgs, enum request_type type) {
   WRAP_FUNC(this->upsert_org(orgs))
   std::vector<std::string> keys;
-  for (auto org : orgs) {
+  keys.reserve(orgs.size());
+  for (const auto &org : orgs) {
     keys.push_back(std::to_string(org.id));
   }
   WRAP_FUNC(this->update_version(keys, type))
