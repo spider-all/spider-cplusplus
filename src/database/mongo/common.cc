@@ -2,22 +2,14 @@
 
 #include <utility>
 
-// std::string Mongo::function_name_helper(std::string func_name) {
-//   std::vector<std::string> result;
-//   result = boost::split(result, func_name, boost::is_any_of("_"));
-//   if (result.size() < 2) {
-//     return "";
-//   }
-//   return result[1];
-// }
-
-int Mongo::upsert_x(const std::string &collection, bsoncxx::document::view_or_value filter,
-                    bsoncxx::document::view_or_value update) {
+int Mongo::upsert_x(const std::string &collection, std::string filter, std::string update) {
   mongocxx::options::update option;
   option.upsert(true);
   try {
+    bsoncxx::document::value filter_doc = bsoncxx::from_json(filter);
+    bsoncxx::document::value update_doc = bsoncxx::from_json(update);
     GET_CONNECTION(this->uri->database(), collection)
-    coll.update_one(std::move(filter), make_document(kvp("$set", update)), option);
+    coll.update_one(std::move(filter_doc), make_document(kvp("$set", update_doc)), option);
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
     return SQL_EXEC_ERROR;
@@ -113,10 +105,20 @@ int Mongo::incr_version(enum request_type type) {
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> Mongo::list_x_random(const std::string &collection, std::string key, enum request_type type) {
+// list_x_random
+// @params
+//    keys name_string:id_int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
+std::vector<std::string> Mongo::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
   std::string type_string = this->versions->to_string(type);
 
   std::vector<std::string> result;
+
+  std::vector<std::string> params{keys};
+  std::string key = keys;
+  if (boost::algorithm::contains(keys, ":")) {
+    key = keys.substr(0, keys.find(":"));
+    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(":"));
+  }
 
   mongocxx::pipeline stages;
   stages.lookup(make_document(
@@ -140,13 +142,55 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
     GET_CONNECTION(this->uri->database(), collection)
     auto cursor = coll.aggregate(stages, option);
     for (auto &&doc : cursor) {
-      result.emplace_back(doc[key].get_utf8().value.data());
+      std::string res;
+      bool first = true;
+      for (auto param : params) {
+        std::string s;
+        if (boost::algorithm::contains(param, "_")) {
+          std::vector<std::string> param_list;
+          boost::algorithm::split(param_list, param, boost::algorithm::is_any_of("_"));
+          if (param_list.size() != 2) {
+            spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
+            return result;
+          }
+          auto doc_param = doc[param_list[0]];
+          if (param_list[1] == "string") {
+            s = doc_param.get_utf8().value.to_string();
+          } else if (param_list[1] == "int") {
+            s = std::to_string(doc_param.get_int64().value);
+          } else if (param_list[1] == "double") {
+            s = std::to_string(doc_param.get_double().value);
+          } else if (param_list[1] == "int64") {
+            s = std::to_string(doc_param.get_int64().value);
+          } else if (param_list[1] == "int32") {
+            s = std::to_string(doc_param.get_int32().value);
+          } else {
+            spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
+            return result;
+          }
+        } else {
+          auto doc_param = doc[param];
+          if (doc_param.type() == bsoncxx::type::k_utf8) {
+            s = doc_param.get_utf8().value.to_string();
+          } else {
+            spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
+            return result;
+          }
+        }
+        if (first) {
+          res = s;
+          first = false;
+        } else {
+          res += ":" + s;
+        }
+      }
+      result.push_back(res);
     }
-    if (result.empty()) {
-      this->incr_version(type);
-    } else {
-      this->update_version(result, type);
-    }
+    // if (result.empty()) {
+    //   this->incr_version(type);
+    // } else {
+    //   this->update_version(result, type);
+    // }
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
   }

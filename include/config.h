@@ -25,14 +25,16 @@ public:
   int64_t crawler_sleep_each_request;     // sleep each request
 
   bool crawler_type_followers = false;
-  bool crawler_type_followings= false;
-  bool crawler_type_orgs= false;
-  bool crawler_type_orgs_member= false;
-  bool crawler_type_users_repos= false;
-  bool crawler_type_orgs_repos= false;
-  bool crawler_type_emojis= false;
-  bool crawler_type_gitignore_list= false;
-  bool crawler_type_license_list= false;
+  bool crawler_type_followings = false;
+  bool crawler_type_orgs = false;
+  bool crawler_type_orgs_member = false;
+  bool crawler_type_users_repos = false;
+  bool crawler_type_users_repos_branches = false;
+  bool crawler_type_users_repos_branches_commits = false;
+  bool crawler_type_orgs_repos = false;
+  bool crawler_type_emojis = false;
+  bool crawler_type_gitignore_list = false;
+  bool crawler_type_license_list = false;
 
   int initialize(const std::string &config_path);
 };

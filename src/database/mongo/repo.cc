@@ -25,7 +25,7 @@ int Mongo::upsert_repo(Repo repo) {
       kvp("watchers", repo.watchers),
       kvp("default_branch", repo.default_branch));
   bsoncxx::document::value filter = make_document(kvp("id", repo.id));
-  return this->upsert_x("repos", filter.view(), doc.view());
+  return this->upsert_x("repos", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
 
 int Mongo::upsert_repo(std::vector<Repo> repos) {
@@ -77,7 +77,7 @@ int Mongo::upsert_repo_with_version(std::vector<Repo> repos, enum request_type t
 }
 
 std::vector<std::string> Mongo::list_repos_random(enum request_type type) {
-  return this->list_x_random("repos", "id", type);
+  return this->list_x_random("repos", "name:owner", type);
 }
 
 int64_t Mongo::count_repo() {
