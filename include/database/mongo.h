@@ -3,8 +3,7 @@
 #include <random>
 #include <thread>
 
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
 #include <bsoncxx/builder/stream/array.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/stream/helpers.hpp>
@@ -48,17 +47,16 @@ private:
 
   const int32_t sample_size = 100;
 
-  int64_t count_x(const std::string &c);
-  int upsert_x(const std::string &coll, bsoncxx::document::view_or_value filter,
-               bsoncxx::document::view_or_value update);
-  int upsert_x(const std::string &coll, const std::map<std::string, std::string> &filters);
-  std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type);
-
 public:
   explicit Mongo(const std::string &);
   ~Mongo() override;
   int initialize() override;
   int initialize_version() override;
+
+  int64_t count_x(const std::string &c) override;
+  int upsert_x(const std::string &coll, std::string filter, std::string update) override;
+  int upsert_x(const std::string &coll, const std::map<std::string, std::string> &filters) override;
+  std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type) override;
 
   int update_version(std::string key, enum request_type type) override;
   int update_version(std::vector<std::string> key, enum request_type type) override;
@@ -95,5 +93,7 @@ public:
   int64_t count_repo() override;
 
   int upsert_branch(Branch branch) override;
+  int upsert_branch(std::vector<Branch> branches) override;
   int upsert_branch_with_version(Branch branch, enum request_type type) override;
+  int upsert_branch_with_version(std::vector<Branch> branches, enum request_type type) override;
 };

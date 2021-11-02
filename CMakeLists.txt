@@ -71,6 +71,39 @@ if (UNIX AND NOT APPLE)
   target_link_libraries(spider PRIVATE rt stdc++fs)
 endif ()
 
+find_package(GTest CONFIG REQUIRED)
+
+function(spider_test)
+  cmake_parse_arguments(PARSED_ARGS "" "NAME" "SRCS" ${ARGN})
+  add_executable(${PARSED_ARGS_NAME} ${PARSED_ARGS_SRCS})
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongocxx-static.a)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-1.0.a)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE sasl2)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE resolv)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ZLIB::ZLIB)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE fmt::fmt-header-only)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE spdlog::spdlog)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+  if (UNIX AND NOT APPLE)
+    target_link_libraries(${PARSED_ARGS_NAME} PRIVATE rt stdc++fs)
+  endif ()
+  target_include_directories(${PARSED_ARGS_NAME} PRIVATE include)
+endfunction()
+
+
+option(build_spider_test "Build test programs." ON)
+if (build_spider_test)
+  FILE(GLOB test_list_x_random test/list_x_random.cc src/database/mongo/*.cc src/versions.cc)
+  spider_test(
+    NAME test_list_x_random
+    SRCS ${test_list_x_random}
+  )
+endif()
+
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")
 message("System processor: ${CMAKE_SYSTEM_PROCESSOR}")

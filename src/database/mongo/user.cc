@@ -20,7 +20,7 @@ int Mongo::upsert_user(User user) {
       kvp("following", user.following),
       kvp("followers", user.followers));
   bsoncxx::document::value filter = make_document(kvp("id", user.id));
-  return this->upsert_x("users", filter.view(), doc.view());
+  return this->upsert_x("users", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
 
 int Mongo::upsert_user_with_version(User user, enum request_type type) {

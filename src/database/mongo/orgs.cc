@@ -7,7 +7,7 @@ int Mongo::upsert_org(Org org) {
       kvp("node_id", org.node_id),
       kvp("description", org.description));
   bsoncxx::document::value filter = make_document(kvp("id", org.id));
-  return this->upsert_x("orgs", filter.view(), doc.view());
+  return this->upsert_x("orgs", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
 
 int Mongo::upsert_org(std::vector<Org> orgs) {

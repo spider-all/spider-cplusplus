@@ -11,6 +11,11 @@ public:
   virtual int initialize() = 0;
   virtual int initialize_version() = 0;
 
+  virtual int64_t count_x(const std::string &c) = 0;
+  virtual int upsert_x(const std::string &coll, std::string filter, std::string update) = 0;
+  virtual int upsert_x(const std::string &coll, const std::map<std::string, std::string> &filters) = 0;
+  virtual std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type) = 0;
+
   virtual int update_version(std::string key, enum request_type type) = 0;
   virtual int update_version(std::vector<std::string> key, enum request_type type) = 0;
   virtual int incr_version(enum request_type type) = 0;
@@ -47,5 +52,7 @@ public:
   virtual int64_t count_repo() = 0;
 
   virtual int upsert_branch(Branch branch) = 0;
+  virtual int upsert_branch(std::vector<Branch> branches) = 0;
   virtual int upsert_branch_with_version(Branch branch, enum request_type type) = 0;
+  virtual int upsert_branch_with_version(std::vector<Branch> branches, enum request_type type) = 0;
 };

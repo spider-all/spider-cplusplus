@@ -14,7 +14,7 @@ int Mongo::upsert_license(License license) {
       kvp("body", license.body),
       kvp("featured", license.featured));
   bsoncxx::document::value filter = make_document(kvp("key", license.key));
-  return this->upsert_x("licenses", filter.view(), doc.view());
+  return this->upsert_x("licenses", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
 
 int Mongo::upsert_license_with_version(License license, enum request_type type) {

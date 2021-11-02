@@ -5,7 +5,7 @@ int Mongo::upsert_gitignore(Gitignore gitignore) {
       kvp("name", gitignore.name),
       kvp("source", gitignore.source));
   bsoncxx::document::value filter = make_document(kvp("name", gitignore.name));
-  return this->upsert_x("gitignores", filter.view(), doc.view());
+  return this->upsert_x("gitignores", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
 
 int64_t Mongo::count_gitignore() {
