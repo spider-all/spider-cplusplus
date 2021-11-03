@@ -14,11 +14,15 @@ int Request::startup_repos_branches() {
             spdlog::error("Invalid repo: {}", repo);
             continue;
           }
+          ExtralData extral;
+          extral.repo = repo_list[0];
+          extral.user = repo_list[1];
           RequestConfig request_config{
               .host = this->default_url_prefix,
               .path = "/repos/" + repo_list[1] + "/" + repo_list[0] + "/branches?per_page=100",
           };
-          int code = request(request_config, request_type_users_repos, request_type_users_repos);
+          request_config.extral = extral;
+          int code = request(request_config, request_type_users_repos_branches, request_type_users_repos_branches);
           if (code != 0) {
             spdlog::error("Request url: {} with error: {}", request_config.path, code);
           }
@@ -33,5 +37,19 @@ int Request::startup_repos_branches() {
     });
     users_repos_branches_thread.detach();
   }
+  return EXIT_SUCCESS;
+}
+
+int Request::request_repo_branches(nlohmann::json content, std::string repo, enum request_type type_from) {
+  std::vector<Branch> branches;
+  for (auto con : content) {
+    Branch branch{
+        .name = con["name"],
+        .commit = con["commit"]["sha"],
+        .repo = repo,
+    };
+    branches.push_back(branch);
+  }
+  WRAP_FUNC(database->upsert_branch(branches))
   return EXIT_SUCCESS;
 }

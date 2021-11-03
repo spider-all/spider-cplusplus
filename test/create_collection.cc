@@ -17,17 +17,15 @@ private:
   }
 };
 
-TEST(list_x_random, normal) {
+TEST(create_collection, normal) {
   Database *ret = new Mongo(dsn);
   int code = ret->initialize();
   EXPECT_EQ(code, 0);
 
-  std::vector<std::string> result = ret->list_x_random("users", "login:id_int64", request_type_followers);
-
-  spdlog::info("result size: {}", result.size());
-  for (auto &item : result) {
-    spdlog::info("item: {}", item);
-  }
+  auto schema = make_document(kvp("bsonType", "object"), kvp("required", make_array("name")));
+  auto doc = make_document(kvp("$jsonSchema", schema));
+  code = ret->create_collection("tests", doc.view());
+  EXPECT_EQ(code, 0);
 }
 } // namespace
 

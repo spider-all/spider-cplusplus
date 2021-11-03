@@ -12,6 +12,7 @@ private:
   int64_t followers_version = 1;
   int64_t following_version = 1;
   int64_t users_repos_version = 1;
+  int64_t users_repos_branches_version = 1;
   int64_t orgs_version = 1;
   int64_t orgs_member_version = 1;
   int64_t orgs_repos_version = 1;

@@ -9,6 +9,7 @@ enum request_type {
   request_type_orgs,
   request_type_orgs_member,
   request_type_users_repos,
+  request_type_users_repos_branches,
   request_type_orgs_repos,
   request_type_emoji,
   request_type_gitignore_list,

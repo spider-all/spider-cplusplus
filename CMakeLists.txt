@@ -94,13 +94,21 @@ function(spider_test)
   target_include_directories(${PARSED_ARGS_NAME} PRIVATE include)
 endfunction()
 
-
-option(build_spider_test "Build test programs." ON)
-if (build_spider_test)
+if (NOT CMAKE_BUILD_TYPE STREQUAL release)
   FILE(GLOB test_list_x_random test/list_x_random.cc src/database/mongo/*.cc src/versions.cc)
   spider_test(
     NAME test_list_x_random
     SRCS ${test_list_x_random}
+  )
+  FILE(GLOB test_ensure_index test/ensure_index.cc src/database/mongo/*.cc src/versions.cc)
+  spider_test(
+    NAME test_ensure_index
+    SRCS ${test_ensure_index}
+  )
+  FILE(GLOB test_create_collection test/create_collection.cc src/database/mongo/*.cc src/versions.cc)
+  spider_test(
+    NAME test_create_collection
+    SRCS ${test_create_collection}
   )
 endif()
 

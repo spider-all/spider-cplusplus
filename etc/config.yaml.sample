@@ -11,6 +11,8 @@ crawler:
   orgs: true
   orgs_member: true
   users_repos: true
+  users_repos_branches: false
+  users_repos_branches_commits: false
   orgs_repos: true
   emojis: true
   gitignore_list: true

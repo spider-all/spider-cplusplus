@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <database/database.h>
+#include <database.h>
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
@@ -54,9 +54,11 @@ public:
   int initialize_version() override;
 
   int64_t count_x(const std::string &c) override;
-  int upsert_x(const std::string &coll, std::string filter, std::string update) override;
-  int upsert_x(const std::string &coll, const std::map<std::string, std::string> &filters) override;
+  int upsert_x(const std::string &collection, std::string filter, std::string update) override;
+  int upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters) override;
   std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type) override;
+  int ensure_index(const std::string &collection, std::vector<std::string> index) override;
+  int create_collection(const std::string &collection, bsoncxx::document::view_or_value rule) override;
 
   int update_version(std::string key, enum request_type type) override;
   int update_version(std::vector<std::string> key, enum request_type type) override;

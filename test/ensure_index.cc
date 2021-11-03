@@ -17,17 +17,13 @@ private:
   }
 };
 
-TEST(list_x_random, normal) {
+TEST(ensure_index, normal) {
   Database *ret = new Mongo(dsn);
   int code = ret->initialize();
   EXPECT_EQ(code, 0);
 
-  std::vector<std::string> result = ret->list_x_random("users", "login:id_int64", request_type_followers);
-
-  spdlog::info("result size: {}", result.size());
-  for (auto &item : result) {
-    spdlog::info("item: {}", item);
-  }
+  code = ret->ensure_index("users", std::vector<std::string>{"login", "type", "bio"});
+  EXPECT_EQ(code, 0);
 }
 } // namespace
 

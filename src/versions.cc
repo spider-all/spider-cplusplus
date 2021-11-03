@@ -50,6 +50,10 @@ int64_t Versions::get(enum request_type type) {
     version = this->gitignore_list_version;
   } else if (type == request_type_license_list) {
     version = this->license_list_version;
+  } else if (type == request_type_users_repos) {
+    version = this->users_repos_version;
+  } else if (type == request_type_users_repos_branches) {
+    version = this->users_repos_branches_version;
   } else {
     spdlog::error("unknown request type {}", type);
   }
@@ -79,6 +83,12 @@ int64_t Versions::incr(enum request_type type) {
   } else if (type == request_type_license_list) {
     this->license_list_version++;
     version = this->license_list_version;
+  } else if (type == request_type_users_repos) {
+    this->users_repos_version++;
+    version = this->users_repos_version;
+  } else if (type == request_type_users_repos_branches) {
+    this->users_repos_branches_version++;
+    version = this->users_repos_branches_version;
   } else {
     spdlog::error("unknown request type {}", type);
   }
@@ -101,6 +111,10 @@ std::string Versions::to_string(enum request_type type) {
     return "gitignore";
   case request_type_license_list:
     return "license";
+  case request_type_users_repos:
+    return "users_repos";
+  case request_type_users_repos_branches:
+    return "users_repos_branches";
   default:
     spdlog::error("unknown request type {}", type);
     return "Unknown type";

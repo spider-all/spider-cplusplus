@@ -14,8 +14,8 @@
 #include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
 
-#include <application/application.h>
-#include <database/database.h>
+#include <application.h>
+#include <database.h>
 
 #include <common.h>
 #include <config.h>
@@ -24,9 +24,16 @@
 
 #pragma once
 
+typedef struct ExtralData {
+  std::string user;
+  std::string repo;
+  std::string branch;
+} ExtralData;
+
 typedef struct RequestConfig {
   std::string host;
   std::string path;
+  ExtralData extral;
 } RequestConfig;
 
 #define REQUEST_CONFIG(url) RequestConfig{ \
@@ -75,6 +82,7 @@ private:
   int request_license_list(const nlohmann::json &content, enum request_type type_from);
   int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
+  int request_repo_branches(nlohmann::json content, std::string repo, enum request_type type_from);
 
 public:
   Request(Config, Database *);
