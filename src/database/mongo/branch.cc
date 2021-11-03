@@ -4,10 +4,9 @@ int Mongo::upsert_branch(Branch branch) {
   bsoncxx::document::value doc = make_document(
       kvp("repo", branch.repo),
       kvp("name", branch.name),
-      kvp("commit", branch.commit),
-      kvp("id", fmt::format("{}:{}", branch.repo, branch.name)));
+      kvp("commit", branch.commit));
   bsoncxx::document::value filter = make_document(kvp("repo", branch.repo));
-  return this->upsert_x("orgs", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
+  return this->upsert_x("branches", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
 
 int Mongo::upsert_branch(std::vector<Branch> branches) {
@@ -16,12 +15,11 @@ int Mongo::upsert_branch(std::vector<Branch> branches) {
     bsoncxx::document::value record = make_document(
         kvp("repo", branch.repo),
         kvp("name", branch.name),
-        kvp("commit", branch.commit),
-        kvp("id", fmt::format("{}:{}", branch.repo, branch.name)));
+        kvp("commit", branch.commit));
     bsoncxx::document::value filter = make_document(kvp("repo", branch.repo));
     filters.insert(std::pair(bsoncxx::to_json(filter), bsoncxx::to_json(record)));
   }
-  return this->upsert_x("repos", filters);
+  return this->upsert_x("branches", filters);
 }
 
 int Mongo::upsert_branch_with_version(Branch branch, enum request_type type) {

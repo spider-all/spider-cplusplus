@@ -28,11 +28,11 @@ int Config::initialize(const std::string &config_path) {
       if (crawler["orgs_member"]) {
         this->crawler_type_orgs_member = crawler["orgs_member"].as<bool>();
       }
-      if (crawler["users_repos_repos_branches"]) {
-        this->crawler_type_users_repos_branches = crawler["users_repos_repos_branches"].as<bool>();
+      if (crawler["users_repos_branches"]) {
+        this->crawler_type_users_repos_branches = crawler["users_repos_branches"].as<bool>();
       }
-      if (crawler["users_repos_repos_branches_commits"]) {
-        this->crawler_type_users_repos_branches_commits = crawler["users_repos_repos_branches_commits"].as<bool>();
+      if (crawler["users_repos_branches_commits"]) {
+        this->crawler_type_users_repos_branches_commits = crawler["users_repos_branches_commits"].as<bool>();
       }
       if (crawler["users_repos"]) {
         this->crawler_type_users_repos = crawler["users_repos"].as<bool>();

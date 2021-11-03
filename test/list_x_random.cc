@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <database/database.h>
+#include <database.h>
 #include <database/mongo.h>
 
 std::string dsn;

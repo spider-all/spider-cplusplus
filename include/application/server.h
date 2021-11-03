@@ -6,8 +6,8 @@
 #include <config.h>
 #include <model.h>
 
-#include <application/application.h>
-#include <database/database.h>
+#include <application.h>
+#include <database.h>
 
 #pragma once
 

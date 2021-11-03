@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <database/database.h>
+#include <database.h>
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;

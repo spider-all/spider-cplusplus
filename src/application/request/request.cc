@@ -36,6 +36,7 @@ int Request::startup() {
   WRAP_FUNC(this->startup_gitignore())
   WRAP_FUNC(this->startup_license())
   WRAP_FUNC(this->startup_xrepos())
+  WRAP_FUNC(this->startup_repos_branches())
 
   return EXIT_SUCCESS;
 }
@@ -212,7 +213,14 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       spdlog::error("Database with error: {}", code);
     }
     break;
+  case request_type_users_repos_branches:
+    code = this->request_repo_branches(content, request_config.extral.repo, type_from);
+    if (code != 0) {
+      spdlog::error("Database with error: {}", code);
+    }
+    break;
   default:
+    spdlog::info("xxxUnknown request type: {}", type);
     return UNKNOWN_REQUEST_TYPE;
   }
 
