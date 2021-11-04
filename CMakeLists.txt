@@ -100,6 +100,11 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL release)
     NAME test_list_x_random
     SRCS ${test_list_x_random}
   )
+  FILE(GLOB test_ensure_index test/ensure_index.cc src/database/mongo/*.cc src/versions.cc)
+  spider_test(
+    NAME test_ensure_index
+    SRCS ${test_ensure_index}
+  )
 endif()
 
 message("System info: ${CMAKE_SYSTEM}")

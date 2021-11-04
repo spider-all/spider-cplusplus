@@ -186,13 +186,44 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
       }
       result.push_back(res);
     }
-    // if (result.empty()) {
-    //   this->incr_version(type);
-    // } else {
-    //   this->update_version(result, type);
-    // }
+    if (result.empty()) {
+      this->incr_version(type);
+    } else {
+      this->update_version(result, type);
+    }
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
   }
   return result;
+}
+
+int Mongo::ensure_index(const std::string &collection, std::vector<std::string> keys) {
+  try {
+    std::string name = fmt::format("{}_index", boost::algorithm::join(keys, "_"));
+    GET_CONNECTION(this->uri->database(), collection)
+    auto cursor = coll.list_indexes();
+    for (auto &&doc : cursor) {
+      if (doc["name"].get_utf8().value.to_string() == name) {
+        spdlog::info("Collection {} index {} already exists", collection, name);
+        return EXIT_SUCCESS;
+      }
+    }
+    mongocxx::options::index index_options{};
+    index_options.unique(true);
+    index_options.name(name);
+    auto doc = bsoncxx::builder::basic::document{};
+    for (const auto &key : keys) {
+      doc.append(kvp(key, 1));
+    }
+    auto result = coll.create_index(doc.view(), index_options);
+    auto result_view = result.view();
+    if (result_view.find("name") != result_view.end()) {
+      spdlog::info("Collection {} create index {} success", collection, result_view["name"].get_utf8().value.to_string());
+      return EXIT_SUCCESS;
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+    return SQL_EXEC_ERROR;
+  }
+  return EXIT_SUCCESS;
 }
