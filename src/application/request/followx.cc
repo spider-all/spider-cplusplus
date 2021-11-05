@@ -74,10 +74,10 @@ int Request::request_user(nlohmann::json content, enum request_type type_from) {
   user.bio = content["bio"].get<std::string>();
   user.created_at = content["created_at"].get<std::string>();
   user.updated_at = content["updated_at"].get<std::string>();
-  user.public_gists = content["public_gists"].get<int>();
-  user.public_repos = content["public_repos"].get<int>();
-  user.following = content["following"].get<int>();
-  user.followers = content["followers"].get<int>();
+  user.public_gists = content["public_gists"].get<int64_t>();
+  user.public_repos = content["public_repos"].get<int64_t>();
+  user.following = content["following"].get<int64_t>();
+  user.followers = content["followers"].get<int64_t>();
 
   int code = database->upsert_user_with_version(user, type_from);
   return code;

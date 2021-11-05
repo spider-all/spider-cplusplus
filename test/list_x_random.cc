@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <database.h>
 #include <database/mongo.h>
 
 std::string dsn;
@@ -18,7 +17,7 @@ private:
 };
 
 TEST(list_x_random, normal) {
-  Database *ret = new Mongo(dsn);
+  Mongo *ret = new Mongo(dsn);
   int code = ret->initialize();
   EXPECT_EQ(code, 0);
 

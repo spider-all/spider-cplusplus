@@ -1,10 +1,5 @@
 #include <iostream>
 
-#include <bsoncxx/builder/stream/array.hpp>
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/builder/stream/helpers.hpp>
-#include <bsoncxx/json.hpp>
-
 #include <model.h>
 
 #pragma once
@@ -15,13 +10,6 @@ public:
   virtual ~Database() = default;
   virtual int initialize() = 0;
   virtual int initialize_version() = 0;
-
-  virtual int64_t count_x(const std::string &c) = 0;
-  virtual int upsert_x(const std::string &collection, std::string filter, std::string update) = 0;
-  virtual int upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters) = 0;
-  virtual std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type) = 0;
-  virtual int ensure_index(const std::string &collection, std::vector<std::string> keys) = 0;
-  virtual int create_collection(const std::string &collection, bsoncxx::document::view_or_value rule) = 0;
 
   virtual int update_version(std::string key, enum request_type type) = 0;
   virtual int update_version(std::vector<std::string> key, enum request_type type) = 0;
