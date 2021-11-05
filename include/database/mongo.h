@@ -2,6 +2,7 @@
 #include <map>
 #include <random>
 #include <thread>
+#include <utility>
 
 #include <boost/algorithm/string.hpp>
 #include <bsoncxx/builder/stream/array.hpp>
@@ -53,12 +54,14 @@ public:
   int initialize() override;
   int initialize_version() override;
 
-  int64_t count_x(const std::string &c) override;
-  int upsert_x(const std::string &collection, std::string filter, std::string update) override;
-  int upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters) override;
-  std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type) override;
-  int ensure_index(const std::string &collection, std::vector<std::string> index) override;
-  int create_collection(const std::string &collection, bsoncxx::document::view_or_value rule) override;
+  int64_t count_x(const std::string &c);
+  int upsert_x(const std::string &collection, std::string filter, std::string update);
+  int upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters);
+  std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type);
+  int ensure_index(const std::string &collection, std::vector<std::string> index);
+  int create_x_collection(const std::string &collection, bsoncxx::document::view_or_value rule);
+
+  int create_collections();
 
   int update_version(std::string key, enum request_type type) override;
   int update_version(std::vector<std::string> key, enum request_type type) override;

@@ -38,10 +38,10 @@ typedef struct User {
   std::string bio;
   std::string created_at;
   std::string updated_at;
-  int public_gists;
-  int public_repos;
-  int following;
-  int followers;
+  int64_t public_gists;
+  int64_t public_repos;
+  int64_t following;
+  int64_t followers;
 } User;
 
 typedef struct Org {

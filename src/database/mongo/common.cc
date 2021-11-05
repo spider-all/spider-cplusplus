@@ -1,7 +1,5 @@
 #include <database/mongo.h>
 
-#include <utility>
-
 int Mongo::upsert_x(const std::string &collection, std::string filter, std::string update) {
   mongocxx::options::update option;
   option.upsert(true);
@@ -228,7 +226,7 @@ int Mongo::ensure_index(const std::string &collection, std::vector<std::string> 
   return EXIT_SUCCESS;
 }
 
-int Mongo::create_collection(const std::string &collection, bsoncxx::document::view_or_value rule) {
+int Mongo::create_x_collection(const std::string &collection, bsoncxx::document::view_or_value rule) {
   try {
     GET_CONNECTION_RAW(this->uri->database())
     auto cursor = database.list_collections();

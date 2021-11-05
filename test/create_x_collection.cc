@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <database.h>
 #include <database/mongo.h>
 
 std::string dsn;
@@ -17,14 +16,14 @@ private:
   }
 };
 
-TEST(create_collection, normal) {
-  Database *ret = new Mongo(dsn);
+TEST(create_x_collection, normal) {
+  Mongo *ret = new Mongo(dsn);
   int code = ret->initialize();
   EXPECT_EQ(code, 0);
 
   auto schema = make_document(kvp("bsonType", "object"), kvp("required", make_array("name")));
   auto doc = make_document(kvp("$jsonSchema", schema));
-  code = ret->create_collection("tests", doc.view());
+  code = ret->create_x_collection("tests", doc.view());
   EXPECT_EQ(code, 0);
 }
 } // namespace

@@ -1,6 +1,9 @@
 #include <database/mongo.h>
 
 int Mongo::upsert_user(User user) {
+  bsoncxx::types::b_timestamp now;
+  now.timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  now.increment = 0;
   bsoncxx::document::value doc = make_document(
       kvp("id", user.id),
       kvp("login", user.login),
@@ -18,7 +21,8 @@ int Mongo::upsert_user(User user) {
       kvp("public_gists", user.public_gists),
       kvp("public_repos", user.public_repos),
       kvp("following", user.following),
-      kvp("followers", user.followers));
+      kvp("followers", user.followers),
+      kvp("x_upserted_at", now));
   bsoncxx::document::value filter = make_document(kvp("id", user.id));
   return this->upsert_x("users", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
