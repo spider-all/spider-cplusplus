@@ -58,6 +58,7 @@ public:
   int upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters) override;
   std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type) override;
   int ensure_index(const std::string &collection, std::vector<std::string> index) override;
+  int create_collection(const std::string &collection, bsoncxx::document::view_or_value rule) override;
 
   int update_version(std::string key, enum request_type type) override;
   int update_version(std::vector<std::string> key, enum request_type type) override;

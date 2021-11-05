@@ -105,6 +105,11 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL release)
     NAME test_ensure_index
     SRCS ${test_ensure_index}
   )
+  FILE(GLOB test_create_collection test/create_collection.cc src/database/mongo/*.cc src/versions.cc)
+  spider_test(
+    NAME test_create_collection
+    SRCS ${test_create_collection}
+  )
 endif()
 
 message("System info: ${CMAKE_SYSTEM}")
