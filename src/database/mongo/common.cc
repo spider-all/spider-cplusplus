@@ -1,5 +1,16 @@
 #include <database/mongo.h>
 
+int Mongo::insert_x(const std::string &collection, bsoncxx::document::view_or_value doc) {
+  try {
+    GET_CONNECTION(this->uri->database(), collection)
+    coll.insert_one(doc.view());
+  } catch (const std::exception &e) {
+    spdlog::error("Something mongodb error occurred: {}", e.what());
+    return SQL_EXEC_ERROR;
+  }
+  return EXIT_SUCCESS;
+}
+
 int Mongo::upsert_x(const std::string &collection, std::string filter, std::string update) {
   mongocxx::options::update option;
   option.upsert(true);

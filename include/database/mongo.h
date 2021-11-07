@@ -55,6 +55,7 @@ public:
   int initialize_version() override;
 
   int64_t count_x(const std::string &c);
+  int insert_x(const std::string &collection, bsoncxx::document::view_or_value doc);
   int upsert_x(const std::string &collection, std::string filter, std::string update);
   int upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters);
   std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type);
@@ -101,4 +102,6 @@ public:
   int upsert_branch(std::vector<Branch> branches) override;
   int upsert_branch_with_version(Branch branch, enum request_type type) override;
   int upsert_branch_with_version(std::vector<Branch> branches, enum request_type type) override;
+
+  int insert_trending(const Trending &trending, std::string date) override;
 };

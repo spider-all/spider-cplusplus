@@ -50,4 +50,6 @@ public:
   virtual int upsert_branch(std::vector<Branch> branches) = 0;
   virtual int upsert_branch_with_version(Branch branch, enum request_type type) = 0;
   virtual int upsert_branch_with_version(std::vector<Branch> branches, enum request_type type) = 0;
+
+  virtual int insert_trending(const Trending &trending, std::string date) = 0;
 };

@@ -49,6 +49,12 @@ int Config::initialize(const std::string &config_path) {
       if (crawler["license_list"]) {
         this->crawler_type_license_list = crawler["license_list"].as<bool>();
       }
+      if (crawler["trending_repos"]) {
+        this->crawler_type_trending_repos = crawler["trending_repos"].as<bool>();
+      }
+      if (crawler["trending_developers"]) {
+        this->crawler_type_trending_developers = crawler["trending_developers"].as<bool>();
+      }
     }
 
     if (crawler_entry_username.empty() || crawler_token.empty()) {
