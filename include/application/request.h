@@ -14,6 +14,8 @@
 #include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
 
+#include <gumbo.h>
+
 #include <application.h>
 #include <database.h>
 
@@ -30,10 +32,18 @@ typedef struct ExtralData {
   std::string branch;
 } ExtralData;
 
+typedef struct TrendingData {
+  std::string seq;
+  std::string spoken_language;
+  std::string language;
+} TrendingData;
+
 typedef struct RequestConfig {
   std::string host;
   std::string path;
   ExtralData extral;
+  TrendingData trending;
+  std::string response_type;
 } RequestConfig;
 
 #define REQUEST_CONFIG(url) RequestConfig{ \
@@ -72,6 +82,8 @@ private:
   int startup_xrepos();
   int startup_repos_branches();
 
+  int startup_trending_repos();
+
   int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
   int request_orgs(const nlohmann::json &content, enum request_type type_from);
   int request_user(nlohmann::json content, enum request_type type_from);
@@ -83,6 +95,11 @@ private:
   int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
   int request_repo_branches(nlohmann::json content, std::string repo, enum request_type type_from);
+
+  int search_for_article(GumboNode *node, const TrendingData &trending);
+  // void search_for_article_repo(GumboNode *node);
+  // void search_for_article_star(GumboNode *node);
+  // int request_trending_repos(pugi::xml_document &doc);
 
 public:
   Request(Config, Database *);

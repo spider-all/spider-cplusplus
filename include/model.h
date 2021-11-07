@@ -106,3 +106,12 @@ typedef struct Branch {
   std::string commit;
   std::string repo;
 } Branch;
+
+typedef struct Trending {
+  std::string seq;
+  std::string spoken_language;
+  std::string language;
+  std::string owner;
+  std::string repo;
+  int64_t star;
+} Trending;
