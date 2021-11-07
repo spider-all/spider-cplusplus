@@ -37,6 +37,7 @@ int Request::startup() {
   WRAP_FUNC(this->startup_license())
   WRAP_FUNC(this->startup_xrepos())
   WRAP_FUNC(this->startup_repos_branches())
+  WRAP_FUNC(this->startup_trending_repos())
 
   return EXIT_SUCCESS;
 }
@@ -62,14 +63,18 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     url_prefix = this->default_url_prefix;
   }
 
+  std::string header_host = boost::algorithm::trim_left_copy_if(url_prefix, boost::is_any_of("https://"));
   httplib::Client client(url_prefix.c_str());
   httplib::Headers headers = {
-      {"Accept", "application/json"},
-      {"Host", url_host},
+      {"Host", header_host},
       {"User-Agent", _useragent},
       {"Time-Zone", _timezone},
       {"Authorization", "Bearer " + config.crawler_token[token_index]},
   };
+
+  if (request_config.response_type == "" || request_config.response_type == "json") {
+    headers.insert(std::make_pair("Accept", "application/json"));
+  }
 
   this->request_locker.lock();
   httplib::Result response(nullptr, httplib::Unknown, httplib::Headers{});
@@ -81,6 +86,10 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     return REQUEST_ERROR;
   }
   this->request_locker.unlock();
+
+  if (this->stopping) {
+    return EXIT_SUCCESS;
+  }
 
   if (response == nullptr) {
     spdlog::error("Request with error: {}", request_config.path);
@@ -126,102 +135,118 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     return REQUEST_ERROR;
   }
 
-  nlohmann::json content;
+  if (request_config.response_type == "" || request_config.response_type == "json") {
+    nlohmann::json content;
+    try {
+      content = nlohmann::json::parse(response->body);
+    } catch (const std::exception &e) {
+      spdlog::error("Parse json with error: {}, {}", request_config.path, e.what());
+      return REQUEST_ERROR;
+    }
 
-  try {
-    nlohmann::json::parser_callback_t cb =
-        [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
-          if (event == nlohmann::json::parse_event_t::key) {
-            std::string str = parsed.dump();
-            str.erase(str.begin(), str.begin() + 1);
-            str.erase(str.end() - 1, str.end());
-            if (boost::algorithm::ends_with(str, "_url") or str == "url") {
-              return false;
+    try {
+      nlohmann::json::parser_callback_t cb =
+          [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
+            if (event == nlohmann::json::parse_event_t::key) {
+              std::string str = parsed.dump();
+              str.erase(str.begin(), str.begin() + 1);
+              str.erase(str.end() - 1, str.end());
+              if (boost::algorithm::ends_with(str, "_url") or str == "url") {
+                return false;
+              }
+            } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
+              parsed = nlohmann::json("");
+              return true;
             }
-          } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
-            parsed = nlohmann::json("");
             return true;
-          }
-          return true;
-        };
-    content = nlohmann::json::parse(response->body, cb);
-  } catch (nlohmann::detail::parse_error &e) {
-    spdlog::error("Request {} got error: {}", request_config.path, e.what());
-    return REQUEST_ERROR;
-  }
+          };
+      content = nlohmann::json::parse(response->body, cb);
+    } catch (nlohmann::detail::parse_error &e) {
+      spdlog::error("Request {} got error: {}", request_config.path, e.what());
+      return REQUEST_ERROR;
+    }
 
-  int code;
-  switch (type) {
-  case request_type_following:
-  case request_type_followers:
-    code = request_followx(content, type_from);
-    if (code != 0) {
-      spdlog::error("Request userinfo with error: {}", code);
+    int code;
+    switch (type) {
+    case request_type_following:
+    case request_type_followers:
+      code = request_followx(content, type_from);
+      if (code != 0) {
+        spdlog::error("Request userinfo with error: {}", code);
+      }
+      break;
+    case request_type_orgs:
+      code = request_orgs(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_orgs_member:
+      code = request_orgs_members(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_user:
+      code = request_user(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_emoji:
+      code = request_emoji(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_gitignore_list:
+      code = request_gitignore_list(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_gitignore_info:
+      code = request_gitignore_info(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_license_list:
+      code = request_license_list(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_license_info:
+      code = request_license_info(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+    case request_type_orgs_repos:
+    case request_type_users_repos:
+      code = this->request_repo_list(content, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    case request_type_users_repos_branches:
+      code = this->request_repo_branches(content, request_config.extral.repo, type_from);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
+    default:
+      spdlog::info("Unknown request type: {}", type);
+      return UNKNOWN_REQUEST_TYPE;
     }
-    break;
-  case request_type_orgs:
-    code = request_orgs(content, type_from);
+  } else if (request_config.response_type == "xml") {
+    spdlog::info("{} {} {}", request_config.trending.spoken_language, request_config.trending.language, request_config.trending.seq);
+    GumboOutput *output = gumbo_parse(response->body.c_str());
+    int code = this->search_for_article(output->root, request_config.trending);
+    gumbo_destroy_output(&kGumboDefaultOptions, output);
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
-    break;
-  case request_type_orgs_member:
-    code = request_orgs_members(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  case request_type_user:
-    code = request_user(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  case request_type_emoji:
-    code = request_emoji(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  case request_type_gitignore_list:
-    code = request_gitignore_list(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  case request_type_gitignore_info:
-    code = request_gitignore_info(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  case request_type_license_list:
-    code = request_license_list(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  case request_type_license_info:
-    code = request_license_info(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-  case request_type_orgs_repos:
-  case request_type_users_repos:
-    code = this->request_repo_list(content, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  case request_type_users_repos_branches:
-    code = this->request_repo_branches(content, request_config.extral.repo, type_from);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
-    }
-    break;
-  default:
-    spdlog::info("xxxUnknown request type: {}", type);
-    return UNKNOWN_REQUEST_TYPE;
   }
 
   if (!skip_sleep) {

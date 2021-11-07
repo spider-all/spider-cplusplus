@@ -81,7 +81,7 @@ int Request::request_orgs(const nlohmann::json &content, enum request_type type_
     };
     orgs.push_back(org);
   }
-  WRAP_FUNC(database->upsert_org_with_version(orgs, type_from))
+  WRAP_FUNC(this->database->upsert_org_with_version(orgs, type_from))
   if (stopping) {
     return EXIT_SUCCESS;
   }
