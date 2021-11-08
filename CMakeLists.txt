@@ -104,10 +104,10 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL release)
     NAME test_ensure_index
     SRCS ${test_ensure_index}
   )
-  FILE(GLOB test_create_collection test/create_collection.cc src/database/mongo/*.cc src/versions.cc)
+  FILE(GLOB test_create_x_collection test/create_x_collection.cc src/database/mongo/*.cc src/versions.cc)
   spider_test(
-    NAME test_create_collection
-    SRCS ${test_create_collection}
+    NAME test_create_x_collection
+    SRCS ${test_create_x_collection}
   )
 endif()
 

@@ -60,7 +60,7 @@ public:
   int upsert_x(const std::string &collection, const std::map<std::string, std::string> &filters);
   std::vector<std::string> list_x_random(const std::string &collection, std::string key, enum request_type type);
   int ensure_index(const std::string &collection, std::vector<std::string> index);
-  int create_x_collection(const std::string &collection, bsoncxx::document::view_or_value rule);
+  int create_x_collection(const std::string &collection, std::string key);
 
   int create_collections();
 
