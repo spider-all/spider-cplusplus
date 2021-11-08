@@ -21,9 +21,7 @@ TEST(create_x_collection, normal) {
   int code = ret->initialize();
   EXPECT_EQ(code, 0);
 
-  auto schema = make_document(kvp("bsonType", "object"), kvp("required", make_array("name")));
-  auto doc = make_document(kvp("$jsonSchema", schema));
-  code = ret->create_x_collection("tests", doc.view());
+  code = ret->create_x_collection("tests", "id$int64:name:source");
   EXPECT_EQ(code, 0);
 }
 } // namespace

@@ -21,7 +21,7 @@ TEST(list_x_random, normal) {
   int code = ret->initialize();
   EXPECT_EQ(code, 0);
 
-  std::vector<std::string> result = ret->list_x_random("users", "login:id_int64", request_type_followers);
+  std::vector<std::string> result = ret->list_x_random("users", "login:id$int64", request_type_followers);
 
   spdlog::info("result size: {}", result.size());
   for (auto &item : result) {

@@ -116,7 +116,7 @@ int Mongo::incr_version(enum request_type type) {
 
 // list_x_random
 // @params
-//    keys name_string:id_int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
+//    keys name$string:id$int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
 std::vector<std::string> Mongo::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
   std::string type_string = this->versions->to_string(type);
 
@@ -155,9 +155,9 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
       bool first = true;
       for (auto param : params) {
         std::string s;
-        if (boost::algorithm::contains(param, "_")) {
+        if (boost::algorithm::contains(param, "$")) {
           std::vector<std::string> param_list;
-          boost::algorithm::split(param_list, param, boost::algorithm::is_any_of("_"));
+          boost::algorithm::split(param_list, param, boost::algorithm::is_any_of("$"));
           if (param_list.size() != 2) {
             spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
             return result;
@@ -237,7 +237,31 @@ int Mongo::ensure_index(const std::string &collection, std::vector<std::string> 
   return EXIT_SUCCESS;
 }
 
-int Mongo::create_x_collection(const std::string &collection, bsoncxx::document::view_or_value rule) {
+std::string bson_type(std::string str) {
+  if (str == "string") {
+    return "string";
+  } else if (str == "int32") {
+    return "int";
+  } else if (str == "int64") {
+    return "long";
+  } else if (str == "double") {
+    return "double";
+  }
+  return "string";
+}
+
+// create_x_collection
+// @params
+//    keys name$string:id$int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
+int Mongo::create_x_collection(const std::string &collection, std::string keys) {
+  if (keys.empty()) {
+    return EXIT_SUCCESS;
+  }
+  std::vector<std::string> params{keys};
+  if (boost::algorithm::contains(keys, ":")) {
+    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(":"));
+  }
+
   try {
     GET_CONNECTION_RAW(this->uri->database())
     auto cursor = database.list_collections();
@@ -247,9 +271,23 @@ int Mongo::create_x_collection(const std::string &collection, bsoncxx::document:
         return EXIT_SUCCESS;
       }
     }
+    auto doc = bsoncxx::builder::basic::document{};
+    for (const auto &param : params) {
+      if (boost::algorithm::contains(param, "$")) {
+        std::vector<std::string> param_list;
+        boost::algorithm::split(param_list, param, boost::algorithm::is_any_of("$"));
+        if (param_list.size() != 2) {
+          spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
+          return SQL_EXEC_ERROR;
+        }
+        doc.append(kvp(param_list[0], make_document(kvp("bsonType", bson_type(param_list[1])), kvp("description", fmt::format("must be a {} and is required", bson_type(param_list[1]))))));
+      } else {
+        doc.append(kvp(param, make_document(kvp("bsonType", "string"), kvp("description", "must be a string and is required"))));
+      }
+    }
     mongocxx::options::create_collection create_collection_options;
     mongocxx::validation_criteria validation_criteria;
-    validation_criteria.rule(rule);
+    validation_criteria.rule(doc.view());
     validation_criteria.level(mongocxx::validation_criteria::validation_level::k_strict);
     validation_criteria.action(mongocxx::validation_criteria::validation_action::k_error);
     create_collection_options.validation_criteria(validation_criteria);
