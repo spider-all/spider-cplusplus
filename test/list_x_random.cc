@@ -1,3 +1,4 @@
+#include <CLI/CLI.hpp>
 #include <gtest/gtest.h>
 
 #include <database/mongo.h>
@@ -33,11 +34,9 @@ TEST(list_x_random, normal) {
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
 
-  if (argc == 3 && strcmp(argv[1], "--dsn") == 0) {
-    dsn = std::string(argv[2]);
-  } else {
-    printf("%s\n", "params --dsn should be provided");
-  }
+  CLI::App app{"MongoDB helper test"};
+  app.add_option("--dsn", dsn, "mongodb dsn");
+  CLI11_PARSE(app, argc, argv)
 
   testing::UnitTest &unit_test = *testing::UnitTest::GetInstance();
   testing::TestEventListeners &listeners = unit_test.listeners();
