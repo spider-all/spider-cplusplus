@@ -20,7 +20,7 @@ ENV TZ=Asia/Shanghai
 RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && \
   rm -rf /var/lib/apt/lists/*
 
-COPY etc/config.yaml.sample /etc/spider-cplusplus/config.yaml
+COPY config.yaml.sample /etc/spider-cplusplus/config.yaml
 COPY --from=builder /app/build/release/spider /usr/bin
 
 CMD ["spider", "-c", "/etc/spider-cplusplus/config.yaml"]
