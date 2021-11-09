@@ -168,11 +168,7 @@ Temporary Items
 .idea/
 .vscode/
 pkgs/
-debug/
-release/
 
-etc/*.yaml
-*.db
+/*.yaml
 
 build/
-data/
