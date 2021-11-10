@@ -40,13 +40,14 @@ int Request::startup_repos_branches() {
   return EXIT_SUCCESS;
 }
 
-int Request::request_repo_branches(nlohmann::json content, std::string repo, enum request_type type_from) {
+int Request::request_repo_branches(nlohmann::json content, ExtralData extral, enum request_type type_from) {
   std::vector<Branch> branches;
   for (auto con : content) {
     Branch branch{
+        .owner = extral.user,
+        .repo = extral.repo,
         .name = con["name"],
         .commit = con["commit"]["sha"],
-        .repo = repo,
     };
     branches.push_back(branch);
   }

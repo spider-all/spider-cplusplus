@@ -91,6 +91,7 @@ public:
   int upsert_license_with_version(License license, enum request_type type) override;
   int64_t count_license() override;
 
+  bsoncxx::document::value make_repo(Repo repo);
   int upsert_repo(Repo repo) override;
   int upsert_repo(std::vector<Repo> repos) override;
   int upsert_repo_with_version(Repo repo, enum request_type type) override;
@@ -98,10 +99,18 @@ public:
   std::vector<std::string> list_repos_random(enum request_type type) override;
   int64_t count_repo() override;
 
+  bsoncxx::document::value make_branch(Branch branch);
   int upsert_branch(Branch branch) override;
   int upsert_branch(std::vector<Branch> branches) override;
   int upsert_branch_with_version(Branch branch, enum request_type type) override;
   int upsert_branch_with_version(std::vector<Branch> branches, enum request_type type) override;
+  std::vector<std::string> list_branches_random(enum request_type type) override;
+
+  bsoncxx::document::value make_commit(Commit commit);
+  int upsert_commit(Commit commit) override;
+  int upsert_commit(std::vector<Commit> commits) override;
+  int upsert_commit_with_version(Commit commit, enum request_type type) override;
+  int upsert_commit_with_version(std::vector<Commit> commits, enum request_type type) override;
 
   int insert_trending(const Trending &trending, std::string date) override;
 };
