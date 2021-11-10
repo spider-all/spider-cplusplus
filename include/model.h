@@ -10,6 +10,7 @@ enum request_type {
   request_type_orgs_member,
   request_type_users_repos,
   request_type_users_repos_branches,
+  request_type_users_repos_branches_commits,
   request_type_orgs_repos,
   request_type_emoji,
   request_type_gitignore_list,
@@ -102,9 +103,10 @@ typedef struct Repo {
 } Repo;
 
 typedef struct Branch {
+  std::string owner;
+  std::string repo;
   std::string name;
   std::string commit;
-  std::string repo;
 } Branch;
 
 typedef struct Trending {
@@ -115,3 +117,18 @@ typedef struct Trending {
   std::string repo;
   int64_t star;
 } Trending;
+
+typedef struct Commit {
+  std::string owner;
+  std::string repo;
+  std::string branch;
+  std::string sha;
+  std::string node_id;
+  std::string commit;
+  std::string committer;
+  std::string author;
+  std::string message;
+  std::string url;
+  std::string comment_count;
+  std::string parents;
+} Commit;

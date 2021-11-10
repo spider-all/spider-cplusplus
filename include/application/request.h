@@ -81,6 +81,7 @@ private:
   int startup_license();
   int startup_xrepos();
   int startup_repos_branches();
+  int startup_repos_branches_commits();
 
   int startup_trending_repos();
 
@@ -94,12 +95,9 @@ private:
   int request_license_list(const nlohmann::json &content, enum request_type type_from);
   int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
-  int request_repo_branches(nlohmann::json content, std::string repo, enum request_type type_from);
+  int request_repo_branches(nlohmann::json content, ExtralData extral, enum request_type type_from);
 
   int search_for_article(GumboNode *node, const TrendingData &trending);
-  // void search_for_article_repo(GumboNode *node);
-  // void search_for_article_star(GumboNode *node);
-  // int request_trending_repos(pugi::xml_document &doc);
 
 public:
   Request(Config, Database *);

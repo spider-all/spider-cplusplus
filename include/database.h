@@ -50,6 +50,12 @@ public:
   virtual int upsert_branch(std::vector<Branch> branches) = 0;
   virtual int upsert_branch_with_version(Branch branch, enum request_type type) = 0;
   virtual int upsert_branch_with_version(std::vector<Branch> branches, enum request_type type) = 0;
+  virtual std::vector<std::string> list_branches_random(enum request_type type) = 0;
+
+  virtual int upsert_commit(Commit commit) = 0;
+  virtual int upsert_commit(std::vector<Commit> commits) = 0;
+  virtual int upsert_commit_with_version(Commit commit, enum request_type type) = 0;
+  virtual int upsert_commit_with_version(std::vector<Commit> commits, enum request_type type) = 0;
 
   virtual int insert_trending(const Trending &trending, std::string date) = 0;
 };
