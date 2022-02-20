@@ -285,13 +285,14 @@ int Mongo::create_x_collection(const std::string &collection, std::string keys) 
         doc.append(kvp(param, make_document(kvp("bsonType", "string"), kvp("description", "must be a string and is required"))));
       }
     }
-    mongocxx::options::create_collection create_collection_options;
-    mongocxx::validation_criteria validation_criteria;
-    validation_criteria.rule(doc.view());
-    validation_criteria.level(mongocxx::validation_criteria::validation_level::k_strict);
-    validation_criteria.action(mongocxx::validation_criteria::validation_action::k_error);
-    create_collection_options.validation_criteria(validation_criteria);
-    database.create_collection(collection, create_collection_options);
+    // mongocxx::options::create_collection create_collection_options;
+    // mongocxx::validation_criteria validation_criteria;
+    // validation_criteria.rule(doc.view());
+    // validation_criteria.level(mongocxx::validation_criteria::validation_level::k_strict);
+    // validation_criteria.action(mongocxx::validation_criteria::validation_action::k_error);
+    // create_collection_options.validation_criteria(validation_criteria);
+    auto collection_options = make_document(kvp("validationLevel", "strict"), kvp("validationAction", "error"), kvp("validator", doc.view()));
+    database.create_collection(collection, collection_options.view());
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
     return SQL_EXEC_ERROR;

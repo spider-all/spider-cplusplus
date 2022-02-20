@@ -14,11 +14,11 @@ Request::~Request() {
     }
   }
 
-  spdlog::info("Spider stopped...");
+  SPDLOG_INFO("Spider stopped...");
 }
 
 int Request::startup() {
-  spdlog::info("Spider is running...");
+  SPDLOG_INFO("Spider is running...");
   RequestConfig request_config{
       .host = this->default_url_prefix,
       .path = "/users/" + config.crawler_entry_username,
@@ -38,6 +38,7 @@ int Request::startup() {
   WRAP_FUNC(this->startup_xrepos())
   WRAP_FUNC(this->startup_repos_branches())
   WRAP_FUNC(this->startup_trending_repos())
+  WRAP_FUNC(this->startup_repos_branches_commits())
 
   return EXIT_SUCCESS;
 }
@@ -47,7 +48,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     return EXIT_SUCCESS;
   }
 
-  spdlog::info("Crawler url: {}{}", request_config.host, request_config.path);
+  SPDLOG_INFO("Crawler url: {}{}", request_config.host, request_config.path);
 
   std::string _useragent = USERAGENT;
   if (!config.crawler_useragent.empty()) {
@@ -77,7 +78,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
 
   this->request_locker.lock();
-  httplib::Result response(nullptr, httplib::Unknown, httplib::Headers{});
+  httplib::Result response(nullptr, httplib::Error::Unknown, httplib::Headers{});
   try {
     response = client.Get(request_config.path.c_str(), headers);
   } catch (const std::exception &e) {
@@ -107,19 +108,19 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
 
   if (rate_limit_remaining % 10 == 0) {
-    spdlog::info("Rate limit: {}/{}", rate_limit_remaining, rate_limit_limit);
+    SPDLOG_INFO("Rate limit: {}/{}", rate_limit_remaining, rate_limit_limit);
     std::time_t result = rate_limit_reset;
     char buffer[32];
     std::strftime(buffer, 32, "%Y/%m/%d %H:%M:%S", std::localtime(&result));
-    spdlog::info("Rate limit reset at: {}", buffer);
+    SPDLOG_INFO("Rate limit reset at: {}", buffer);
   }
 
   if (response->status == 403) {
     auto now = std::chrono::system_clock::now();
     auto current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
-    spdlog::info("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
-    spdlog::info("Change token to next and retry");
+    SPDLOG_INFO("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
+    SPDLOG_INFO("Change token to next and retry");
     token_index++;
     token_index = token_index % config.crawler_token.size();
 
@@ -127,7 +128,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
 
   if (response->status != 200) {
-    spdlog::error("Got {} on request url: {}, {}", response->status, request_config.path, response->body);
+    spdlog::error("Got {} on request url: {}{}, {}", response->status, request_config.host, request_config.path, response->body);
     return REQUEST_ERROR;
   }
 
@@ -236,11 +237,11 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       }
       break;
     default:
-      spdlog::info("Unknown request type: {}", type);
+      SPDLOG_INFO("Unknown request type: {}", type);
       return UNKNOWN_REQUEST_TYPE;
     }
   } else if (request_config.response_type == "xml") {
-    spdlog::info("{} {} {}", request_config.trending.spoken_language, request_config.trending.language, request_config.trending.seq);
+    SPDLOG_INFO("{} {} {}", request_config.trending.spoken_language, request_config.trending.language, request_config.trending.seq);
     GumboOutput *output = gumbo_parse(response->body.c_str());
     int code = this->search_for_article(output->root, request_config.trending);
     gumbo_destroy_output(&kGumboDefaultOptions, output);

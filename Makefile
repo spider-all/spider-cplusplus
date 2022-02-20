@@ -1,6 +1,7 @@
-deps     = $(shell jq --raw-output '.deps | join(" ")' package.json | tr -d "")
-version  = $(shell jq --raw-output '.version' package.json | tr -d "")
-vcpkg   ?= vcpkg
+deps        = $(shell jq --raw-output '.deps | join(" ")' package.json | tr -d "")
+export_deps = $(shell jq --raw-output '.export | join(" ")' package.json | tr -d "")
+version     = $(shell jq --raw-output '.version' package.json | tr -d "")
+vcpkg      ?= vcpkg
 
 BUILD_OUTPUT = build
 
@@ -17,7 +18,7 @@ release debug:
 .PHONY: deps
 deps:
 	$(vcpkg) install $(deps)
-	$(vcpkg) export --raw --output=pkgs --output-dir=. $(deps)
+	$(vcpkg) export --raw --output=pkgs --output-dir=. $(export_deps)
 
 .PHONY: image
 image:
