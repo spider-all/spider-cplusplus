@@ -1,21 +1,22 @@
 FROM buildpack-deps:stable as dep
 
-ARG VERSION=2021.05.12
-
-WORKDIR /app
-
 RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
   sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
 
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+  bison flex cmake unzip zip wget jq git && \
+  rm -rf /var/lib/apt/lists/* && \
+  wget -O /usr/bin/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2022-02-18/vcpkg-muslc && \
+  chmod +x /usr/bin/vcpkg
+
+WORKDIR /workspace
+
+RUN git clone https://github.com/microsoft/vcpkg.git
+
+ENV VCPKG_ROOT=/workspace/vcpkg
+
+WORKDIR /app
+
 COPY . .
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-  bison flex cmake unzip zip wget jq && \
-  rm -rf /var/lib/apt/lists/* && \
-  wget https://github.com/microsoft/vcpkg/archive/${VERSION}.tar.gz && \
-  tar zxvf ${VERSION}.tar.gz && \
-  cd vcpkg-${VERSION} && \
-  ./bootstrap-vcpkg.sh && \
-  cd .. && \
-  env vcpkg=vcpkg-${VERSION}/vcpkg make deps && \
-  rm -rf vcpkg-${VERSION} ${VERSION}.tar.gz
+RUN make deps

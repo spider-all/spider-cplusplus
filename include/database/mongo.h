@@ -11,6 +11,7 @@
 #include <bsoncxx/json.hpp>
 #include <fmt/core.h>
 #include <mongocxx/client.hpp>
+#include <mongocxx/database.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/pool.hpp>
 #include <mongocxx/stdx.hpp>

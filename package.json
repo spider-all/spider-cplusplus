@@ -1,6 +1,6 @@
 {
   "name": "spider",
-  "version": "v1.5.0",
+  "version": "v1.6.0",
   "deps": [
     "zlib",
     "openssl",
@@ -15,6 +15,24 @@
     "zstd",
     "libfort",
     "prometheus-cpp[pull]",
+    "boost-algorithm",
+    "gumbo",
+    "gtest"
+  ],
+  "export": [
+    "zlib",
+    "openssl",
+    "yaml-cpp",
+    "fmt",
+    "spdlog",
+    "nlohmann-json",
+    "curl",
+    "cpp-httplib",
+    "cli11",
+    "mongo-cxx-driver",
+    "zstd",
+    "libfort",
+    "prometheus-cpp",
     "boost-algorithm",
     "gumbo",
     "gtest"
