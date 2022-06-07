@@ -1,4 +1,4 @@
-ARG SPIDER_VERSION=v1.5.0
+ARG SPIDER_VERSION=v1.6.0
 
 FROM ghcr.io/spider-all/spider-cplusplus:${SPIDER_VERSION}-base as base
 
@@ -13,3 +13,10 @@ RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends ccache cmake libsasl2-dev jq && \
   rm -rf /var/lib/apt/lists/*
+
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.2/zsh-in-docker.sh)" -- \
+    -t robbyrussell -p git -p 'history-substring-search' \
+    -a 'bindkey "\$terminfo[kcuu1]" history-substring-search-up' \
+    -a 'bindkey "\$terminfo[kcud1]" history-substring-search-down' \
+    -p https://github.com/zsh-users/zsh-autosuggestions \
+    -p https://github.com/zsh-users/zsh-completions
