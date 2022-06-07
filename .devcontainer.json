@@ -1,0 +1,13 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile.dev"
+  },
+  "extensions": [
+    "ms-vscode.cpptools",
+    "austin.code-gnu-global",
+    "twxs.cmake"
+  ],
+  "containerEnv": {
+    "VCPKG_DIR": "/"
+  }
+}
