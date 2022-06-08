@@ -3,6 +3,7 @@
 #include <string>
 #include <thread>
 
+#include <boost/algorithm/string.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <yaml-cpp/yaml.h>
@@ -18,11 +19,11 @@ public:
 
   std::string database_mongodb_dsn;
 
-  std::string crawler_entry_username;     // entry username
-  std::vector<std::string> crawler_token; // client id
-  std::string crawler_useragent;          // useragent
-  std::string crawler_timezone;           // timezone
-  int64_t crawler_sleep_each_request;     // sleep each request
+  std::string crawler_entry_username;       // entry username
+  std::vector<std::string> crawler_token{}; // client id
+  std::string crawler_useragent;            // useragent
+  std::string crawler_timezone;             // timezone
+  int64_t crawler_sleep_each_request;       // sleep each request
 
   bool crawler_type_followers = false;
   bool crawler_type_followings = false;
@@ -40,4 +41,8 @@ public:
   bool crawler_type_trending_developers = false;
 
   int initialize(const std::string &config_path);
+
+private:
+  // get os env, if null return ""
+  std::string getenv(const std::string &key);
 };
