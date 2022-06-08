@@ -4,14 +4,26 @@ int Config::initialize(const std::string &config_path) {
   try {
     YAML::Node config = YAML::LoadFile(config_path);
     crawler_entry_username = config["entry"].as<std::string>();
-    crawler_token = config["token"].as<std::vector<std::string>>();
+    if (config["token"]) {
+      crawler_token = config["token"].as<std::vector<std::string>>();
+    }
+    std::string token_env = this->getenv("TOKEN");
+    if (crawler_token.size() == 0 && token_env.size() > 0) {
+      boost::algorithm::split(crawler_token, token_env, boost::algorithm::is_any_of(","));
+    }
     crawler_useragent = config["useragent"].as<std::string>();
     crawler_timezone = config["timezone"].as<std::string>();
     crawler_sleep_each_request = config["sleep"].as<int64_t>();
 
     database_type = config["database"]["type"].as<std::string>();
+    if (database_type == "") {
+      database_type = this->getenv("DATABASE_TYPE");
+    }
     if (database_type == DATABASE_MONGODB) {
       database_mongodb_dsn = config["database"][DATABASE_MONGODB]["dsn"].as<std::string>();
+      if (database_mongodb_dsn == "") {
+        database_mongodb_dsn = this->getenv("DATABASE_MONGODB_DSN");
+      }
     }
 
     auto crawler = config["crawler"];
@@ -58,7 +70,7 @@ int Config::initialize(const std::string &config_path) {
     }
 
     if (crawler_entry_username.empty() || crawler_token.empty()) {
-      spdlog::error("Config {0} have not the import value.", config_path);
+      spdlog::error("Config {0} or env have not the import value(entry username or crawler token).", config_path);
       return CONFIG_PARSE_ERROR;
     }
   } catch (const std::exception &e) {
@@ -67,4 +79,12 @@ int Config::initialize(const std::string &config_path) {
   }
 
   return 0;
+}
+
+std::string Config::getenv(const std::string &key) {
+  char *value = std::getenv(key.c_str());
+  if (value) {
+    return std::string(value);
+  }
+  return "";
 }
