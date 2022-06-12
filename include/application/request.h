@@ -6,6 +6,7 @@
 #include <utility>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/random.hpp>
 #include <fort.hpp>
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <httplib.h>
@@ -105,5 +106,6 @@ public:
 
   int startup() override;
 
+  // skip_sleep is used to skip sleep when requesting, but firstly we need to skip sleep when requesting
   int request(RequestConfig &url, enum request_type type, enum request_type type_from, bool skip_sleep = false);
 };

@@ -3,7 +3,7 @@ useragent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (K
 timezone: "Asia/Shanghai"
 token:
   - github_token
-sleep: 100
+sleep_each_request: 1000
 
 crawler:
   followers: true

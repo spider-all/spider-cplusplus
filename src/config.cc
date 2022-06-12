@@ -13,7 +13,12 @@ int Config::initialize(const std::string &config_path) {
     }
     crawler_useragent = config["useragent"].as<std::string>();
     crawler_timezone = config["timezone"].as<std::string>();
-    crawler_sleep_each_request = config["sleep"].as<int64_t>();
+    if (config["sleep_each_request"]) {
+      crawler_sleep_each_request = config["sleep_each_request"].as<int64_t>();
+    }
+    if (crawler_sleep_each_request == 0) {
+      crawler_sleep_each_request = DEFAULT_SLEEP_EACH_REQUEST;
+    }
 
     database_type = config["database"]["type"].as<std::string>();
     if (database_type == "") {
