@@ -89,8 +89,8 @@ int Request::search_for_article(GumboNode *node, const TrendingData &trending) {
 
 int Request::startup_trending_repos() {
   std::vector<std::string> sequence = {"daily", "weekly", "monthly"};
-  std::vector<std::string> spoken_language = {"en", "fr", "ja", "de", "es", "it", "nl", "pl", "pt", "ru", "sv", "tr", "zh"};
-  std::vector<std::string> language = {"c", "c++", "c%23", "go", "java", "javascript", "php", "python", "ruby", "swift", "typescript"};
+  std::vector<std::string> spoken_language = {"en", "zh"};
+  std::vector<std::string> language = {"c", "c++", "c%23" /* C# */, "go", "java", "javascript", "php", "python", "ruby", "swift", "typescript"};
 
   for (auto seq : sequence) {
     for (auto lang : spoken_language) {

@@ -77,7 +77,17 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     headers.insert(std::make_pair("Accept", "application/json"));
   }
 
+  if (!skip_sleep) {
+    std::time_t now = std::time(0);
+    boost::random::mt19937 gen{static_cast<std::uint16_t>(now)};
+    boost::random::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
+  }
+
   this->request_locker.lock();
+  if (this->stopping) {
+    return EXIT_SUCCESS;
+  }
   httplib::Result response(nullptr, httplib::Error::Unknown, httplib::Headers{});
   try {
     response = client.Get(request_config.path.c_str(), headers);
@@ -123,9 +133,14 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     SPDLOG_INFO("Change token to next and retry");
     token_index++;
     token_index = token_index % config.crawler_token.size();
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(this->sleep_for_another_token));
+    this->sleep_for_another_token *= 2;
+    if (this->sleep_for_another_token >= 30 * 1000 * 60 /* 30min */) {
+      this->sleep_for_another_token = 30 * 1000 * 60;
+    }
     return request(request_config, type, type_from);
   }
+  this->sleep_for_another_token = 1000;
 
   if (response->status != 200) {
     spdlog::error("Got {} on request url: {}{}, {}", response->status, request_config.host, request_config.path, response->body);
@@ -248,13 +263,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     if (code != 0) {
       spdlog::error("Database with error: {}", code);
     }
-  }
-
-  if (!skip_sleep) {
-    std::time_t now = std::time(0);
-    boost::random::mt19937 gen{static_cast<std::uint16_t>(now)};
-    boost::random::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
-    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
   }
 
   std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
