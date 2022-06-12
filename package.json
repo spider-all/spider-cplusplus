@@ -34,6 +34,7 @@
     "libfort",
     "prometheus-cpp",
     "boost-algorithm",
+    "boost-random",
     "gumbo",
     "gtest"
   ],
