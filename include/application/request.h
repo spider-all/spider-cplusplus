@@ -68,6 +68,9 @@ private:
   int semaphore = 0;
   bool stopping = false;
 
+  // sleep for a while change another token if rate limit is reached
+  int sleep_for_another_token = 1000;
+
   std::string url_host = "api.github.com";
   std::string default_url_prefix = "https://" + url_host;
 
