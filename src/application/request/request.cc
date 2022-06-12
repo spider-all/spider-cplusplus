@@ -251,7 +251,10 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
 
   if (!skip_sleep) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(config.crawler_sleep_each_request));
+    std::time_t now = std::time(0);
+    boost::random::mt19937 gen{static_cast<std::uint16_t>(now)};
+    boost::random::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
   }
 
   std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
