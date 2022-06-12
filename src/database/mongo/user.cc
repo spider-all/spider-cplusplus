@@ -1,9 +1,7 @@
 #include <database/mongo.h>
 
 int Mongo::upsert_user(User user) {
-  bsoncxx::types::b_timestamp now;
-  now.timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  now.increment = 0;
+  bsoncxx::types::b_date now(std::chrono::system_clock::now());
   bsoncxx::document::value doc = make_document(
       kvp("id", user.id),
       kvp("login", user.login),
