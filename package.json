@@ -1,6 +1,6 @@
 {
   "name": "spider",
-  "version": "v1.6.1",
+  "version": "v1.6.2",
   "deps": [
     "zlib",
     "openssl",
@@ -16,8 +16,10 @@
     "libfort",
     "prometheus-cpp[pull]",
     "boost-algorithm",
+    "boost-random",
     "gumbo",
-    "gtest"
+    "gtest",
+    "croncpp"
   ],
   "export": [
     "zlib",
@@ -36,7 +38,8 @@
     "boost-algorithm",
     "boost-random",
     "gumbo",
-    "gtest"
+    "gtest",
+    "croncpp"
   ],
   "license": "MIT",
   "author": {

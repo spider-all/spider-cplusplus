@@ -1,5 +1,7 @@
 #include <application/request.h>
 
+#include <croncpp/croncpp.h>
+
 void debug_node(GumboNode *node, std::string indent) {
   for (unsigned int i = 0; i < node->v.element.children.length; ++i) {
     GumboNode *child = static_cast<GumboNode *>(node->v.element.children.data[i]);
@@ -91,6 +93,15 @@ int Request::startup_trending_repos() {
   std::vector<std::string> sequence = {"daily", "weekly", "monthly"};
   std::vector<std::string> spoken_language = {"en", "zh"};
   std::vector<std::string> language = {"c", "c++", "c%23" /* C# */, "go", "java", "javascript", "php", "python", "ruby", "swift", "typescript"};
+
+  try {
+    auto cron = cron::make_cron("* 0/5 * * * ?");
+
+    std::time_t now = std::time(0);
+    std::time_t next = cron::cron_next(cron, now);
+  } catch (cron::bad_cronexpr const &ex) {
+    std::cerr << ex.what() << '\n';
+  }
 
   for (auto seq : sequence) {
     for (auto lang : spoken_language) {
