@@ -62,6 +62,9 @@ target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
 find_package(prometheus-cpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
 
+find_package(croncpp CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE croncpp::croncpp)
+
 target_include_directories(spider PRIVATE include)
 
 target_link_libraries(spider PRIVATE stdc++ pthread dl)
@@ -87,6 +90,7 @@ function(spider_test)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE spdlog::spdlog)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE croncpp::croncpp)
   if (UNIX AND NOT APPLE)
     target_link_libraries(${PARSED_ARGS_NAME} PRIVATE rt stdc++fs)
   endif ()
