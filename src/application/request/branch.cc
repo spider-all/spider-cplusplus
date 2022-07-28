@@ -3,7 +3,7 @@
 int Request::startup_repos_branches() {
   if (this->config.crawler_type_users_repos_branches) {
     this->semaphore++;
-    std::thread users_repos_branches_thread([=]() {
+    std::thread users_repos_branches_thread([=, this]() {
       spdlog::info("Users repos branches thread is starting...");
       while (!stopping) {
         std::vector<std::string> repos = database->list_repos_random(request_type_users_repos);

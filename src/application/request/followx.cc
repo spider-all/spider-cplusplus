@@ -3,7 +3,7 @@
 int Request::startup_followx() {
   if (config.crawler_type_followers) {
     semaphore++;
-    std::thread followers_thread([=]() {
+    std::thread followers_thread([=, this]() {
       spdlog::info("Followers thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_followers);
@@ -29,7 +29,7 @@ int Request::startup_followx() {
   }
   if (config.crawler_type_followings) {
     semaphore++;
-    std::thread followings_thread([=]() {
+    std::thread followings_thread([=, this]() {
       spdlog::info("Following thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_following);

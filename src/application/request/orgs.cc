@@ -3,7 +3,7 @@
 int Request::startup_orgs() {
   if (config.crawler_type_orgs) {
     semaphore++;
-    std::thread orgs_thread([=]() {
+    std::thread orgs_thread([=, this]() {
       spdlog::info("Orgs thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_orgs);
@@ -29,7 +29,7 @@ int Request::startup_orgs() {
   }
   if (config.crawler_type_orgs_member) {
     semaphore++;
-    std::thread orgs_member_thread([=]() {
+    std::thread orgs_member_thread([=, this]() {
       spdlog::info("Orgs thread is starting...");
       while (!stopping) {
         std::vector<std::string> orgs = database->list_orgs_random(request_type_orgs_repos);

@@ -109,7 +109,7 @@ int Request::startup_trending_repos() {
         std::string path = fmt::format("/trending/{}?since={}&spoken_language_code={}", l, seq, lang);
         if (config.crawler_type_trending_repos) {
           semaphore++;
-          std::thread trending_repos_thread([=]() {
+          std::thread trending_repos_thread([=, this]() {
             spdlog::info("Trending repos thread {} {} {} is starting...", seq, l, lang);
             while (!stopping) {
               std::this_thread::sleep_for(std::chrono::milliseconds(200));

@@ -48,11 +48,11 @@ void to_json(nlohmann::json &j, const User &p) {
 
 int Server::startup() {
   semaphore++;
-  std::thread server_thread([=]() {
+  std::thread server_thread([=, this]() {
     svr.Get("/", [](const httplib::Request &req, httplib::Response &res) {
       res.set_content("Hello World!", "text/plain");
     });
-    svr.Get("/users", [=](const httplib::Request &req, httplib::Response &res) {
+    svr.Get("/users", [=, this](const httplib::Request &req, httplib::Response &res) {
       common_args args = helper(req);
       std::vector<User> users = this->database->list_usersx(args);
       nlohmann::json content = users;

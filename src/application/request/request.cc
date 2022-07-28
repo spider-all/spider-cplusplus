@@ -162,7 +162,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
 
     try {
       nlohmann::json::parser_callback_t cb =
-          [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
+          [=, this](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
             if (event == nlohmann::json::parse_event_t::key) {
               std::string str = parsed.dump();
               str.erase(str.begin(), str.begin() + 1);
