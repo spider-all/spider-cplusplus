@@ -1,6 +1,6 @@
 {
   "name": "spider",
-  "version": "v1.6.2",
+  "version": "v1.6.3",
   "deps": [
     "zlib",
     "openssl",
