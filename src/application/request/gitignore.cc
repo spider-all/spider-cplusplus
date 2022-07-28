@@ -3,7 +3,7 @@
 int Request::startup_gitignore() {
   if (config.crawler_type_gitignore_list) {
     semaphore++;
-    std::thread gitignore_list_thread([=]() {
+    std::thread gitignore_list_thread([=, this]() {
       spdlog::info("Gitignore list thread is starting...");
       RequestConfig request_config{
           .host = this->default_url_prefix,
