@@ -3,7 +3,7 @@
 int Request::startup_license() {
   if (config.crawler_type_license_list) {
     semaphore++;
-    std::thread license_list_thread([=]() {
+    std::thread license_list_thread([=, this]() {
       spdlog::info("License list thread is starting...");
       RequestConfig request_config{
           .host = this->default_url_prefix,
