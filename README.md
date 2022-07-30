@@ -1,6 +1,6 @@
 # spider
 
-[![Image CI](https://github.com/spider-all/spider-cplusplus/actions/workflows/cpp.yml/badge.svg?branch=main)](https://github.com/spider-all/spider-cplusplus/actions/workflows/cpp.yml)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spider-all/spider-cplusplus)
 
 Crawl GitHub APIs and store the discovered orgs, repos, commits...
 

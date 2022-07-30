@@ -1,3 +1,10 @@
+checkoutLocation: spider-cplusplus
 image:
-  file: Dockerfile.base
+  file: Dockerfile.dev
   context: .
+tasks:
+  - name: "deps"
+    command: "cp -r /pkgs ."
+vscode:
+  extensions:
+    - "twxs.cmake"

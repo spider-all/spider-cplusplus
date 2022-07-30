@@ -1,4 +1,4 @@
-ARG SPIDER_VERSION=v1.6.0
+ARG SPIDER_VERSION=v1.6.3
 
 FROM ghcr.io/spider-all/spider-cplusplus:${SPIDER_VERSION}-base as base
 
@@ -11,8 +11,10 @@ COPY --from=base /app/pkgs /pkgs
 RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
   sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends ccache cmake libsasl2-dev jq && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && apt-get install -y --no-install-recommends sudo ccache cmake libsasl2-dev jq && \
+  rm -rf /var/lib/apt/lists/* && \
+  wget -O /usr/bin/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2022-07-21/vcpkg-muslc && \
+  chmod +x /usr/bin/vcpkg
 
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.2/zsh-in-docker.sh)" -- \
     -t robbyrussell -p git -p 'history-substring-search' \
