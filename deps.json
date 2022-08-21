@@ -17,7 +17,8 @@
     "boost-random",
     "gumbo",
     "gtest",
-    "croncpp"
+    "croncpp",
+    "ffmpeg"
   ],
   "export": [
     "zlib",
