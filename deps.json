@@ -1,6 +1,4 @@
 {
-  "name": "spider",
-  "version": "v1.6.3",
   "deps": [
     "zlib",
     "openssl",
@@ -40,15 +38,5 @@
     "gumbo",
     "gtest",
     "croncpp"
-  ],
-  "license": "MIT",
-  "author": {
-    "name": "Tosone",
-    "email": "i@tosone.cn",
-    "url": "https://tosone.cn"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/spider-all/spider-cplusplus"
-  }
+  ]
 }

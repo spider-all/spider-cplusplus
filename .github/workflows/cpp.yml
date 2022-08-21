@@ -1,19 +1,11 @@
 name: Image CI
 
-on:
-  push:
-    branches:
-      - main
-      - test
-      - dev
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   image:
     name: Image builder
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -30,8 +22,13 @@ jobs:
         id: vars
         run: |
           echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
-          echo "::set-output name=tag::$(jq --raw-output '.version' package.json | tr -d '')"
-
+          echo "::set-output name=tag::$(cat VERSION | tr -d '')"
+      - name: Compile base docker image
+        run: |
+          if [[ "${{ github.event.pull_request.title }}" =~ ^:heavy_plus_sign:.*|^:arrow_up:.*|^:heavy_minus_sign:.*|^:arrow_down:.* ]]; then
+            docker build -t ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-base -f Dockerfile.base .
+            docker push ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-base
+          fi
       - name: Compile docker image
         run: |
           docker build --build-arg SPIDER_VERSION=${{ steps.vars.outputs.tag }} -t ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-${{ steps.vars.outputs.date }} .

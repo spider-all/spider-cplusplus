@@ -1,6 +1,6 @@
-deps        = $(shell jq --raw-output '.deps | join(" ")' package.json | tr -d "")
-export_deps = $(shell jq --raw-output '.export | join(" ")' package.json | tr -d "")
-version     = $(shell jq --raw-output '.version' package.json | tr -d "")
+deps        = $(shell jq --raw-output '.deps | join(" ")' deps.json | tr -d "")
+export_deps = $(shell jq --raw-output '.export | join(" ")' deps.json | tr -d "")
+version     = $(shell cat VERSION | tr -d "")
 vcpkg      ?= vcpkg
 
 BUILD_OUTPUT = build
