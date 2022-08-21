@@ -23,7 +23,7 @@ jobs:
         run: |
           echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
           echo "::set-output name=tag::$(cat VERSION | tr -d '')"
-      - name: Compile base docker image
+      - name: Compile base docker image1
         run: |
           if [[ "${{ github.event.pull_request.title }}" =~ ^:heavy_plus_sign:.*|^:arrow_up:.*|^:heavy_minus_sign:.*|^:arrow_down:.* ]]; then
             docker build -t ghcr.io/spider-all/spider-cplusplus:${{ steps.vars.outputs.tag }}-base -f Dockerfile.base .
