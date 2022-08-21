@@ -21,7 +21,7 @@ jobs:
       - name: Print Body of PR
         run: |
           if [[ "${{ github.event.pull_request.title }}" =~ ^:heavy_plus_sign:.*|^:arrow_up: ]]; then
-            echo "yes"
+            echo "yes1"
           fi
       - name: Checkout code
         uses: actions/checkout@v2
