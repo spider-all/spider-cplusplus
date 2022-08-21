@@ -20,15 +20,22 @@ int Config::initialize(const std::string &config_path) {
       crawler_sleep_each_request = DEFAULT_SLEEP_EACH_REQUEST;
     }
 
-    database_type = config["database"]["type"].as<std::string>();
+    if (config["database"]) {
+      if (config["database"]["type"]) {
+        database_type = config["database"]["type"].as<std::string>();
+      }
+      if (database_type == DATABASE_MONGODB) {
+        if (config["database"][DATABASE_MONGODB] && config["database"][DATABASE_MONGODB]["dsn"]) {
+          database_mongodb_dsn = config["database"][DATABASE_MONGODB]["dsn"].as<std::string>();
+        }
+      }
+    }
+
+    if (database_mongodb_dsn == "") {
+      database_mongodb_dsn = this->getenv("DATABASE_MONGODB_DSN");
+    }
     if (database_type == "") {
       database_type = this->getenv("DATABASE_TYPE");
-    }
-    if (database_type == DATABASE_MONGODB) {
-      database_mongodb_dsn = config["database"][DATABASE_MONGODB]["dsn"].as<std::string>();
-      if (database_mongodb_dsn == "") {
-        database_mongodb_dsn = this->getenv("DATABASE_MONGODB_DSN");
-      }
     }
 
     auto crawler = config["crawler"];
