@@ -15,8 +15,6 @@
 #include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
 
-#include <gumbo.h>
-
 #include <application.h>
 #include <database.h>
 
@@ -100,8 +98,6 @@ private:
   int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
   int request_repo_branches(nlohmann::json content, ExtralData extral, enum request_type type_from);
-
-  int search_for_article(GumboNode *node, const TrendingData &trending);
 
 public:
   Request(Config, Database *);

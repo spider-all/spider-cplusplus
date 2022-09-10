@@ -37,7 +37,6 @@ int Request::startup() {
   WRAP_FUNC(this->startup_license())
   WRAP_FUNC(this->startup_xrepos())
   WRAP_FUNC(this->startup_repos_branches())
-  WRAP_FUNC(this->startup_trending_repos())
   WRAP_FUNC(this->startup_repos_branches_commits())
 
   return EXIT_SUCCESS;
@@ -162,7 +161,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
 
     try {
       nlohmann::json::parser_callback_t cb =
-          [=, this](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
+          [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
             if (event == nlohmann::json::parse_event_t::key) {
               std::string str = parsed.dump();
               str.erase(str.begin(), str.begin() + 1);
@@ -254,14 +253,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     default:
       SPDLOG_INFO("Unknown request type: {}", type);
       return UNKNOWN_REQUEST_TYPE;
-    }
-  } else if (request_config.response_type == "xml") {
-    SPDLOG_INFO("{} {} {}", request_config.trending.spoken_language, request_config.trending.language, request_config.trending.seq);
-    GumboOutput *output = gumbo_parse(response->body.c_str());
-    int code = this->search_for_article(output->root, request_config.trending);
-    gumbo_destroy_output(&kGumboDefaultOptions, output);
-    if (code != 0) {
-      spdlog::error("Database with error: {}", code);
     }
   }
 
