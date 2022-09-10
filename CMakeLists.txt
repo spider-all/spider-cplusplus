@@ -34,8 +34,6 @@ target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIP
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
 
-target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libgumbo.a)
-
 target_link_libraries(spider PRIVATE sasl2)
 target_link_libraries(spider PRIVATE resolv)
 
