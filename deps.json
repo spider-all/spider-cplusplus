@@ -15,7 +15,6 @@
     "prometheus-cpp[pull]",
     "boost-algorithm",
     "boost-random",
-    "gumbo",
     "gtest",
     "croncpp"
   ],
@@ -35,7 +34,6 @@
     "prometheus-cpp",
     "boost-algorithm",
     "boost-random",
-    "gumbo",
     "gtest",
     "croncpp"
   ]
