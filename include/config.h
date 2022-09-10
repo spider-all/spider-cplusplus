@@ -37,9 +37,6 @@ public:
   bool crawler_type_gitignore_list = false;
   bool crawler_type_license_list = false;
 
-  bool crawler_type_trending_repos = false;
-  bool crawler_type_trending_developers = false;
-
   int initialize(const std::string &config_path);
 
 private:
