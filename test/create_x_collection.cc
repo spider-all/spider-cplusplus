@@ -22,7 +22,7 @@ TEST(create_x_collection, normal) {
   int code = ret->initialize();
   EXPECT_EQ(code, 0);
 
-  code = ret->create_x_collection("tests", "id$int64:name:source");
+  code = ret->create_x_collection("tests", "id:int64;name;source");
   EXPECT_EQ(code, 0);
 }
 } // namespace
