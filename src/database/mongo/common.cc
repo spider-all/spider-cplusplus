@@ -116,7 +116,7 @@ int Mongo::incr_version(enum request_type type) {
 
 // list_x_random
 // @params
-//    keys name$string:id$int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
+//    keys name:string;id:int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
 std::vector<std::string> Mongo::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
   std::string type_string = this->versions->to_string(type);
 
@@ -124,9 +124,9 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
 
   std::vector<std::string> params{keys};
   std::string key = keys;
-  if (boost::algorithm::contains(keys, ":")) {
-    key = keys.substr(0, keys.find(":"));
-    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(":"));
+  if (boost::algorithm::contains(keys, this->keys_delimiter)) {
+    key = keys.substr(0, keys.find(this->keys_delimiter));
+    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(this->keys_delimiter));
   }
 
   mongocxx::pipeline stages;
@@ -155,9 +155,9 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
       bool first = true;
       for (auto param : params) {
         std::string s;
-        if (boost::algorithm::contains(param, "$")) {
+        if (boost::algorithm::contains(param, this->keys_value_delimiter)) {
           std::vector<std::string> param_list;
-          boost::algorithm::split(param_list, param, boost::algorithm::is_any_of("$"));
+          boost::algorithm::split(param_list, param, boost::algorithm::is_any_of(this->keys_value_delimiter));
           if (param_list.size() != 2) {
             spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
             return result;
@@ -190,7 +190,7 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
           res = s;
           first = false;
         } else {
-          res += ":" + s;
+          res += this->keys_delimiter + s;
         }
       }
       result.push_back(res);
@@ -252,14 +252,14 @@ std::string bson_type(std::string str) {
 
 // create_x_collection
 // @params
-//    keys name$string:id$int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
+//    keys name:string;id:int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
 int Mongo::create_x_collection(const std::string &collection, std::string keys) {
   if (keys.empty()) {
     return EXIT_SUCCESS;
   }
   std::vector<std::string> params{keys};
-  if (boost::algorithm::contains(keys, ":")) {
-    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(":"));
+  if (boost::algorithm::contains(keys, this->keys_delimiter)) {
+    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(this->keys_delimiter));
   }
 
   try {
@@ -273,9 +273,9 @@ int Mongo::create_x_collection(const std::string &collection, std::string keys) 
     }
     auto doc = bsoncxx::builder::basic::document{};
     for (const auto &param : params) {
-      if (boost::algorithm::contains(param, "$")) {
+      if (boost::algorithm::contains(param, this->keys_value_delimiter)) {
         std::vector<std::string> param_list;
-        boost::algorithm::split(param_list, param, boost::algorithm::is_any_of("$"));
+        boost::algorithm::split(param_list, param, boost::algorithm::is_any_of(this->keys_value_delimiter));
         if (param_list.size() != 2) {
           spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
           return SQL_EXEC_ERROR;

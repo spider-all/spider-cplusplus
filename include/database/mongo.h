@@ -48,6 +48,9 @@ private:
 
   const int32_t sample_size = 100;
 
+  std::string keys_delimiter = ";";
+  std::string keys_value_delimiter = ":";
+
 public:
   explicit Mongo(const std::string &);
   ~Mongo() override;
@@ -111,6 +114,4 @@ public:
   int upsert_commit(std::vector<Commit> commits) override;
   int upsert_commit_with_version(Commit commit, enum request_type type) override;
   int upsert_commit_with_version(std::vector<Commit> commits, enum request_type type) override;
-
-  int insert_trending(const Trending &trending, std::string date) override;
 };

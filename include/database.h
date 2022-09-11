@@ -56,6 +56,4 @@ public:
   virtual int upsert_commit(std::vector<Commit> commits) = 0;
   virtual int upsert_commit_with_version(Commit commit, enum request_type type) = 0;
   virtual int upsert_commit_with_version(std::vector<Commit> commits, enum request_type type) = 0;
-
-  virtual int insert_trending(const Trending &trending, std::string date) = 0;
 };
