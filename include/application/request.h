@@ -12,7 +12,6 @@
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
-#include <sqlite3.h>
 #include <yaml-cpp/yaml.h>
 
 #include <application.h>

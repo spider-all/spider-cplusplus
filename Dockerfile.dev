@@ -13,7 +13,7 @@ RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends sudo ccache cmake libsasl2-dev jq && \
   rm -rf /var/lib/apt/lists/* && \
-  wget -O /usr/bin/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2022-07-21/vcpkg-muslc && \
+  wget -O /usr/bin/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2022-09-20/vcpkg-muslc && \
   chmod +x /usr/bin/vcpkg
 
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.2/zsh-in-docker.sh)" -- \
