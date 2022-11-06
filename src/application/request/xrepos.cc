@@ -20,7 +20,7 @@ int Request::startup_xrepos() {
             break;
           }
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        // std::this_thread::sleep_for(std::chrono::seconds(1));
       }
       spdlog::info("Repos thread stopped");
       semaphore--;
@@ -58,7 +58,7 @@ int Request::startup_xrepos() {
 }
 
 int Request::request_repo_list(nlohmann::json content, enum request_type type_from) {
-  int code = 0;
+  std::vector<Repo> repos;
   for (auto &&con : content) {
     Repo repo{
         .id = con["id"].get<int64_t>(),
@@ -87,10 +87,7 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
     if (!con["license"].is_string()) {
       repo.license = con["license"]["key"].get<std::string>();
     }
-    code = database->upsert_repo_with_version(repo, type_from);
-    if (code != 0) {
-      return code;
-    }
+    repos.push_back(repo);
   }
-  return code;
+  return database->upsert_repo_with_version(repos, type_from);
 }

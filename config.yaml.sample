@@ -18,9 +18,6 @@ crawler:
   gitignore_list: true
   license_list: true
 
-  trending_repos: true
-  trending_developers: true
-
 database:
   type: mongodb
   mongodb:

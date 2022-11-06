@@ -84,8 +84,6 @@ private:
   int startup_repos_branches();
   int startup_repos_branches_commits();
 
-  int startup_trending_repos();
-
   int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
   int request_orgs(const nlohmann::json &content, enum request_type type_from);
   int request_user(nlohmann::json content, enum request_type type_from);
