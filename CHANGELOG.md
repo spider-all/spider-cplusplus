@@ -1,16 +1,78 @@
-# Chnagelog
+# Changelog
 
-## [v1.5.0](https://github.com/spider-all/spider-cplusplus/compare/v1.4.0...v1.5.0) (2021-10-06)
+## [v1.6.4](https://github.com/spider-all/spider-cplusplus/compare/v1.4.0...v1.6.4) (2022-12-30)
+
+### Bug Fixes
+
+* Fix c++20 lambda warning ([bdf492a](https://github.com/spider-all/spider-cplusplus/commit/bdf492afb6fabb24c50fb5b5b0927b700d0fa34f))
+* Fix vscode dev container ([16574c7](https://github.com/spider-all/spider-cplusplus/commit/16574c7f5aa4cef542aec5d96d62d2da4d1393c4))
+* Fix upsert x ([8fb0a23](https://github.com/spider-all/spider-cplusplus/commit/8fb0a231b3d60fde33dbae7819ecacc65bbe8653))
+* Fix following type cannot crawler ([001ee87](https://github.com/spider-all/spider-cplusplus/commit/001ee8705f993444c2dc915ba540db3cf17c2a92))
+
+### Code Refactoring
+
+* Refactor emoji upsert ([2a28c48](https://github.com/spider-all/spider-cplusplus/commit/2a28c482ed631b352cf0715f803acf8db154e5be))
+* Implement list x random ([4a4815e](https://github.com/spider-all/spider-cplusplus/commit/4a4815eeb4812636d37eafcc0b07997bec5ece0a))
+* Refatcor repo upsert ([ca4e753](https://github.com/spider-all/spider-cplusplus/commit/ca4e753a8d1298d776dde54287fc979364f74932))
+* Separate orgs ([78dcfd6](https://github.com/spider-all/spider-cplusplus/commit/78dcfd6377dc51f3525161b9dfcd29a9fe68ab06))
+* Separate request ([ad1b74c](https://github.com/spider-all/spider-cplusplus/commit/ad1b74c1618cf77bd038e711944626b67885eabe))
+* Seprate mongo ([bc3c20c](https://github.com/spider-all/spider-cplusplus/commit/bc3c20cc9521d5412762d990bd08d093927dec08))
+* Refactor upsert org ([c5658c3](https://github.com/spider-all/spider-cplusplus/commit/c5658c391978eb639028ffd106ab2091e01d9a17))
 
 ### Dependencies
 
+* upgrade vcpkg ([85af5fa](https://github.com/spider-all/spider-cplusplus/commit/85af5fab4d2a98f893ae59d6f0bd7027ddf6e4d1))
+* Upgrade vcpkg ([fb05fb3](https://github.com/spider-all/spider-cplusplus/commit/fb05fb30ac490eeac6921b70f823c3d73ca67240))
+* Upgrade vcpkg ([1152da7](https://github.com/spider-all/spider-cplusplus/commit/1152da7e7eb0f9dc8536b95ee9db2805d7acac7d))
+* Upgrade vcpkg ([dd22aa6](https://github.com/spider-all/spider-cplusplus/commit/dd22aa641779205b2586053a8e1800fa9bcb5439))
+
+### Dependencies
+
+* Remove the gumbo ([80b3d20](https://github.com/spider-all/spider-cplusplus/commit/80b3d205e7a964eb32b700933824478fe67492f7))
+
+### Dependencies
+
+* Add croncpp ([85de802](https://github.com/spider-all/spider-cplusplus/commit/85de802bc7c182e69eb4bb0353e447e3fba98603))
+* Add google test ([8de20f3](https://github.com/spider-all/spider-cplusplus/commit/8de20f3f9790b5d2fa7c6fb0fa1a0ccf81a51bfd))
+* Add pugixml ([178bc56](https://github.com/spider-all/spider-cplusplus/commit/178bc567e7f36267d311f51bd74ac45a0d331684))
 * Add boost ([005d547](https://github.com/spider-all/spider-cplusplus/commit/005d547952815b31cc767ccc26deae35ab61ce1b))
 
 ### Features
 
+* Batch update user repos ([862bd41](https://github.com/spider-all/spider-cplusplus/commit/862bd4152a547ae2aed9ad755862a7f5d8781ddc))
+* Add core framework for osx ([2f8d3a9](https://github.com/spider-all/spider-cplusplus/commit/2f8d3a90b24172dea1dc9380ae115f12efa412f7))
+* Change the delimiter ([1e4c149](https://github.com/spider-all/spider-cplusplus/commit/1e4c149fb5e73164956f2fe1324167a436e92001))
+* Remove the trending spider ([b0c3bb4](https://github.com/spider-all/spider-cplusplus/commit/b0c3bb41baf5f90466163e9c1f186faadc7085be))
+* Check database config nil ([e815471](https://github.com/spider-all/spider-cplusplus/commit/e8154713db59a6ae7735473128bd4894aea6b8cf))
+* Add gitpod ([29fb4ad](https://github.com/spider-all/spider-cplusplus/commit/29fb4adcaa8273bd585e4e91927da60b157c65e9))
+* Change new token sleep for a while ([982bc61](https://github.com/spider-all/spider-cplusplus/commit/982bc61ead76240063ff2fe233c21e9447d34fa6))
+* Random sleep before each request ([aa11f17](https://github.com/spider-all/spider-cplusplus/commit/aa11f17ea61c8046b24364dc215bea7ff9776d4f))
+* Upsert user with date type ([63fce19](https://github.com/spider-all/spider-cplusplus/commit/63fce19ed5705117144ccd92e918bdbe18ccc0ab))
+* Get env override setings ([2a9f1c4](https://github.com/spider-all/spider-cplusplus/commit/2a9f1c40fbfff767312b78254e612b8b3e49a624))
+* Add zsh in dev container ([6f687d9](https://github.com/spider-all/spider-cplusplus/commit/6f687d99d6395aa16870d1918e6a2254bc84485b))
+* Update base dockerfile and upgrade mongo cxx deps ([4372cef](https://github.com/spider-all/spider-cplusplus/commit/4372ceff7c69fbf7cdac1d9e1c041ae614d5de1c))
+* Add commit crawler ([27bdebc](https://github.com/spider-all/spider-cplusplus/commit/27bdebc16e7a7ed344ca46d3b149c9557e6bad60))
+* Create x collection ([f662089](https://github.com/spider-all/spider-cplusplus/commit/f662089d4a1e100857ab7a54d71d50a19d4b20ba))
+* Crawler trending ([ce8fe58](https://github.com/spider-all/spider-cplusplus/commit/ce8fe5833357303ecfea35b0895f7e8687be3950))
+* Create collections ([1252a2d](https://github.com/spider-all/spider-cplusplus/commit/1252a2dffb4921c06f039d6a81ebbc3d9f8234a7))
+* Create collection with validation ([4bbfd39](https://github.com/spider-all/spider-cplusplus/commit/4bbfd39cdcfee2c58774fb82dcd554303bb15bc8))
+* Add ensure index ([4d50b2a](https://github.com/spider-all/spider-cplusplus/commit/4d50b2a8e8b6fc135c4807a90667b36df9a48ce0))
+* Complete repo branches crawler ([cfc1447](https://github.com/spider-all/spider-cplusplus/commit/cfc144704bca81feddc4ee5ebf069a9999ac54c6))
+* Add list x random test ([11e4894](https://github.com/spider-all/spider-cplusplus/commit/11e4894c18effa1be1c098edb477df50018f83c9))
+* Bulk upsert x ([1ceba75](https://github.com/spider-all/spider-cplusplus/commit/1ceba75172d51e9ac33a3af48a40c62cdfdea309))
+* Add repo bulk upsert ([ca7aabf](https://github.com/spider-all/spider-cplusplus/commit/ca7aabfa9e9214027d37b3a469c33878762747a2))
+* Add request config ([02f21ca](https://github.com/spider-all/spider-cplusplus/commit/02f21ca1a070cd35c7d3fc0a755e11a843fdc5b8))
+* Bulk upsert orgs ([54ecd9f](https://github.com/spider-all/spider-cplusplus/commit/54ecd9faa2bd5b35315d866b4dcd682c059ce790))
+* Add version function ([fef4e8d](https://github.com/spider-all/spider-cplusplus/commit/fef4e8db6ff9610b3a6a1edec6c1d07a72edfea7))
+* Add versions module ([1fb8acd](https://github.com/spider-all/spider-cplusplus/commit/1fb8acd42e3bde7eb0fcd3827d253aa4b65fbc9c))
+* Initialize crawler version ([5c3d0c6](https://github.com/spider-all/spider-cplusplus/commit/5c3d0c60839cab6d135edd2bef4b40c83f700dad))
 * Convert request type to string ([8bb841f](https://github.com/spider-all/spider-cplusplus/commit/8bb841fd7cd83ca9453538d7814be957e63a80dd))
 * Add crawler version ([915da04](https://github.com/spider-all/spider-cplusplus/commit/915da04a266d8ffc6f804ecab3de5195e7aa4296))
 * Add users repo ([6eeadac](https://github.com/spider-all/spider-cplusplus/commit/6eeadac3d0373c03fd27435e160ff7922aaf5b90))
+
+### Release version
+
+* Release v1.5.0 ([62eebca](https://github.com/spider-all/spider-cplusplus/commit/62eebca09798ab8b3703a1b602ffd604c7cf1fb9))
 
 ### Remove files
 
