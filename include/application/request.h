@@ -24,11 +24,11 @@
 
 #pragma once
 
-typedef struct ExtralData {
+typedef struct ExtraData {
   std::string user;
   std::string repo;
   std::string branch;
-} ExtralData;
+} ExtraData;
 
 typedef struct TrendingData {
   std::string seq;
@@ -39,7 +39,7 @@ typedef struct TrendingData {
 typedef struct RequestConfig {
   std::string host;
   std::string path;
-  ExtralData extral;
+  ExtraData extra;
   TrendingData trending;
   std::string response_type;
 } RequestConfig;
@@ -94,7 +94,7 @@ private:
   int request_license_list(const nlohmann::json &content, enum request_type type_from);
   int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
-  int request_repo_branches(nlohmann::json content, ExtralData extral, enum request_type type_from);
+  int request_repo_branches(nlohmann::json content, ExtraData extra, enum request_type type_from);
 
 public:
   Request(Config, Database *);
