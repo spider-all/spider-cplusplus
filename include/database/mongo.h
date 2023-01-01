@@ -19,6 +19,7 @@
 #include <spdlog/spdlog.h>
 
 #include <common.h>
+#include <const.h>
 #include <error.h>
 #include <versions.h>
 
@@ -47,9 +48,6 @@ private:
   Versions *versions;
 
   const int32_t sample_size = 100;
-
-  std::string keys_delimiter = ";";
-  std::string keys_value_delimiter = ":";
 
 public:
   explicit Mongo(const std::string &);

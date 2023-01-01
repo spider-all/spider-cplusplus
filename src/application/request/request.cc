@@ -237,6 +237,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       if (code != 0) {
         spdlog::error("Database with error: {}", code);
       }
+      break;
     case request_type_orgs_repos:
     case request_type_users_repos:
       code = this->request_repo_list(content, type_from);
@@ -245,7 +246,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       }
       break;
     case request_type_users_repos_branches:
-      code = this->request_repo_branches(content, request_config.extral, type_from);
+      code = this->request_repo_branches(content, request_config.extra, type_from);
       if (code != 0) {
         spdlog::error("Database with error: {}", code);
       }

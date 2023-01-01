@@ -59,7 +59,7 @@ int Mongo::upsert_repo_with_version(std::vector<Repo> repos, enum request_type t
 }
 
 std::vector<std::string> Mongo::list_repos_random(enum request_type type) {
-  return this->list_x_random("repos", "name:owner", type);
+  return this->list_x_random("repos", "name;owner", type);
 }
 
 int64_t Mongo::count_repo() {

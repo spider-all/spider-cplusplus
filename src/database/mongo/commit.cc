@@ -18,7 +18,9 @@ bsoncxx::document::value Mongo::make_commit(Commit commit) {
 
 int Mongo::upsert_commit(Commit commit) {
   bsoncxx::document::value doc = this->make_commit(commit);
-  bsoncxx::document::value filter = make_document(kvp("name", commit.owner), kvp("repo", commit.repo), kvp("branch", commit.branch));
+  bsoncxx::document::value filter = make_document(kvp("name", commit.owner),
+                                                  kvp("repo", commit.repo),
+                                                  kvp("branch", commit.branch));
   return this->upsert_x("commits", bsoncxx::to_json(filter), bsoncxx::to_json(doc));
 }
 
@@ -26,7 +28,9 @@ int Mongo::upsert_commit(std::vector<Commit> commits) {
   std::map<std::string, std::string> filters;
   for (auto commit : commits) {
     bsoncxx::document::value record = this->make_commit(commit);
-    bsoncxx::document::value filter = make_document(kvp("name", commit.owner), kvp("repo", commit.repo), kvp("branch", commit.branch));
+    bsoncxx::document::value filter = make_document(kvp("name", commit.owner),
+                                                    kvp("repo", commit.repo),
+                                                    kvp("branch", commit.branch));
     filters.insert(std::pair(bsoncxx::to_json(filter), bsoncxx::to_json(record)));
   }
   return this->upsert_x("commits", filters);

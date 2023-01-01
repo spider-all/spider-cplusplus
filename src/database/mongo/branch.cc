@@ -2,6 +2,7 @@
 
 bsoncxx::document::value Mongo::make_branch(Branch branch) {
   return make_document(
+      kvp("owner", branch.owner),
       kvp("repo", branch.repo),
       kvp("name", branch.name),
       kvp("commit", branch.commit));
@@ -19,6 +20,7 @@ int Mongo::upsert_branch(std::vector<Branch> branches) {
     bsoncxx::document::value record = this->make_branch(branch);
     bsoncxx::document::value filter = make_document(kvp("repo", branch.repo));
     filters.insert(std::pair(bsoncxx::to_json(filter), bsoncxx::to_json(record)));
+    spdlog::info("Upsert branch: {}", branch.name);
   }
   return this->upsert_x("branches", filters);
 }

@@ -124,9 +124,9 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
 
   std::vector<std::string> params{keys};
   std::string key = keys;
-  if (boost::algorithm::contains(keys, this->keys_delimiter)) {
-    key = keys.substr(0, keys.find(this->keys_delimiter));
-    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(this->keys_delimiter));
+  if (boost::algorithm::contains(keys, KEYS_DELIMITER)) {
+    key = keys.substr(0, keys.find(KEYS_DELIMITER));
+    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(KEYS_DELIMITER));
   }
 
   mongocxx::pipeline stages;
@@ -155,11 +155,11 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
       bool first = true;
       for (auto param : params) {
         std::string s;
-        if (boost::algorithm::contains(param, this->keys_value_delimiter)) {
+        if (boost::algorithm::contains(param, VALUE_DELIMITER)) {
           std::vector<std::string> param_list;
-          boost::algorithm::split(param_list, param, boost::algorithm::is_any_of(this->keys_value_delimiter));
+          boost::algorithm::split(param_list, param, boost::algorithm::is_any_of(VALUE_DELIMITER));
           if (param_list.size() != 2) {
-            spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
+            spdlog::error("Something mongodb error occurred: {}", "parameter is not correct1");
             return result;
           }
           auto doc_param = doc[param_list[0]];
@@ -174,7 +174,7 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
           } else if (param_list[1] == "int32") {
             s = std::to_string(doc_param.get_int32().value);
           } else {
-            spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
+            spdlog::error("Something mongodb error occurred, {}, type: {}", "parameter is not correct", param_list[1]);
             return result;
           }
         } else {
@@ -190,7 +190,7 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
           res = s;
           first = false;
         } else {
-          res += this->keys_delimiter + s;
+          res += KEYS_DELIMITER + s;
         }
       }
       result.push_back(res);
@@ -258,8 +258,8 @@ int Mongo::create_x_collection(const std::string &collection, std::string keys) 
     return EXIT_SUCCESS;
   }
   std::vector<std::string> params{keys};
-  if (boost::algorithm::contains(keys, this->keys_delimiter)) {
-    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(this->keys_delimiter));
+  if (boost::algorithm::contains(keys, KEYS_DELIMITER)) {
+    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(KEYS_DELIMITER));
   }
 
   try {
@@ -273,9 +273,9 @@ int Mongo::create_x_collection(const std::string &collection, std::string keys) 
     }
     auto doc = bsoncxx::builder::basic::document{};
     for (const auto &param : params) {
-      if (boost::algorithm::contains(param, this->keys_value_delimiter)) {
+      if (boost::algorithm::contains(param, VALUE_DELIMITER)) {
         std::vector<std::string> param_list;
-        boost::algorithm::split(param_list, param, boost::algorithm::is_any_of(this->keys_value_delimiter));
+        boost::algorithm::split(param_list, param, boost::algorithm::is_any_of(VALUE_DELIMITER));
         if (param_list.size() != 2) {
           spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
           return SQL_EXEC_ERROR;
@@ -285,12 +285,6 @@ int Mongo::create_x_collection(const std::string &collection, std::string keys) 
         doc.append(kvp(param, make_document(kvp("bsonType", "string"), kvp("description", "must be a string and is required"))));
       }
     }
-    // mongocxx::options::create_collection create_collection_options;
-    // mongocxx::validation_criteria validation_criteria;
-    // validation_criteria.rule(doc.view());
-    // validation_criteria.level(mongocxx::validation_criteria::validation_level::k_strict);
-    // validation_criteria.action(mongocxx::validation_criteria::validation_action::k_error);
-    // create_collection_options.validation_criteria(validation_criteria);
     auto collection_options = make_document(kvp("validationLevel", "strict"), kvp("validationAction", "error"), kvp("validator", doc.view()));
     database.create_collection(collection, collection_options.view());
   } catch (const std::exception &e) {

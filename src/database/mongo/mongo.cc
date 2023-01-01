@@ -19,6 +19,7 @@ int Mongo::initialize() {
     spdlog::error("Something mongodb error occurred: {}", e.what());
     return DATABASE_OPEN_ERROR;
   }
+  WRAP_FUNC(this->create_collections())
   return this->initialize_version();
 }
 
