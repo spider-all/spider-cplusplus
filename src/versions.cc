@@ -7,7 +7,7 @@ int Versions::initialize(mongocxx::cursor cursor) {
     try {
       if ((type && type.type() == bsoncxx::type::k_utf8) &&
           (version && version.type() == bsoncxx::type::k_int64)) {
-        std::string type_string(type.get_utf8().value.data());
+        std::string type_string(type.get_string().value);
         if (type_string == this->to_string(request_type_followers)) {
           this->followers_version = version.get_int64().value;
         } else if (type_string == this->to_string(request_type_following)) {
