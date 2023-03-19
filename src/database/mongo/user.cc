@@ -37,7 +37,7 @@ std::vector<User> Mongo::list_usersx(common_args args) {
     GET_CONNECTION(this->uri->database(), "users")
     mongocxx::cursor _val = coll.find(bsoncxx::document::view{});
     for (auto &&doc : _val) {
-      std::cout << doc["login"].get_utf8().value << "\n";
+      std::cout << doc["login"].get_string().value << "\n";
     }
   } catch (const std::exception &e) {
     spdlog::error("Something mongodb error occurred: {}", e.what());
