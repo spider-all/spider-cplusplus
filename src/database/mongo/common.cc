@@ -164,7 +164,7 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
           }
           auto doc_param = doc[param_list[0]];
           if (param_list[1] == "string") {
-            s = doc_param.get_utf8().value.to_string();
+            s = doc_param.get_string().value;
           } else if (param_list[1] == "int") {
             s = std::to_string(doc_param.get_int64().value);
           } else if (param_list[1] == "double") {
@@ -180,7 +180,7 @@ std::vector<std::string> Mongo::list_x_random(const std::string &collection, std
         } else {
           auto doc_param = doc[param];
           if (doc_param.type() == bsoncxx::type::k_utf8) {
-            s = doc_param.get_utf8().value.to_string();
+            s = doc_param.get_string().value;
           } else {
             spdlog::error("Something mongodb error occurred: {}", "parameter is not correct");
             return result;
@@ -212,7 +212,7 @@ int Mongo::ensure_index(const std::string &collection, std::vector<std::string> 
     GET_CONNECTION(this->uri->database(), collection)
     auto cursor = coll.list_indexes();
     for (auto &&doc : cursor) {
-      if (doc["name"].get_utf8().value.to_string() == name) {
+      if (doc["name"].get_string().value == name) {
         spdlog::info("Collection {} index {} already exists", collection, name);
         return EXIT_SUCCESS;
       }
@@ -227,7 +227,7 @@ int Mongo::ensure_index(const std::string &collection, std::vector<std::string> 
     auto result = coll.create_index(doc.view(), index_options);
     auto result_view = result.view();
     if (result_view.find("name") != result_view.end()) {
-      spdlog::info("Collection {} create index {} success", collection, result_view["name"].get_utf8().value.to_string());
+      spdlog::info("Collection {} create index {} success", collection, result_view["name"].get_string().value);
       return EXIT_SUCCESS;
     }
   } catch (const std::exception &e) {
@@ -266,7 +266,7 @@ int Mongo::create_x_collection(const std::string &collection, std::string keys) 
     GET_CONNECTION_RAW(this->uri->database())
     auto cursor = database.list_collections();
     for (auto &&doc : cursor) {
-      if (doc["name"].get_utf8().value.to_string() == collection) {
+      if ((std::string)(doc["name"].get_string().value) == collection) {
         spdlog::info("Collection {} already exists", collection);
         return EXIT_SUCCESS;
       }

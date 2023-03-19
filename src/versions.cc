@@ -7,7 +7,7 @@ int Versions::initialize(mongocxx::cursor cursor) {
     try {
       if ((type && type.type() == bsoncxx::type::k_utf8) &&
           (version && version.type() == bsoncxx::type::k_int64)) {
-        std::string type_string(type.get_utf8().value.data());
+        std::string type_string(type.get_string().value);
         if (type_string == this->to_string(request_type_followers)) {
           this->followers_version = version.get_int64().value;
         } else if (type_string == this->to_string(request_type_following)) {
@@ -55,7 +55,7 @@ int64_t Versions::get(enum request_type type) {
   } else if (type == request_type_users_repos_branches) {
     version = this->users_repos_branches_version;
   } else {
-    spdlog::error("unknown request type {}", type);
+    spdlog::error("unknown request type {}", static_cast<int>(type));
   }
   return version;
 }
@@ -90,7 +90,7 @@ int64_t Versions::incr(enum request_type type) {
     this->users_repos_branches_version++;
     version = this->users_repos_branches_version;
   } else {
-    spdlog::error("unknown request type {}", type);
+    spdlog::error("unknown request type {}", static_cast<int>(type));
   }
   return version;
 }
@@ -116,7 +116,7 @@ std::string Versions::to_string(enum request_type type) {
   case request_type_users_repos_branches:
     return "users_repos_branches";
   default:
-    spdlog::error("unknown request type {}", type);
+    spdlog::error("unknown request type {}", static_cast<int>(type));
     return "Unknown type";
   }
 }

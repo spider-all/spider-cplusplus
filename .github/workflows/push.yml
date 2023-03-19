@@ -9,11 +9,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Log in to the Container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: tosone
@@ -21,8 +21,8 @@ jobs:
       - name: Set env
         id: vars
         run: |
-          echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
-          echo "::set-output name=tag::$(cat VERSION | tr -d '')"
+          echo "date=$(date +'%Y%m%d%H%M')" >> $GITHUB_OUTPUT
+          echo "tag=$(cat VERSION | tr -d '')" >> $GITHUB_OUTPUT
       - name: Compile base docker image
         run: |
           if [[ "${{ github.event.head_commit.message }}" =~ ^:heavy_plus_sign:.*|^:arrow_up:.*|^:heavy_minus_sign:.*|^:arrow_down:.* ]]; then
