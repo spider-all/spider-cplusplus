@@ -252,7 +252,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       }
       break;
     default:
-      SPDLOG_INFO("Unknown request type: {}", type);
+      SPDLOG_INFO("Unknown request type: {}", static_cast<int>(type));
       return UNKNOWN_REQUEST_TYPE;
     }
   }

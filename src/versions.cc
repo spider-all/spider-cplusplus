@@ -55,7 +55,7 @@ int64_t Versions::get(enum request_type type) {
   } else if (type == request_type_users_repos_branches) {
     version = this->users_repos_branches_version;
   } else {
-    spdlog::error("unknown request type {}", type);
+    spdlog::error("unknown request type {}", static_cast<int>(type));
   }
   return version;
 }
@@ -90,7 +90,7 @@ int64_t Versions::incr(enum request_type type) {
     this->users_repos_branches_version++;
     version = this->users_repos_branches_version;
   } else {
-    spdlog::error("unknown request type {}", type);
+    spdlog::error("unknown request type {}", static_cast<int>(type));
   }
   return version;
 }
@@ -116,7 +116,7 @@ std::string Versions::to_string(enum request_type type) {
   case request_type_users_repos_branches:
     return "users_repos_branches";
   default:
-    spdlog::error("unknown request type {}", type);
+    spdlog::error("unknown request type {}", static_cast<int>(type));
     return "Unknown type";
   }
 }

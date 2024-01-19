@@ -24,10 +24,13 @@ find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
 
 find_package(yaml-cpp CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE yaml-cpp)
+target_link_libraries(spider PRIVATE yaml-cpp::yaml-cpp)
 
 find_package(OpenSSL REQUIRED)
 target_link_libraries(spider PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+include_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/bsoncxx/v_noabi)
+include_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/mongocxx/v_noabi)
 
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongocxx-static.a)
 target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-static-1.0.a)
@@ -49,7 +52,7 @@ find_package(fmt CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE fmt::fmt-header-only)
 
 find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE spdlog::spdlog)
+target_link_libraries(spider PRIVATE spdlog::spdlog_header_only)
 
 find_package(CURL CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE CURL::libcurl)
