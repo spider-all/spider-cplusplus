@@ -8,8 +8,7 @@ WORKDIR /app
 
 COPY --from=base /app/pkgs /pkgs
 
-RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list && \
-  sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
+RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends sudo ccache cmake libsasl2-dev jq && \
   rm -rf /var/lib/apt/lists/* && \
