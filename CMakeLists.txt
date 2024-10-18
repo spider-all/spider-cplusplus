@@ -66,9 +66,12 @@ target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
 find_package(croncpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE croncpp::croncpp)
 
+find_package(unofficial-utf8proc CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE utf8proc)
+
 target_include_directories(spider PRIVATE include)
 
-target_link_libraries(spider PRIVATE stdc++ pthread dl)
+# target_link_libraries(spider PRIVATE stdc++ pthread dl)
 
 if (UNIX AND NOT APPLE)
   target_link_libraries(spider PRIVATE rt stdc++fs)
@@ -88,6 +91,8 @@ function(spider_test)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-static-1.0.a)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE utf8proc)
+  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE CLI11::CLI11)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE sasl2)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE resolv)
   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)

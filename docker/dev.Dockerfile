@@ -2,7 +2,7 @@ ARG SPIDER_VERSION=v1.6.5
 
 FROM ghcr.io/spider-all/spider-cplusplus:${SPIDER_VERSION}-base as base
 
-FROM buildpack-deps:stable
+FROM buildpack-deps:bookworm
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends sudo ccache 
   wget -O /usr/bin/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2023-03-14/vcpkg-muslc && \
   chmod +x /usr/bin/vcpkg
 
-RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.5/zsh-in-docker.sh)" -- \
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
     -t robbyrussell -p git -p 'history-substring-search' \
     -a 'bindkey "\$terminfo[kcuu1]" history-substring-search-up' \
     -a 'bindkey "\$terminfo[kcud1]" history-substring-search-down' \
