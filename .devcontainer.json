@@ -1,6 +1,6 @@
 {
   "build": {
-    "dockerfile": "Dockerfile.dev"
+    "dockerfile": "./docker/dev.Dockerfile"
   },
   "customizations": {
     "vscode": {
@@ -10,7 +10,5 @@
       ]
     }
   },
-  "containerEnv": {
-    "VCPKG_DIR": "/"
-  }
+  "onCreateCommand": "[ -d /workspaces/spider-cplusplus/pkgs ] && rm -rf /workspaces/spider-cplusplus/pkgs; cp -r /pkgs pkgs"
 }

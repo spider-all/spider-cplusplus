@@ -1,7 +1,6 @@
 deps        = $(shell jq --raw-output '.deps | join(" ")' deps.json | tr -d "")
 export_deps = $(shell jq --raw-output '.export | join(" ")' deps.json | tr -d "")
 version     = $(shell cat VERSION | tr -d "")
-vcpkg      ?= vcpkg
 
 BUILD_OUTPUT = build
 
@@ -17,8 +16,7 @@ release debug:
 
 .PHONY: deps
 deps:
-	$(vcpkg) install $(deps)
-	$(vcpkg) export --raw --output=pkgs --output-dir=. $(export_deps)
+	vcpkg install $(deps) && vcpkg export --raw --output=pkgs --output-dir=. $(export_deps)
 
 .PHONY: image
 image:

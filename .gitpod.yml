@@ -1,6 +1,6 @@
 checkoutLocation: spider-cplusplus
 image:
-  file: Dockerfile.dev
+  file: docker/dev.Dockerfile
   context: .
 tasks:
   - name: "deps"

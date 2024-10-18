@@ -1,19 +1,17 @@
-ARG SPIDER_VERSION
+FROM ghcr.io/spider-all/spider-cplusplus:base-20241028 AS base
 
-FROM ghcr.io/spider-all/spider-cplusplus:${SPIDER_VERSION}-base as base
-
-FROM buildpack-deps:stable as builder
+FROM docker.io/library/buildpack-deps:bookworm AS builder
 
 WORKDIR /app
 
 COPY . .
-COPY --from=base /app/pkgs ./pkgs
+COPY --from=base /pkgs ./pkgs
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends jq cmake libsasl2-dev && \
   rm -rf /var/lib/apt/lists/* && \
   make release
 
-FROM debian:bullseye-slim
+FROM docker.io/library/debian:bookworm-slim
 
 ENV TZ=Asia/Shanghai
 
