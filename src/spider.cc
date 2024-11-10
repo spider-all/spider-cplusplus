@@ -10,7 +10,7 @@
 
 #include <application/request.h>
 #include <application/server.h>
-#include <database/mongo.h>
+#include <database/sqlite3.h>
 
 bool keep_running = true; // test keep running
 
@@ -21,9 +21,18 @@ void callback(int) {
 
 Database *switcher(const Config &config) {
   Database *ret = nullptr;
-  if (config.database_type == DATABASE_MONGODB) {
-    ret = new Mongo(config.database_mongodb_dsn);
+  if (config.database_type == DATABASE_SQLITE3) {
+    ret = new SQLite3(config.database_mongodb_dsn);
   }
+  // else if (config.database_type == DATABASE_LEVELDB) {
+  //   ret = new Level(config.database_leveldb_path);
+  // } else if (config.database_type == DATABASE_MONGODB) {
+  //   ret = new Mongo(config.database_mongodb_dsn);
+  // } else if (config.database_type == DATABASE_POSTGRESQL) {
+  //   ret = new Postgres(config.database_postgresql_dsn);
+  // } else if (config.database_type == DATABASE_MYSQL) {
+  //   ret = new MySQL(config.database_mysql_host, config.database_mysql_user, config.database_mysql_password, config.database_mysql_db, config.database_mysql_port);
+  // }
   if (ret == nullptr) {
     return nullptr;
   }
@@ -84,20 +93,20 @@ int main(int argc, char const *argv[]) {
     keep_running = false;
   }
 
-  Application *server = new Server(config, database);
+  // Application *server = new Server(config, database);
 
-  code = server->startup();
-  if (code != 0) {
-    spdlog::error("Server startup got error: {}", code);
-    keep_running = false;
-  }
+  // code = server->startup();
+  // if (code != 0) {
+  //   spdlog::error("Server startup got error: {}", code);
+  //   keep_running = false;
+  // }
 
   while (keep_running) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200)); // run loop
   }
 
   delete request;
-  delete server;
+  // delete server;
   delete database;
 
   spdlog::info("All of applications stopped...");

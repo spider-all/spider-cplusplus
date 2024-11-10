@@ -2,7 +2,7 @@
 
 int Request::startup_info() {
   semaphore++;
-  std::thread info_thread([=, this]() {
+  std::thread info_thread([this]() {
     spdlog::info("Info thread is starting...");
     int checker = 0;
     while (!stopping) {

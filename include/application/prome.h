@@ -1,28 +1,28 @@
-#include <iostream>
+// #include <iostream>
 
-#include <prometheus/counter.h>
-#include <prometheus/exposer.h>
-#include <prometheus/registry.h>
+// #include <prometheus/counter.h>
+// #include <prometheus/exposer.h>
+// #include <prometheus/registry.h>
 
-#include <config.h>
+// #include <config.h>
 
-#include <application.h>
-#include <database.h>
+// #include <application.h>
+// #include <database.h>
 
-#pragma once
+// #pragma once
 
-class Prome : public Application {
-private:
-  Config config;
-  Database *database;
+// class Prome : public Application {
+// private:
+//   Config config;
+//   Database *database;
 
-  int semaphore = 0; // 执行过程中的信号量
-  bool stopping = false;
+//   int semaphore = 0; // 执行过程中的信号量
+//   bool stopping = false;
 
-  prometheus::Exposer *exposer{};
+//   prometheus::Exposer *exposer{};
 
-public:
-  Prome(Config, Database *);
-  ~Prome() override;
-  int startup() override;
-};
+// public:
+//   Prome(Config, Database *);
+//   ~Prome() override;
+//   int startup() override;
+// };

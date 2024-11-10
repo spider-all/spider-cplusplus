@@ -3,7 +3,7 @@
 int Request::startup_repos_branches_commits() {
   if (this->config.crawler_type_users_repos_branches_commits) {
     this->semaphore++;
-    std::thread users_repos_branches_commits_thread([=, this]() {
+    std::thread users_repos_branches_commits_thread([this]() {
       spdlog::info("Users repos branches commits thread is starting...");
       while (!stopping) {
         std::vector<std::string> branches = database->list_branches_random(request_type_users_repos);

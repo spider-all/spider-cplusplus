@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.8...3.10.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 20)
@@ -10,8 +10,14 @@ add_definitions(-DSPIDER_VERSION=${SPIDER_VERSION})
 
 project(spider)
 
-FILE(GLOB source src/*.cc src/application/*.cc src/application/request/*.cc src/database/mongo/*.cc)
+FILE(GLOB source src/*.cc src/application/*.cc src/application/request/*.cc src/database/*.cc)
 add_executable(spider ${source})
+
+if (UNIX AND NOT APPLE)
+  target_link_libraries(spider PRIVATE stdc++fs)
+endif ()
+
+# target_link_libraries(spider PRIVATE stdc++ pthread dl)
 
 if (CMAKE_BUILD_TYPE STREQUAL release)
   add_custom_command(TARGET spider POST_BUILD COMMAND strip spider)
@@ -29,24 +35,27 @@ target_link_libraries(spider PRIVATE yaml-cpp::yaml-cpp)
 find_package(OpenSSL REQUIRED)
 target_link_libraries(spider PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
-include_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/bsoncxx/v_noabi)
-include_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/mongocxx/v_noabi)
+# include_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/bsoncxx/v_noabi)
+# include_directories(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/mongocxx/v_noabi)
 
-target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongocxx-static.a)
-target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-static-1.0.a)
-target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
-target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
+# target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongocxx-static.a)
+# target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-static-1.0.a)
+# target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
+# target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
 
-target_link_libraries(spider PRIVATE sasl2)
-target_link_libraries(spider PRIVATE resolv)
+# target_link_libraries(spider PRIVATE sasl2)
+# target_link_libraries(spider PRIVATE resolv)
 
-target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
+# target_link_libraries(spider PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
+
+# find_package(libpqxx CONFIG REQUIRED)
+# target_link_libraries(spider PRIVATE libpqxx::pqxx)
 
 find_package(libfort CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE libfort::fort)
 
-find_package(ZLIB REQUIRED)
-target_link_libraries(spider PRIVATE ZLIB::ZLIB)
+# find_package(ZLIB REQUIRED)
+# target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE fmt::fmt-header-only)
@@ -54,28 +63,37 @@ target_link_libraries(spider PRIVATE fmt::fmt-header-only)
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE spdlog::spdlog_header_only)
 
+find_package(SQLiteCpp CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE SQLiteCpp)
+
 find_package(CURL CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE CURL::libcurl)
 
-find_path(CPP_HTTPLIB_INCLUDE_DIRS "httplib.h")
-target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
+# find_path(CPP_HTTPLIB_INCLUDE_DIRS "httplib.h")
+# target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
 
-find_package(prometheus-cpp CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
+# find_package(leveldb CONFIG REQUIRED)
+# target_link_libraries(spider PRIVATE leveldb::leveldb)
+
+# find_package(libmysql REQUIRED)
+# target_link_libraries(spider PRIVATE ${MYSQL_LIBRARIES})
+
+# find_package(prometheus-cpp CONFIG REQUIRED)
+# target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
 
 find_package(croncpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE croncpp::croncpp)
 
-find_package(unofficial-utf8proc CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE utf8proc)
+# find_package(unofficial-utf8proc CONFIG REQUIRED)
+# target_link_libraries(spider PRIVATE utf8proc)
 
 target_include_directories(spider PRIVATE include)
 
 # target_link_libraries(spider PRIVATE stdc++ pthread dl)
 
-if (UNIX AND NOT APPLE)
-  target_link_libraries(spider PRIVATE rt stdc++fs)
-endif ()
+# if (UNIX AND NOT APPLE)
+#   target_link_libraries(spider PRIVATE rt stdc++fs)
+# endif ()
 
 if (APPLE)
   target_link_libraries(spider PRIVATE "-framework CoreFoundation")
@@ -84,51 +102,51 @@ endif ()
 
 find_package(GTest CONFIG REQUIRED)
 
-function(spider_test)
-  cmake_parse_arguments(PARSED_ARGS "" "NAME" "SRCS" ${ARGN})
-  add_executable(${PARSED_ARGS_NAME} ${PARSED_ARGS_SRCS})
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongocxx-static.a)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-static-1.0.a)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE utf8proc)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE CLI11::CLI11)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE sasl2)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE resolv)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ZLIB::ZLIB)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE fmt::fmt-header-only)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE spdlog::spdlog)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE croncpp::croncpp)
-  if (UNIX AND NOT APPLE)
-    target_link_libraries(${PARSED_ARGS_NAME} PRIVATE rt stdc++fs)
-  endif ()
-  if (APPLE)
-    target_link_libraries(${PARSED_ARGS_NAME} PRIVATE "-framework CoreFoundation")
-    target_link_libraries(${PARSED_ARGS_NAME} PRIVATE "-framework Security")
-  endif ()
-  target_include_directories(${PARSED_ARGS_NAME} PRIVATE include)
-endfunction()
+# function(spider_test)
+#   cmake_parse_arguments(PARSED_ARGS "" "NAME" "SRCS" ${ARGN})
+#   add_executable(${PARSED_ARGS_NAME} ${PARSED_ARGS_SRCS})
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongocxx-static.a)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libmongoc-static-1.0.a)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbsoncxx-static.a)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libbson-static-1.0.a)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE utf8proc)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE CLI11::CLI11)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE sasl2)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE resolv)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libzstd.a)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE ZLIB::ZLIB)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE fmt::fmt-header-only)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE spdlog::spdlog)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+#   target_link_libraries(${PARSED_ARGS_NAME} PRIVATE croncpp::croncpp)
+#   if (UNIX AND NOT APPLE)
+#     target_link_libraries(${PARSED_ARGS_NAME} PRIVATE rt stdc++fs)
+#   endif ()
+#   if (APPLE)
+#     target_link_libraries(${PARSED_ARGS_NAME} PRIVATE "-framework CoreFoundation")
+#     target_link_libraries(${PARSED_ARGS_NAME} PRIVATE "-framework Security")
+#   endif ()
+#   target_include_directories(${PARSED_ARGS_NAME} PRIVATE include)
+# endfunction()
 
-if (NOT CMAKE_BUILD_TYPE STREQUAL release)
-  FILE(GLOB test_list_x_random test/list_x_random.cc src/database/mongo/*.cc src/versions.cc)
-  spider_test(
-    NAME test_list_x_random
-    SRCS ${test_list_x_random}
-  )
-  FILE(GLOB test_ensure_index test/ensure_index.cc src/database/mongo/*.cc src/versions.cc)
-  spider_test(
-    NAME test_ensure_index
-    SRCS ${test_ensure_index}
-  )
-  FILE(GLOB test_create_x_collection test/create_x_collection.cc src/database/mongo/*.cc src/versions.cc)
-  spider_test(
-    NAME test_create_x_collection
-    SRCS ${test_create_x_collection}
-  )
-endif()
+# if (NOT CMAKE_BUILD_TYPE STREQUAL release)
+#   FILE(GLOB test_list_x_random test/list_x_random.cc src/database/mongo/*.cc src/versions.cc)
+#   spider_test(
+#     NAME test_list_x_random
+#     SRCS ${test_list_x_random}
+#   )
+#   FILE(GLOB test_ensure_index test/ensure_index.cc src/database/mongo/*.cc src/versions.cc)
+#   spider_test(
+#     NAME test_ensure_index
+#     SRCS ${test_ensure_index}
+#   )
+#   FILE(GLOB test_create_x_collection test/create_x_collection.cc src/database/mongo/*.cc src/versions.cc)
+#   spider_test(
+#     NAME test_create_x_collection
+#     SRCS ${test_create_x_collection}
+#   )
+# endif()
 
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")

@@ -7,17 +7,14 @@
     "spdlog",
     "nlohmann-json",
     "curl[ssl]",
-    "cpp-httplib",
     "cli11",
-    "mongo-cxx-driver",
-    "zstd",
     "libfort",
     "prometheus-cpp[pull]",
     "boost-algorithm",
     "boost-random",
     "gtest",
-    "croncpp",
-    "utf8proc"
+    "sqlitecpp",
+    "sqlite3"
   ],
   "export": [
     "zlib",
@@ -27,16 +24,13 @@
     "spdlog",
     "nlohmann-json",
     "curl",
-    "cpp-httplib",
     "cli11",
-    "mongo-cxx-driver",
-    "zstd",
     "libfort",
     "prometheus-cpp",
     "boost-algorithm",
     "boost-random",
     "gtest",
-    "croncpp",
-    "utf8proc"
+    "sqlitecpp",
+    "sqlite3"
   ]
 }

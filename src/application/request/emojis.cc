@@ -3,7 +3,7 @@
 int Request::startup_emojis() {
   if (this->config.crawler_type_emojis) {
     this->semaphore++;
-    std::thread emojis_thread([=, this]() {
+    std::thread emojis_thread([this]() {
       spdlog::info("Emoji thread is starting...");
       RequestConfig request_config{
           .host = this->default_url_prefix,

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <mongocxx/client.hpp>
+// #include <mongocxx/client.hpp>
 #include <spdlog/spdlog.h>
 
 #include <model.h>
@@ -24,5 +24,5 @@ public:
   int64_t incr(enum request_type type);
   std::string to_string(enum request_type type);
 
-  int initialize(mongocxx::cursor cursor);
+  // int initialize(mongocxx::cursor cursor);
 };

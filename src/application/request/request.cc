@@ -160,21 +160,20 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     }
 
     try {
-      nlohmann::json::parser_callback_t cb =
-          [=](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
-            if (event == nlohmann::json::parse_event_t::key) {
-              std::string str = parsed.dump();
-              str.erase(str.begin(), str.begin() + 1);
-              str.erase(str.end() - 1, str.end());
-              if (boost::algorithm::ends_with(str, "_url") or str == "url") {
-                return false;
-              }
-            } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
-              parsed = nlohmann::json("");
-              return true;
-            }
-            return true;
-          };
+      nlohmann::json::parser_callback_t cb = [](int /*depth*/, nlohmann::json::parse_event_t event, nlohmann::json &parsed) {
+        if (event == nlohmann::json::parse_event_t::key) {
+          std::string str = parsed.dump();
+          str.erase(str.begin(), str.begin() + 1);
+          str.erase(str.end() - 1, str.end());
+          if (boost::algorithm::ends_with(str, "_url") or str == "url") {
+            return false;
+          }
+        } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
+          parsed = nlohmann::json("");
+          return true;
+        }
+        return true;
+      };
       content = nlohmann::json::parse(response->body, cb);
     } catch (nlohmann::detail::parse_error &e) {
       spdlog::error("Request {} got error: {}", request_config.path, e.what());

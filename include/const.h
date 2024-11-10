@@ -2,7 +2,7 @@
 
 #pragma once
 
-const std::string DATABASE_MONGODB = "mongodb";
+const std::string DATABASE_SQLITE3 = "sqlite3";
 
 const int DEFAULT_SLEEP_EACH_REQUEST = 1000;
 

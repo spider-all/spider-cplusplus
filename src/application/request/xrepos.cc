@@ -3,7 +3,7 @@
 int Request::startup_xrepos() {
   if (config.crawler_type_users_repos) {
     semaphore++;
-    std::thread users_repos_thread([=, this]() {
+    std::thread users_repos_thread([this]() {
       spdlog::info("Users repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_users_repos);
@@ -30,7 +30,7 @@ int Request::startup_xrepos() {
 
   if (config.crawler_type_orgs_repos) {
     semaphore++;
-    std::thread orgs_repos_thread([=, this]() {
+    std::thread orgs_repos_thread([this]() {
       spdlog::info("Repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_orgs_random(request_type_orgs_repos);
