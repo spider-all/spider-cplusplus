@@ -17,8 +17,9 @@ crawler:
   emojis: true
   gitignore_list: true
   license_list: true
+  events: true
 
 database:
-  type: mongodb
-  mongodb:
-    dsn: ""
+  type: duckdb
+  duckdb:
+    path: "/tmp/spider.duckdb"

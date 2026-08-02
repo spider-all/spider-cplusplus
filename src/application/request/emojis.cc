@@ -3,17 +3,17 @@
 int Request::startup_emojis() {
   if (this->config.crawler_type_emojis) {
     this->semaphore++;
-    std::thread emojis_thread([=, this]() {
-      spdlog::info("Emoji thread is starting...");
+    std::thread emojis_thread([=]() {
+      spdlog::info("emoji thread is starting...");
       RequestConfig request_config{
           .host = this->default_url_prefix,
           .path = "/emojis",
       };
       int code = request(request_config, request_type_emoji, request_type_emoji);
       if (code != 0) {
-        spdlog::error("Request url: {} with error: {}", request_config.path, code);
+        spdlog::error("request url: {} with error: {}", request_config.path, code);
       }
-      spdlog::info("Emoji thread stopped");
+      spdlog::info("emoji thread stopped");
       semaphore--;
     });
     emojis_thread.detach();

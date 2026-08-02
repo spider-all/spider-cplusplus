@@ -12,7 +12,7 @@ COPY . code
 
 RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources && \
   apt-get update -y && apt-get install -y --no-install-recommends \
-  bison flex cmake unzip zip wget jq git ninja-build && \
+  bison flex cmake unzip zip wget git ninja-build && \
   rm -rf /var/lib/apt/lists/* && \
   git config --global advice.detachedHead false && \
   git clone https://github.com/microsoft/vcpkg-tool vcpkg-tool --depth 1 --branch ${VCPKG_TOOL_VERSION} --single-branch && \
@@ -22,4 +22,5 @@ RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.
 
 FROM scratch
 
-COPY --from=0 /workspace/code/pkgs /pkgs
+COPY --from=0 /workspace/code/vcpkg_installed /vcpkg_installed
+COPY --from=0 /workspace/vcpkg/scripts /vcpkg/scripts

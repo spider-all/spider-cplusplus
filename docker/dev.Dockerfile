@@ -4,11 +4,14 @@ FROM docker.io/library/buildpack-deps:bookworm
 
 WORKDIR /app
 
-COPY --from=base /pkgs /pkgs
+COPY --from=base /vcpkg_installed /app/vcpkg_installed
+COPY --from=base /vcpkg/scripts /app/vcpkg/scripts
+
+ENV VCPKG_ROOT=/app/vcpkg
 
 RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends sudo ccache cmake libsasl2-dev jq && \
+RUN apt-get update -y && apt-get install -y --no-install-recommends sudo ccache cmake libsasl2-dev && \
   rm -rf /var/lib/apt/lists/* && \
   wget -O /usr/bin/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2023-03-14/vcpkg-muslc && \
   chmod +x /usr/bin/vcpkg

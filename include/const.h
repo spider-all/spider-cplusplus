@@ -2,7 +2,7 @@
 
 #pragma once
 
-const std::string DATABASE_MONGODB = "mongodb";
+const std::string DATABASE_DUCKDB = "duckdb";
 
 const int DEFAULT_SLEEP_EACH_REQUEST = 1000;
 

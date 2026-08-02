@@ -3,17 +3,17 @@
 int Request::startup_license() {
   if (config.crawler_type_license_list) {
     semaphore++;
-    std::thread license_list_thread([=, this]() {
-      spdlog::info("License list thread is starting...");
+    std::thread license_list_thread([=]() {
+      spdlog::info("license list thread is starting...");
       RequestConfig request_config{
           .host = this->default_url_prefix,
           .path = "/licenses",
       };
       int code = request(request_config, request_type_license_list, request_type_license_list);
       if (code != 0) {
-        spdlog::error("Request url: {} with error: {}", request_config.path, code);
+        spdlog::error("request url: {} with error: {}", request_config.path, code);
       }
-      spdlog::info("License list thread stopped");
+      spdlog::info("license list thread stopped");
       semaphore--;
     });
     license_list_thread.detach();

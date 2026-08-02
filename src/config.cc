@@ -20,22 +20,11 @@ int Config::initialize(const std::string &config_path) {
       crawler_sleep_each_request = DEFAULT_SLEEP_EACH_REQUEST;
     }
 
-    if (config["database"]) {
-      if (config["database"]["type"]) {
-        database_type = config["database"]["type"].as<std::string>();
-      }
-      if (database_type == DATABASE_MONGODB) {
-        if (config["database"][DATABASE_MONGODB] && config["database"][DATABASE_MONGODB]["dsn"]) {
-          database_mongodb_dsn = config["database"][DATABASE_MONGODB]["dsn"].as<std::string>();
-        }
-      }
+    if (config["database"] && config["database"][DATABASE_DUCKDB] && config["database"][DATABASE_DUCKDB]["path"]) {
+      database_duckdb_path = config["database"][DATABASE_DUCKDB]["path"].as<std::string>();
     }
-
-    if (database_mongodb_dsn == "") {
-      database_mongodb_dsn = this->getenv("DATABASE_MONGODB_DSN");
-    }
-    if (database_type == "") {
-      database_type = this->getenv("DATABASE_TYPE");
+    if (database_duckdb_path == "") {
+      database_duckdb_path = this->getenv("DATABASE_DUCKDB_PATH");
     }
 
     auto crawler = config["crawler"];
@@ -72,6 +61,9 @@ int Config::initialize(const std::string &config_path) {
       }
       if (crawler["license_list"]) {
         this->crawler_type_license_list = crawler["license_list"].as<bool>();
+      }
+      if (crawler["events"]) {
+        this->crawler_type_events = crawler["events"].as<bool>();
       }
     }
 

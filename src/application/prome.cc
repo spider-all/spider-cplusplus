@@ -15,12 +15,12 @@ Prome::~Prome() {
     }
   }
 
-  spdlog::info("Prometheus expoter stopped...");
+  spdlog::info("Prometheus exporter stopped...");
 }
 
 int Prome::startup() {
   semaphore++;
-  std::thread prome_thread([=, this]() {
+  std::thread prome_thread([=]() {
     exposer = new prometheus::Exposer("0.0.0.0:8080");
     auto registry = std::make_shared<prometheus::Registry>();
     auto &packet_counter = prometheus::BuildCounter()

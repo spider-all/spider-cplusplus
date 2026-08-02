@@ -14,11 +14,11 @@ Request::~Request() {
     }
   }
 
-  SPDLOG_INFO("Spider stopped...");
+  spdlog::info("spider stopped...");
 }
 
 int Request::startup() {
-  SPDLOG_INFO("Spider is running...");
+  spdlog::info("spider is running...");
   RequestConfig request_config{
       .host = this->default_url_prefix,
       .path = "/users/" + config.crawler_entry_username,
@@ -38,6 +38,7 @@ int Request::startup() {
   WRAP_FUNC(this->startup_xrepos())
   WRAP_FUNC(this->startup_repos_branches())
   WRAP_FUNC(this->startup_repos_branches_commits())
+  WRAP_FUNC(this->startup_events())
 
   return EXIT_SUCCESS;
 }
@@ -47,7 +48,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     return EXIT_SUCCESS;
   }
 
-  SPDLOG_INFO("Crawler url: {}{}", request_config.host, request_config.path);
+  spdlog::info("Crawler url: {}{}", request_config.host, request_config.path);
 
   std::string _useragent = USERAGENT;
   if (!config.crawler_useragent.empty()) {
@@ -92,7 +93,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     response = client.Get(request_config.path.c_str(), headers);
   } catch (const std::exception &e) {
     this->request_locker.unlock();
-    spdlog::error("Request with error: {}, {}", request_config.path, e.what());
+    spdlog::error("request with error: {}, {}", request_config.path, e.what());
     return REQUEST_ERROR;
   }
   this->request_locker.unlock();
@@ -117,19 +118,19 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
 
   if (rate_limit_remaining % 10 == 0) {
-    SPDLOG_INFO("Rate limit: {}/{}", rate_limit_remaining, rate_limit_limit);
+    spdlog::info("rate limit: {}/{}", rate_limit_remaining, rate_limit_limit);
     std::time_t result = rate_limit_reset;
     char buffer[32];
     std::strftime(buffer, 32, "%Y/%m/%d %H:%M:%S", std::localtime(&result));
-    SPDLOG_INFO("Rate limit reset at: {}", buffer);
+    spdlog::info("rate limit reset at: {}", buffer);
   }
 
   if (response->status == 403) {
     auto now = std::chrono::system_clock::now();
     auto current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
-    SPDLOG_INFO("Wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
-    SPDLOG_INFO("Change token to next and retry");
+    spdlog::info("wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
+    spdlog::info("Change token to next and retry");
     token_index++;
     token_index = token_index % config.crawler_token.size();
     std::this_thread::sleep_for(std::chrono::milliseconds(this->sleep_for_another_token));
@@ -155,7 +156,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     try {
       content = nlohmann::json::parse(response->body);
     } catch (const std::exception &e) {
-      spdlog::error("Parse json with error: {}, {}", request_config.path, e.what());
+      spdlog::error("parse json with error: {}, {}", request_config.path, e.what());
       return REQUEST_ERROR;
     }
 
@@ -251,8 +252,14 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         spdlog::error("Database with error: {}", code);
       }
       break;
+    case request_type_events:
+      code = this->request_events(content);
+      if (code != 0) {
+        spdlog::error("Database with error: {}", code);
+      }
+      break;
     default:
-      SPDLOG_INFO("Unknown request type: {}", static_cast<int>(type));
+      spdlog::info("unknown request type: {}", static_cast<int>(type));
       return UNKNOWN_REQUEST_TYPE;
     }
   }

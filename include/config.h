@@ -15,9 +15,7 @@
 
 class Config {
 public:
-  std::string database_type;
-
-  std::string database_mongodb_dsn;
+  std::string database_duckdb_path;
 
   std::string crawler_entry_username;       // entry username
   std::vector<std::string> crawler_token{}; // client id
@@ -36,6 +34,7 @@ public:
   bool crawler_type_emojis = false;
   bool crawler_type_gitignore_list = false;
   bool crawler_type_license_list = false;
+  bool crawler_type_events = false;
 
   int initialize(const std::string &config_path);
 

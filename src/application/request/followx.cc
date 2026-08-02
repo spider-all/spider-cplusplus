@@ -3,8 +3,8 @@
 int Request::startup_followx() {
   if (config.crawler_type_followers) {
     semaphore++;
-    std::thread followers_thread([=, this]() {
-      spdlog::info("Followers thread is starting...");
+    std::thread followers_thread([=]() {
+      spdlog::info("followers thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_followers);
         for (const std::string &u : users) {
@@ -14,7 +14,7 @@ int Request::startup_followx() {
           };
           int code = request(request_config, request_type_followers, request_type_followers);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_config.path, code);
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -22,15 +22,15 @@ int Request::startup_followx() {
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      spdlog::info("Followers thread stopped");
+      spdlog::info("followers thread stopped");
       semaphore--;
     });
     followers_thread.detach();
   }
   if (config.crawler_type_followings) {
     semaphore++;
-    std::thread followings_thread([=, this]() {
-      spdlog::info("Following thread is starting...");
+    std::thread followings_thread([=]() {
+      spdlog::info("following thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_following);
         for (const std::string &u : users) {
@@ -40,7 +40,7 @@ int Request::startup_followx() {
           };
           int code = request(request_config, request_type_following, request_type_following);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_config.path, code);
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -48,7 +48,7 @@ int Request::startup_followx() {
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      spdlog::info("Following thread stopped");
+      spdlog::info("following thread stopped");
       semaphore--;
     });
     followings_thread.detach();
@@ -91,7 +91,7 @@ int Request::request_followx(const nlohmann::json &content, enum request_type ty
     };
     int code = request(request_config, request_type_user, type_from);
     if (code != 0) {
-      spdlog::error("Request userinfo with error: {}", code);
+      spdlog::error("request userinfo with error: {}", code);
       return code;
     }
     if (stopping) {

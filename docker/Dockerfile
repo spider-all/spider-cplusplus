@@ -5,9 +5,12 @@ FROM docker.io/library/buildpack-deps:bookworm AS builder
 WORKDIR /app
 
 COPY . .
-COPY --from=base /pkgs ./pkgs
+COPY --from=base /vcpkg_installed ./vcpkg_installed
+COPY --from=base /vcpkg/scripts ./vcpkg/scripts
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends jq cmake libsasl2-dev && \
+ENV VCPKG_ROOT=/app/vcpkg
+
+RUN apt-get update -y && apt-get install -y --no-install-recommends cmake libsasl2-dev && \
   rm -rf /var/lib/apt/lists/* && \
   make release
 

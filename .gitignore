@@ -203,3 +203,4 @@ pkgs/
 /*.yaml
 
 build/
+vcpkg_installed/

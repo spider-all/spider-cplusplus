@@ -3,8 +3,8 @@
 int Request::startup_xrepos() {
   if (config.crawler_type_users_repos) {
     semaphore++;
-    std::thread users_repos_thread([=, this]() {
-      spdlog::info("Users repos thread is starting...");
+    std::thread users_repos_thread([=]() {
+      spdlog::info("users repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_users_repos);
         for (const std::string &u : users) {
@@ -14,7 +14,7 @@ int Request::startup_xrepos() {
           };
           int code = request(request_config, request_type_users_repos, request_type_users_repos);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_config.path, code);
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -22,7 +22,7 @@ int Request::startup_xrepos() {
         }
         // std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      spdlog::info("Repos thread stopped");
+      spdlog::info("repos thread stopped");
       semaphore--;
     });
     users_repos_thread.detach();
@@ -30,8 +30,8 @@ int Request::startup_xrepos() {
 
   if (config.crawler_type_orgs_repos) {
     semaphore++;
-    std::thread orgs_repos_thread([=, this]() {
-      spdlog::info("Repos thread is starting...");
+    std::thread orgs_repos_thread([=]() {
+      spdlog::info("repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &u : users) {
@@ -41,7 +41,7 @@ int Request::startup_xrepos() {
           };
           int code = request(request_config, request_type_orgs_repos, request_type_orgs_repos);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_config.path, code);
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -49,7 +49,7 @@ int Request::startup_xrepos() {
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      spdlog::info("Repos thread stopped");
+      spdlog::info("repos thread stopped");
       semaphore--;
     });
     orgs_repos_thread.detach();

@@ -83,6 +83,7 @@ private:
   int startup_xrepos();
   int startup_repos_branches();
   int startup_repos_branches_commits();
+  int startup_events();
 
   int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
   int request_orgs(const nlohmann::json &content, enum request_type type_from);
@@ -95,6 +96,7 @@ private:
   int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
   int request_repo_branches(nlohmann::json content, ExtraData extra, enum request_type type_from);
+  int request_events(const nlohmann::json &content);
 
 public:
   Request(Config, Database *);

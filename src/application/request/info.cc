@@ -2,8 +2,8 @@
 
 int Request::startup_info() {
   semaphore++;
-  std::thread info_thread([=, this]() {
-    spdlog::info("Info thread is starting...");
+  std::thread info_thread([=]() {
+    spdlog::info("info thread is starting...");
     int checker = 0;
     while (!stopping) {
       checker++;
@@ -11,7 +11,7 @@ int Request::startup_info() {
         checker = 0;
         int64_t user_count = database->count_user();
         int64_t org_count = database->count_org();
-        spdlog::info("Database have users: {}, orgs: {}", user_count, org_count);
+        spdlog::info("database have users: {}, orgs: {}", user_count, org_count);
 
         fort::char_table table;
         table.set_border_style(FT_DOUBLE2_STYLE);
@@ -30,7 +30,7 @@ int Request::startup_info() {
       }
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    spdlog::info("Info thread stopped");
+    spdlog::info("info thread stopped");
     this->semaphore--;
   });
   info_thread.detach();

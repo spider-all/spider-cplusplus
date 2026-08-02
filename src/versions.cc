@@ -1,34 +1,35 @@
 #include <versions.h>
 
-int Versions::initialize(mongocxx::cursor cursor) {
-  for (auto &&doc : cursor) {
-    bsoncxx::document::element type = doc["type"];
-    bsoncxx::document::element version = doc["version"];
-    try {
-      if ((type && type.type() == bsoncxx::type::k_utf8) &&
-          (version && version.type() == bsoncxx::type::k_int64)) {
-        std::string type_string(type.get_string().value);
-        if (type_string == this->to_string(request_type_followers)) {
-          this->followers_version = version.get_int64().value;
-        } else if (type_string == this->to_string(request_type_following)) {
-          this->following_version = version.get_int64().value;
-        } else if (type_string == this->to_string(request_type_orgs)) {
-          this->orgs_version = version.get_int64().value;
-        } else if (type_string == this->to_string(request_type_orgs_member)) {
-          this->orgs_member_version = version.get_int64().value;
-        } else if (type_string == this->to_string(request_type_users_repos)) {
-          this->users_repos_version = version.get_int64().value;
-        } else if (type_string == this->to_string(request_type_orgs_repos)) {
-          this->orgs_repos_version = version.get_int64().value;
-        } else if (type_string == this->to_string(request_type_gitignore_list)) {
-          this->gitignore_list_version = version.get_int64().value;
-        } else if (type_string == this->to_string(request_type_license_list)) {
-          this->license_list_version = version.get_int64().value;
-        }
+int Versions::initialize(duckdb::Connection &con) {
+  auto result = con.Query("SELECT type, version FROM versions");
+  if (result->HasError()) {
+    spdlog::error("DuckDB error: {}", result->GetError());
+    return EXIT_FAILURE;
+  }
+  auto materialized = result->Cast<duckdb::StreamQueryResult>().Materialize();
+  for (duckdb::idx_t row = 0; row < materialized->RowCount(); row++) {
+    auto type_val = materialized->GetValue(0, row);
+    auto version_val = materialized->GetValue(1, row);
+    if (!type_val.IsNull() && !version_val.IsNull()) {
+      std::string type_string = type_val.ToString();
+      int64_t ver = version_val.GetValue<int64_t>();
+      if (type_string == this->to_string(request_type_followers)) {
+        this->followers_version = ver;
+      } else if (type_string == this->to_string(request_type_following)) {
+        this->following_version = ver;
+      } else if (type_string == this->to_string(request_type_orgs)) {
+        this->orgs_version = ver;
+      } else if (type_string == this->to_string(request_type_orgs_member)) {
+        this->orgs_member_version = ver;
+      } else if (type_string == this->to_string(request_type_users_repos)) {
+        this->users_repos_version = ver;
+      } else if (type_string == this->to_string(request_type_orgs_repos)) {
+        this->orgs_repos_version = ver;
+      } else if (type_string == this->to_string(request_type_gitignore_list)) {
+        this->gitignore_list_version = ver;
+      } else if (type_string == this->to_string(request_type_license_list)) {
+        this->license_list_version = ver;
       }
-    } catch (const std::exception &e) {
-      spdlog::error("initialize versions with error: {}", e.what());
-      return EXIT_FAILURE;
     }
   }
   return EXIT_SUCCESS;

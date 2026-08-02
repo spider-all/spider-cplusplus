@@ -17,6 +17,7 @@ enum request_type {
   request_type_gitignore_info,
   request_type_license_list,
   request_type_license_info,
+  request_type_events,
 };
 
 typedef struct {

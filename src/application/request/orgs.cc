@@ -3,8 +3,8 @@
 int Request::startup_orgs() {
   if (config.crawler_type_orgs) {
     semaphore++;
-    std::thread orgs_thread([=, this]() {
-      spdlog::info("Orgs thread is starting...");
+    std::thread orgs_thread([=]() {
+      spdlog::info("orgs thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_orgs);
         for (const std::string &u : users) {
@@ -14,7 +14,7 @@ int Request::startup_orgs() {
           };
           int code = request(request_config, request_type_orgs, request_type_orgs);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_config.path, code);
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -22,15 +22,15 @@ int Request::startup_orgs() {
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      spdlog::info("Orgs thread stopped");
+      spdlog::info("orgs thread stopped");
       semaphore--;
     });
     orgs_thread.detach();
   }
   if (config.crawler_type_orgs_member) {
     semaphore++;
-    std::thread orgs_member_thread([=, this]() {
-      spdlog::info("Orgs thread is starting...");
+    std::thread orgs_member_thread([=]() {
+      spdlog::info("orgs thread is starting...");
       while (!stopping) {
         std::vector<std::string> orgs = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &org : orgs) {
@@ -40,7 +40,7 @@ int Request::startup_orgs() {
           };
           int code = request(request_config, request_type_orgs_member, request_type_orgs_member);
           if (code != 0) {
-            spdlog::error("Request url: {} with error: {}", request_config.path, code);
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
           if (stopping) {
             break;
@@ -48,7 +48,7 @@ int Request::startup_orgs() {
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
       }
-      spdlog::info("Orgs member thread stopped");
+      spdlog::info("orgs member thread stopped");
       semaphore--;
     });
     orgs_member_thread.detach();

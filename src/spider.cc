@@ -10,7 +10,7 @@
 
 #include <application/request.h>
 #include <application/server.h>
-#include <database/mongo.h>
+#include <database/duckdb.h>
 
 bool keep_running = true; // test keep running
 
@@ -20,13 +20,7 @@ void callback(int) {
 }
 
 Database *switcher(const Config &config) {
-  Database *ret = nullptr;
-  if (config.database_type == DATABASE_MONGODB) {
-    ret = new Mongo(config.database_mongodb_dsn);
-  }
-  if (ret == nullptr) {
-    return nullptr;
-  }
+  Database *ret = new DuckDBDatabase(config.database_duckdb_path);
   if (ret->code != 0) {
     spdlog::error("Open database with error: {}", ret->code);
   }
