@@ -7,9 +7,8 @@ int64_t DuckDBDatabase::count_x(const std::string &c) {
       spdlog::error("DuckDB error: {}", result->GetError());
       return 0;
     }
-    auto materialized = result->Cast<duckdb::StreamQueryResult>().Materialize();
-    if (materialized->RowCount() > 0) {
-      return materialized->GetValue(0, 0).GetValue<int64_t>();
+    if (result->RowCount() > 0) {
+      return result->GetValue(0, 0).GetValue<int64_t>();
     }
   } catch (const std::exception &e) {
     spdlog::error("DuckDB error: {}", e.what());
@@ -83,7 +82,8 @@ std::vector<std::string> DuckDBDatabase::list_x_random(const std::string &collec
 
   std::string select_expr;
   for (size_t i = 0; i < select_cols.size(); i++) {
-    if (i > 0) select_expr += ", ";
+    if (i > 0)
+      select_expr += ", ";
     select_expr += fmt::format("t.{}", select_cols[i]);
   }
 
@@ -100,12 +100,11 @@ std::vector<std::string> DuckDBDatabase::list_x_random(const std::string &collec
       spdlog::error("DuckDB error: {}", qresult->GetError());
       return result;
     }
-    auto materialized = qresult->Cast<duckdb::StreamQueryResult>().Materialize();
-    for (duckdb::idx_t row = 0; row < materialized->RowCount(); row++) {
+    for (duckdb::idx_t row = 0; row < qresult->RowCount(); row++) {
       std::string res;
       bool first = true;
       for (size_t col = 0; col < select_cols.size(); col++) {
-        auto val = materialized->GetValue(col, row);
+        auto val = qresult->GetValue(col, row);
         std::string s;
         if (!val.IsNull()) {
           if (val.type().id() == duckdb::LogicalTypeId::BIGINT ||
@@ -173,7 +172,8 @@ int DuckDBDatabase::create_x_collection(const std::string &collection, std::stri
         }
       }
     }
-    if (i > 0) columns += ", ";
+    if (i > 0)
+      columns += ", ";
     columns += fmt::format("{} {}", col_name, col_type);
     if (i == 0) {
       pk_col = col_name;

@@ -3,7 +3,7 @@
 int Request::startup_xrepos() {
   if (config.crawler_type_users_repos) {
     semaphore++;
-    std::thread users_repos_thread([=]() {
+    std::thread users_repos_thread([=, this]() {
       spdlog::info("users repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_users_repos);
@@ -30,7 +30,7 @@ int Request::startup_xrepos() {
 
   if (config.crawler_type_orgs_repos) {
     semaphore++;
-    std::thread orgs_repos_thread([=]() {
+    std::thread orgs_repos_thread([=, this]() {
       spdlog::info("repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_orgs_random(request_type_orgs_repos);
@@ -58,6 +58,11 @@ int Request::startup_xrepos() {
 }
 
 int Request::request_repo_list(nlohmann::json content, enum request_type type_from) {
+  if (!content.is_array()) {
+    nlohmann::json arr = nlohmann::json::array();
+    arr.push_back(content);
+    content = arr;
+  }
   std::vector<Repo> repos;
   for (auto &&con : content) {
     Repo repo{
@@ -68,24 +73,24 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
         .xprivate = con["private"].get<bool>(),
         .owner = con["owner"]["login"].get<std::string>(),
         .owner_type = con["owner"]["type"].get<std::string>(),
-        .description = con["description"].get<std::string>(),
+        .description = con.value("description", ""),
         .fork = con["fork"].get<bool>(),
         .created_at = con["created_at"].get<std::string>(),
         .updated_at = con["updated_at"].get<std::string>(),
         .pushed_at = con["pushed_at"].get<std::string>(),
-        .homepage = con["homepage"].get<std::string>(),
+        .homepage = con.value("homepage", ""),
         .size = con["size"].get<int64_t>(),
         .stargazers_count = con["stargazers_count"].get<int64_t>(),
         .watchers_count = con["watchers_count"].get<int64_t>(),
         .forks_count = con["forks_count"].get<int64_t>(),
-        .language = con["language"].get<std::string>(),
+        .language = con.value("language", ""),
         .forks = con["forks"].get<int64_t>(),
         .open_issues = con["open_issues"].get<int64_t>(),
         .watchers = con["watchers"].get<int64_t>(),
-        .default_branch = con["default_branch"].get<std::string>(),
+        .default_branch = con.value("default_branch", ""),
     };
-    if (!con["license"].is_string()) {
-      repo.license = con["license"]["key"].get<std::string>();
+    if (!con["license"].is_null() && !con["license"].is_string()) {
+      repo.license = con["license"].value("key", "");
     }
     repos.push_back(repo);
   }

@@ -35,5 +35,5 @@ int DuckDBDatabase::upsert_branch_with_version(std::vector<Branch> branches, enu
 }
 
 std::vector<std::string> DuckDBDatabase::list_branches_random(enum request_type type) {
-  return this->list_x_random("branches", "repo:name:commit", type);
+  return this->list_x_random("branches", "owner;repo;name;commit", type);
 }

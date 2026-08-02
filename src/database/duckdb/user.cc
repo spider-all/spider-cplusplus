@@ -41,9 +41,8 @@ std::vector<User> DuckDBDatabase::list_usersx(common_args args) {
       spdlog::error("DuckDB error: {}", result->GetError());
       return users;
     }
-    auto materialized = result->Cast<duckdb::StreamQueryResult>().Materialize();
-    for (duckdb::idx_t row = 0; row < materialized->RowCount(); row++) {
-      std::cout << materialized->GetValue(1, row).ToString() << "\n";
+    for (duckdb::idx_t row = 0; row < result->RowCount(); row++) {
+      std::cout << result->GetValue(1, row).ToString() << "\n";
     }
   } catch (const std::exception &e) {
     spdlog::error("DuckDB error: {}", e.what());

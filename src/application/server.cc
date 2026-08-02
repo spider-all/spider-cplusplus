@@ -48,7 +48,7 @@ void to_json(nlohmann::json &j, const User &p) {
 
 int Server::startup() {
   semaphore++;
-  std::thread server_thread([=]() {
+  std::thread server_thread([=, this]() {
     svr.Get("/", [](const httplib::Request &req, httplib::Response &res) {
       res.set_content("Hello World!", "text/plain");
     });

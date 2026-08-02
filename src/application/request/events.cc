@@ -5,7 +5,7 @@ int Request::startup_events() {
     return EXIT_SUCCESS;
   }
   semaphore++;
-  std::thread events_thread([=]() {
+  std::thread events_thread([=, this]() {
     spdlog::info("events thread is starting...");
     while (!stopping) {
       RequestConfig request_config{

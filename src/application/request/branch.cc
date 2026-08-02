@@ -3,7 +3,7 @@
 int Request::startup_repos_branches() {
   if (this->config.crawler_type_users_repos_branches) {
     this->semaphore++;
-    std::thread users_repos_branches_thread([=]() {
+    std::thread users_repos_branches_thread([=, this]() {
       spdlog::info("users repos branches thread is starting...");
       while (!stopping) {
         std::vector<std::string> repos = database->list_repos_random(request_type_users_repos);
@@ -41,13 +41,21 @@ int Request::startup_repos_branches() {
 }
 
 int Request::request_repo_branches(nlohmann::json content, ExtraData extra, enum request_type type_from) {
+  if (!content.is_array()) {
+    spdlog::error("unexpected branch response type: {}", content.type_name());
+    return REQUEST_ERROR;
+  }
   std::vector<Branch> branches;
   for (auto con : content) {
+    if (!con.is_object()) {
+      spdlog::error("unexpected branch element type: {}", con.type_name());
+      continue;
+    }
     Branch branch{
         .owner = extra.user,
         .repo = extra.repo,
-        .name = con["name"],
-        .commit = con["commit"]["sha"],
+        .name = con.value("name", ""),
+        .commit = con.value("commit", nlohmann::json::object()).value("sha", ""),
     };
     branches.push_back(branch);
   }

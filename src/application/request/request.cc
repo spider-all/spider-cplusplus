@@ -183,84 +183,95 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     }
 
     int code;
-    switch (type) {
-    case request_type_following:
-    case request_type_followers:
-      code = request_followx(content, type_from);
-      if (code != 0) {
-        spdlog::error("Request userinfo with error: {}", code);
+    try {
+      switch (type) {
+      case request_type_following:
+      case request_type_followers:
+        code = request_followx(content, type_from);
+        if (code != 0) {
+          spdlog::error("Request userinfo with error: {}", code);
+        }
+        break;
+      case request_type_orgs:
+        code = request_orgs(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_orgs_member:
+        code = request_orgs_members(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_user:
+        code = request_user(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_emoji:
+        code = request_emoji(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_gitignore_list:
+        code = request_gitignore_list(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_gitignore_info:
+        code = request_gitignore_info(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_license_list:
+        code = request_license_list(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_license_info:
+        code = request_license_info(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_orgs_repos:
+      case request_type_users_repos:
+        code = this->request_repo_list(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_users_repos_branches:
+        code = this->request_repo_branches(content, request_config.extra, type_from);
+        if (code != 0) {
+          spdlog::error("database with error: {}", code);
+        }
+        break;
+      case request_type_users_repos_branches_commits:
+        code = this->request_commits(content, request_config.extra, type_from);
+        if (code != 0) {
+          spdlog::error("database with error: {}", code);
+        }
+        break;
+      case request_type_events:
+        code = this->request_events(content);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      default:
+        spdlog::info("unknown request type: {} (type_from={}) on path: {}", static_cast<int>(type), static_cast<int>(type_from), request_config.path);
+        return UNKNOWN_REQUEST_TYPE;
       }
-      break;
-    case request_type_orgs:
-      code = request_orgs(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_orgs_member:
-      code = request_orgs_members(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_user:
-      code = request_user(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_emoji:
-      code = request_emoji(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_gitignore_list:
-      code = request_gitignore_list(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_gitignore_info:
-      code = request_gitignore_info(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_license_list:
-      code = request_license_list(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_license_info:
-      code = request_license_info(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_orgs_repos:
-    case request_type_users_repos:
-      code = this->request_repo_list(content, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_users_repos_branches:
-      code = this->request_repo_branches(content, request_config.extra, type_from);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    case request_type_events:
-      code = this->request_events(content);
-      if (code != 0) {
-        spdlog::error("Database with error: {}", code);
-      }
-      break;
-    default:
-      spdlog::info("unknown request type: {}", static_cast<int>(type));
-      return UNKNOWN_REQUEST_TYPE;
+    } catch (const nlohmann::json::type_error &e) {
+      spdlog::error("json error on {} (type={}): {}, body={}", request_config.path, static_cast<int>(type), e.what(), response->body);
+      return REQUEST_ERROR;
     }
   }
 

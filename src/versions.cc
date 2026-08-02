@@ -6,10 +6,9 @@ int Versions::initialize(duckdb::Connection &con) {
     spdlog::error("DuckDB error: {}", result->GetError());
     return EXIT_FAILURE;
   }
-  auto materialized = result->Cast<duckdb::StreamQueryResult>().Materialize();
-  for (duckdb::idx_t row = 0; row < materialized->RowCount(); row++) {
-    auto type_val = materialized->GetValue(0, row);
-    auto version_val = materialized->GetValue(1, row);
+  for (duckdb::idx_t row = 0; row < result->RowCount(); row++) {
+    auto type_val = result->GetValue(0, row);
+    auto version_val = result->GetValue(1, row);
     if (!type_val.IsNull() && !version_val.IsNull()) {
       std::string type_string = type_val.ToString();
       int64_t ver = version_val.GetValue<int64_t>();
