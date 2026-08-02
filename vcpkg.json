@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "spider-cplusplus",
+  "version": "1.0.0",
+  "dependencies": [
+    "zlib",
+    "openssl",
+    "yaml-cpp",
+    "fmt",
+    "spdlog",
+    "nlohmann-json",
+    {
+      "name": "curl",
+      "features": ["ssl"]
+    },
+    "cpp-httplib",
+    "cli11",
+    "duckdb",
+    "zstd",
+    "libfort",
+    {
+      "name": "prometheus-cpp",
+      "features": ["pull"]
+    },
+    "boost-algorithm",
+    "boost-random",
+    "gtest",
+    "croncpp",
+    "utf8proc"
+  ]
+}
