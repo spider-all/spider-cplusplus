@@ -1,6 +1,4 @@
-deps        = $(shell jq --raw-output '.deps | join(" ")' deps.json | tr -d "")
-export_deps = $(shell jq --raw-output '.export | join(" ")' deps.json | tr -d "")
-version     = $(shell cat VERSION | tr -d "")
+version = $(shell cat VERSION | tr -d "")
 
 BUILD_OUTPUT = build
 
@@ -16,7 +14,7 @@ release debug:
 
 .PHONY: deps
 deps:
-	vcpkg install $(deps) && vcpkg export --raw --output=pkgs --output-dir=. $(export_deps)
+	vcpkg install
 
 .PHONY: image
 image:
@@ -24,7 +22,8 @@ image:
 
 .PHONY: changelog
 changelog:
-	git-chglog --next-tag $(version) -o CHANGELOG.md
+	# brew install git-cliff
+	@git-cliff --config cliff.toml --tag $(version) --output CHANGELOG.md
 
 .PHONY: clean
 clean:

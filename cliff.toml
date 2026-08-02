@@ -1,0 +1,38 @@
+[changelog]
+body = """
+{% if version %}
+## {% if previous.version %}[{{ version }}](https://github.com/spider-all/spider-cplusplus/compare/{{ previous.version }}...{{ version }}){% else %}{{ version }}{% endif %} ({{ timestamp | date(format=\"%Y-%m-%d\") }})
+
+{% for group, commits in commits | group_by(attribute=\"group\") %}
+### {{ group }}
+
+{% for commit in commits %}
+* {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message | upper_first }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+"""
+trim = false
+
+[git]
+conventional_commits = false
+filter_unconventional = false
+split_commits = false
+tag_pattern = "v[0-9].*"
+sort_commits = "oldest"
+
+commit_parsers = [
+  { message = "^:sparkles:", group = "Features" },
+  { message = "^:bug:", group = "Bug Fixes" },
+  { message = "^:zap:", group = "Performance Improvements" },
+  { message = "^:recycle:", group = "Code Refactoring" },
+  { message = "^:fire:", group = "Remove files" },
+  { message = "^:truck:", group = "Rename files" },
+  { message = "^:green_heart:", group = "CI" },
+  { message = "^:heavy_plus_sign:", group = "Dependencies" },
+  { message = "^:heavy_minus_sign:", group = "Dependencies" },
+  { message = "^:arrow_down:", group = "Dependencies" },
+  { message = "^:arrow_up:", group = "Dependencies" },
+  { message = "^:bookmark:", group = "Release" },
+  { message = ".*", group = "Other" },
+]
