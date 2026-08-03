@@ -10,7 +10,7 @@ add_definitions(-DSPIDER_VERSION=${SPIDER_VERSION})
 
 project(spider)
 
-FILE(GLOB source src/*.cc src/application/*.cc src/application/request/*.cc src/database/duckdb/*.cc)
+FILE(GLOB source src/*.cc src/application/*.cc src/application/request/*.cc src/database/sqlite/*.cc)
 add_executable(spider ${source})
 
 if (CMAKE_BUILD_TYPE STREQUAL release)
@@ -29,8 +29,8 @@ target_link_libraries(spider PRIVATE yaml-cpp::yaml-cpp)
 find_package(OpenSSL REQUIRED)
 target_link_libraries(spider PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
-find_package(DuckDB CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE $<IF:$<TARGET_EXISTS:duckdb>,duckdb,duckdb_static>)
+find_package(SQLiteCpp CONFIG REQUIRED)
+target_link_libraries(spider PRIVATE SQLiteCpp)
 
 find_package(libfort CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE libfort::fort)

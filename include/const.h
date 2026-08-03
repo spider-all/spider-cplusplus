@@ -2,7 +2,7 @@
 
 #pragma once
 
-const std::string DATABASE_DUCKDB = "duckdb";
+const std::string DATABASE_SQLITE = "sqlite";
 
 const int DEFAULT_SLEEP_EACH_REQUEST = 1000;
 

@@ -1,6 +1,6 @@
-#include <database/duckdb.h>
+#include <database/sqlite.h>
 
-int DuckDBDatabase::upsert_org(Org org) {
+int SQLiteDatabase::upsert_org(Org org) {
   std::string sql = fmt::format(
       "INSERT OR REPLACE INTO orgs (id, login, node_id, description) VALUES ({}, '{}', '{}', '{}')",
       org.id,
@@ -10,20 +10,20 @@ int DuckDBDatabase::upsert_org(Org org) {
   return this->execute(sql);
 }
 
-int DuckDBDatabase::upsert_org(std::vector<Org> orgs) {
+int SQLiteDatabase::upsert_org(std::vector<Org> orgs) {
   for (const auto &org : orgs) {
     WRAP_FUNC(this->upsert_org(org))
   }
   return EXIT_SUCCESS;
 }
 
-int DuckDBDatabase::upsert_org_with_version(Org org, enum request_type type) {
+int SQLiteDatabase::upsert_org_with_version(Org org, enum request_type type) {
   WRAP_FUNC(this->upsert_org(org))
   WRAP_FUNC(this->update_version(org.login, type))
   return EXIT_SUCCESS;
 }
 
-int DuckDBDatabase::upsert_org_with_version(std::vector<Org> orgs, enum request_type type) {
+int SQLiteDatabase::upsert_org_with_version(std::vector<Org> orgs, enum request_type type) {
   WRAP_FUNC(this->upsert_org(orgs))
   std::vector<std::string> keys;
   keys.reserve(orgs.size());
@@ -34,10 +34,10 @@ int DuckDBDatabase::upsert_org_with_version(std::vector<Org> orgs, enum request_
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> DuckDBDatabase::list_orgs_random(enum request_type type) {
+std::vector<std::string> SQLiteDatabase::list_orgs_random(enum request_type type) {
   return this->list_x_random("orgs", "login", type);
 }
 
-int64_t DuckDBDatabase::count_org() {
+int64_t SQLiteDatabase::count_org() {
   return this->count_x("orgs");
 }

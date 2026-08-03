@@ -1,6 +1,6 @@
-#include <database/duckdb.h>
+#include <database/sqlite.h>
 
-int DuckDBDatabase::upsert_license(License license) {
+int SQLiteDatabase::upsert_license(License license) {
   std::string sql = fmt::format(
       "INSERT OR REPLACE INTO licenses (key, name, spdx_id, node_id, description, implementation, "
       "permissions, conditions, limitations, body, featured) "
@@ -19,12 +19,12 @@ int DuckDBDatabase::upsert_license(License license) {
   return this->execute(sql);
 }
 
-int DuckDBDatabase::upsert_license_with_version(License license, enum request_type type) {
+int SQLiteDatabase::upsert_license_with_version(License license, enum request_type type) {
   WRAP_FUNC(this->upsert_license(license))
   WRAP_FUNC(this->update_version(license.key, type))
   return EXIT_SUCCESS;
 }
 
-int64_t DuckDBDatabase::count_license() {
+int64_t SQLiteDatabase::count_license() {
   return this->count_x("licenses");
 }

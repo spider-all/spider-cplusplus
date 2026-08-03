@@ -45,7 +45,7 @@ You can just copy the `config.yaml.sample` to `config.yaml`, `spider` will searc
 
 ## Database
 
-Now `spider` support `MongoDB`. Database settings are in the `etc/config.yaml.sample`.
+Now `spider` supports SQLite. Database settings are in the `config.yaml.sample`.
 
 ## Contributing
 

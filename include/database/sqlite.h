@@ -5,8 +5,8 @@
 #include <utility>
 
 #include <boost/algorithm/string.hpp>
-#include <duckdb.hpp>
 #include <fmt/core.h>
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <spdlog/spdlog.h>
 
 #include <common.h>
@@ -17,14 +17,10 @@
 
 #pragma once
 
-using duckdb::Connection;
-using duckdb::DuckDB;
-
-class DuckDBDatabase : public Database {
+class SQLiteDatabase : public Database {
 private:
   std::string db_path;
-  DuckDB *db{};
-  Connection *con{};
+  SQLite::Database *db{};
 
   Versions *versions;
 
@@ -34,8 +30,8 @@ private:
   std::string escape(const std::string &s);
 
 public:
-  explicit DuckDBDatabase(const std::string &path);
-  ~DuckDBDatabase() override;
+  explicit SQLiteDatabase(const std::string &path);
+  ~SQLiteDatabase() override;
   int initialize() override;
   int initialize_version() override;
 

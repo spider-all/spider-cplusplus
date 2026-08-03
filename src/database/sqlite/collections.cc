@@ -1,6 +1,6 @@
-#include <database/duckdb.h>
+#include <database/sqlite.h>
 
-int DuckDBDatabase::create_collections() {
+int SQLiteDatabase::create_collections() {
   // Create version tracking tables
   this->execute(
       "CREATE TABLE IF NOT EXISTS versions ("

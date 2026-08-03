@@ -16,8 +16,7 @@
     },
     "cpp-httplib",
     "cli11",
-    "duckdb",
-    "zstd",
+    "sqlitecpp",
     "libfort",
     {
       "name": "prometheus-cpp",
@@ -30,8 +29,8 @@
   ],
   "overrides": [
     {
-      "name": "duckdb",
-      "version": "1.4.4#1"
+      "name": "sqlitecpp",
+      "version": "3.3.3"
     },
     {
       "name": "openssl",

@@ -1,6 +1,6 @@
-#include <database/duckdb.h>
+#include <database/sqlite.h>
 
-int DuckDBDatabase::upsert_emoji(std::vector<Emoji> emojis) {
+int SQLiteDatabase::upsert_emoji(std::vector<Emoji> emojis) {
   for (const auto &emoji : emojis) {
     std::string sql = fmt::format(
         "INSERT OR REPLACE INTO emojis (name, url) VALUES ('{}', '{}')",
@@ -10,6 +10,6 @@ int DuckDBDatabase::upsert_emoji(std::vector<Emoji> emojis) {
   return EXIT_SUCCESS;
 }
 
-int64_t DuckDBDatabase::count_emoji() {
+int64_t SQLiteDatabase::count_emoji() {
   return this->count_x("emojis");
 }

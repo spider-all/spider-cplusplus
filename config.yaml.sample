@@ -18,6 +18,6 @@ crawler:
   events: true
 
 database:
-  type: duckdb
-  duckdb:
-    path: "/tmp/spider.duckdb"
+  type: sqlite
+  sqlite:
+    path: "/tmp/spider.sqlite"

@@ -20,11 +20,11 @@ int Config::initialize(const std::string &config_path) {
       crawler_sleep_each_request = DEFAULT_SLEEP_EACH_REQUEST;
     }
 
-    if (config["database"] && config["database"][DATABASE_DUCKDB] && config["database"][DATABASE_DUCKDB]["path"]) {
-      database_duckdb_path = config["database"][DATABASE_DUCKDB]["path"].as<std::string>();
+    if (config["database"] && config["database"][DATABASE_SQLITE] && config["database"][DATABASE_SQLITE]["path"]) {
+      database_sqlite_path = config["database"][DATABASE_SQLITE]["path"].as<std::string>();
     }
-    if (database_duckdb_path == "") {
-      database_duckdb_path = this->getenv("DATABASE_DUCKDB_PATH");
+    if (database_sqlite_path == "") {
+      database_sqlite_path = this->getenv("DATABASE_SQLITE_PATH");
     }
 
     auto crawler = config["crawler"];

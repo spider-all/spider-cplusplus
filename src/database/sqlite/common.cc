@@ -1,22 +1,18 @@
-#include <database/duckdb.h>
+#include <database/sqlite.h>
 
-int64_t DuckDBDatabase::count_x(const std::string &c) {
+int64_t SQLiteDatabase::count_x(const std::string &c) {
   try {
-    auto result = this->con->Query(fmt::format("SELECT COUNT(*) AS cnt FROM {}", c));
-    if (result->HasError()) {
-      spdlog::error("DuckDB error: {}", result->GetError());
-      return 0;
-    }
-    if (result->RowCount() > 0) {
-      return result->GetValue(0, 0).GetValue<int64_t>();
+    SQLite::Statement query(*this->db, fmt::format("SELECT COUNT(*) AS cnt FROM {}", c));
+    if (query.executeStep()) {
+      return query.getColumn(0).getInt64();
     }
   } catch (const std::exception &e) {
-    spdlog::error("DuckDB error: {}", e.what());
+    spdlog::error("SQLite error: {}", e.what());
   }
   return 0;
 }
 
-int DuckDBDatabase::update_version(std::string key, enum request_type type) {
+int SQLiteDatabase::update_version(std::string key, enum request_type type) {
   int64_t version = this->versions->get(type);
   if (version == 0) {
     version = 1;
@@ -30,7 +26,7 @@ int DuckDBDatabase::update_version(std::string key, enum request_type type) {
   return this->execute(sql);
 }
 
-int DuckDBDatabase::update_version(std::vector<std::string> keys, enum request_type type) {
+int SQLiteDatabase::update_version(std::vector<std::string> keys, enum request_type type) {
   int64_t version = this->versions->get(type);
   if (version == 0) {
     version = 1;
@@ -47,7 +43,7 @@ int DuckDBDatabase::update_version(std::vector<std::string> keys, enum request_t
   return EXIT_SUCCESS;
 }
 
-int DuckDBDatabase::incr_version(enum request_type type) {
+int SQLiteDatabase::incr_version(enum request_type type) {
   int64_t version = this->versions->incr(type);
   std::string type_str = this->versions->to_string(type);
   spdlog::info("increase version: type={}({}), version={}", type_str, static_cast<int>(type), version);
@@ -62,7 +58,7 @@ int DuckDBDatabase::incr_version(enum request_type type) {
 // list_x_random
 // @params
 //    keys name:string;id:int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
-std::vector<std::string> DuckDBDatabase::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
+std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
   std::string type_string = this->versions->to_string(type);
   int64_t version = this->versions->get(type);
   spdlog::info("list random records: collection={}, keys={}, type={}({}), version={}",
@@ -102,24 +98,15 @@ std::vector<std::string> DuckDBDatabase::list_x_random(const std::string &collec
       select_cols[0], version, this->sample_size);
 
   try {
-    auto qresult = this->con->Query(sql);
-    if (qresult->HasError()) {
-      spdlog::error("DuckDB error: {}", qresult->GetError());
-      return result;
-    }
-    for (duckdb::idx_t row = 0; row < qresult->RowCount(); row++) {
+    SQLite::Statement query(*this->db, sql);
+    while (query.executeStep()) {
       std::string res;
       bool first = true;
       for (size_t col = 0; col < select_cols.size(); col++) {
-        auto val = qresult->GetValue(col, row);
+        SQLite::Column val = query.getColumn(static_cast<int>(col));
         std::string s;
-        if (!val.IsNull()) {
-          if (val.type().id() == duckdb::LogicalTypeId::BIGINT ||
-              val.type().id() == duckdb::LogicalTypeId::INTEGER) {
-            s = std::to_string(val.GetValue<int64_t>());
-          } else {
-            s = val.ToString();
-          }
+        if (!val.isNull()) {
+          s = val.getString();
         }
         if (first) {
           res = s;
@@ -140,12 +127,12 @@ std::vector<std::string> DuckDBDatabase::list_x_random(const std::string &collec
       this->update_version(result, type);
     }
   } catch (const std::exception &e) {
-    spdlog::error("DuckDB error: {}", e.what());
+    spdlog::error("SQLite error: {}", e.what());
   }
   return result;
 }
 
-int DuckDBDatabase::ensure_index(const std::string &collection, std::vector<std::string> keys) {
+int SQLiteDatabase::ensure_index(const std::string &collection, std::vector<std::string> keys) {
   std::string index_name = fmt::format("{}_index", boost::algorithm::join(keys, "_"));
   std::string cols = boost::algorithm::join(keys, ", ");
   std::string sql = fmt::format(
@@ -154,7 +141,7 @@ int DuckDBDatabase::ensure_index(const std::string &collection, std::vector<std:
   return this->execute(sql);
 }
 
-int DuckDBDatabase::create_x_collection(const std::string &collection, std::string keys) {
+int SQLiteDatabase::create_x_collection(const std::string &collection, std::string keys) {
   if (keys.empty()) {
     return EXIT_SUCCESS;
   }

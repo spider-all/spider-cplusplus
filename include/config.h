@@ -15,7 +15,7 @@
 
 class Config {
 public:
-  std::string database_duckdb_path;
+  std::string database_sqlite_path;
 
   std::string crawler_entry_username;       // entry username
   std::vector<std::string> crawler_token{}; // client id

@@ -1,17 +1,16 @@
 #include <versions.h>
 
-int Versions::initialize(duckdb::Connection &con) {
-  auto result = con.Query("SELECT type, version FROM versions");
-  if (result->HasError()) {
-    spdlog::error("DuckDB error: {}", result->GetError());
-    return EXIT_FAILURE;
-  }
-  for (duckdb::idx_t row = 0; row < result->RowCount(); row++) {
-    auto type_val = result->GetValue(0, row);
-    auto version_val = result->GetValue(1, row);
-    if (!type_val.IsNull() && !version_val.IsNull()) {
-      std::string type_string = type_val.ToString();
-      int64_t ver = version_val.GetValue<int64_t>();
+int Versions::initialize(SQLite::Database &db) {
+  try {
+    SQLite::Statement query(db, "SELECT type, version FROM versions");
+    while (query.executeStep()) {
+      SQLite::Column type_val = query.getColumn(0);
+      SQLite::Column version_val = query.getColumn(1);
+      if (type_val.isNull() || version_val.isNull()) {
+        continue;
+      }
+      std::string type_string = type_val.getString();
+      int64_t ver = version_val.getInt64();
       if (type_string == this->to_string(request_type_followers)) {
         this->followers_version = ver;
       } else if (type_string == this->to_string(request_type_following)) {
@@ -32,6 +31,9 @@ int Versions::initialize(duckdb::Connection &con) {
         this->events_version = ver;
       }
     }
+  } catch (const std::exception &e) {
+    spdlog::error("SQLite error: {}", e.what());
+    return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }

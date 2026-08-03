@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include <duckdb.hpp>
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <spdlog/spdlog.h>
 
 #include <model.h>
@@ -25,5 +25,5 @@ public:
   int64_t incr(enum request_type type);
   std::string to_string(enum request_type type);
 
-  int initialize(duckdb::Connection &con);
+  int initialize(SQLite::Database &db);
 };

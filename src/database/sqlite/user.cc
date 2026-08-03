@@ -1,6 +1,6 @@
-#include <database/duckdb.h>
+#include <database/sqlite.h>
 
-int DuckDBDatabase::upsert_user(User user) {
+int SQLiteDatabase::upsert_user(User user) {
   std::string sql = fmt::format(
       "INSERT OR REPLACE INTO users (id, login, node_id, type, name, company, blog, location, "
       "email, hireable, bio, created_at, updated_at, public_gists, public_repos, following, followers) "
@@ -25,35 +25,31 @@ int DuckDBDatabase::upsert_user(User user) {
   return this->execute(sql);
 }
 
-int DuckDBDatabase::upsert_user_with_version(User user, enum request_type type) {
+int SQLiteDatabase::upsert_user_with_version(User user, enum request_type type) {
   WRAP_FUNC(this->upsert_user(user))
   WRAP_FUNC(this->update_version(std::to_string(user.id), type))
   return EXIT_SUCCESS;
 }
 
-std::vector<User> DuckDBDatabase::list_usersx(common_args args) {
+std::vector<User> SQLiteDatabase::list_usersx(common_args args) {
   std::vector<User> users;
   try {
-    auto result = this->con->Query("SELECT id, login, node_id, type, name, company, blog, location, "
-                                   "email, hireable, bio, created_at, updated_at, public_gists, "
-                                   "public_repos, following, followers FROM users");
-    if (result->HasError()) {
-      spdlog::error("DuckDB error: {}", result->GetError());
-      return users;
-    }
-    for (duckdb::idx_t row = 0; row < result->RowCount(); row++) {
-      std::cout << result->GetValue(1, row).ToString() << "\n";
+    SQLite::Statement query(*this->db, "SELECT id, login, node_id, type, name, company, blog, location, "
+                                       "email, hireable, bio, created_at, updated_at, public_gists, "
+                                       "public_repos, following, followers FROM users");
+    while (query.executeStep()) {
+      std::cout << query.getColumn(1).getString() << "\n";
     }
   } catch (const std::exception &e) {
-    spdlog::error("DuckDB error: {}", e.what());
+    spdlog::error("SQLite error: {}", e.what());
   }
   return users;
 }
 
-std::vector<std::string> DuckDBDatabase::list_users_random(enum request_type type) {
+std::vector<std::string> SQLiteDatabase::list_users_random(enum request_type type) {
   return this->list_x_random("users", "login", type);
 }
 
-int64_t DuckDBDatabase::count_user() {
+int64_t SQLiteDatabase::count_user() {
   return this->count_x("users");
 }
