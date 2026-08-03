@@ -10,51 +10,83 @@ on:
       vcpkg_tool_version:
         description: "vcpkg tool version"
         type: string
-        default: "2024-10-18"
+        default: "2026-07-27"
         required: false
       vcpkg_version:
         description: "vcpkg version"
         type: string
-        default: "2024.10.21"
+        default: "2026.07.29"
         required: false
 jobs:
   build-dependency-image:
-    runs-on: ubuntu-latest
+    name: Dependency image builder (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+            platform: linux/amd64
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            platform: linux/arm64
     steps:
+      - name: Delete huge unnecessary folders, and clean apt cache
+        if: matrix.arch == 'arm64'
+        shell: bash
+        run: |
+          rm -rf /opt/hostedtoolcache
+          rm -rf /usr/share/dotnet
+          rm -rf /opt/ghc
+          rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo apt-get clean
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/setup-buildx-action@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: tosone
           password: ${{ secrets.GHCR_TOKEN }}
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=${{ inputs.tag }}
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/base.Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/${{ github.repository }}:${{ inputs.tag }}-${{ matrix.arch }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
           provenance: false
           sbom: false
-          outputs: oci-mediatypes=true,force-compression=true,type=image
+          outputs: type=registry,force-compression=true,oci-mediatypes=true
           build-args: |
             VCPKG_TOOL_VERSION=${{ inputs.vcpkg_tool_version }}
             VCPKG_VERSION=${{ inputs.vcpkg_version }}
+
+  merge-multi-arch:
+    name: Merge multi-arch dependency image
+    runs-on: ubuntu-24.04
+    needs: [build-dependency-image]
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: tosone
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Create and push multi-arch manifest
+        run: |
+          docker buildx imagetools create \
+            -t ghcr.io/${{ github.repository }}:${{ inputs.tag }} \
+            ghcr.io/${{ github.repository }}:${{ inputs.tag }}-amd64 \
+            ghcr.io/${{ github.repository }}:${{ inputs.tag }}-arm64

@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "spider-cplusplus",
   "version": "1.0.0",
-  "builtin-baseline": "39344dff01c5a5a0134caf2624cdd492f05d30ea",
+  "builtin-baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
   "dependencies": [
     "zlib",
     "openssl",

@@ -1,12 +1,32 @@
-FROM ghcr.io/spider-all/spider-cplusplus:base-20241028 AS base
+FROM docker.io/library/buildpack-deps:bookworm AS base
+
+ARG VCPKG_TOOL_VERSION=2026-07-27
+ARG VCPKG_VERSION=2026.07.29
+
+ENV VCPKG_ROOT=/workspace/vcpkg
+ENV VCPKG_FORCE_SYSTEM_BINARIES=1
+
+WORKDIR /workspace
+
+COPY . code
+
+RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources && \
+  apt-get update -y && apt-get install -y --no-install-recommends \
+  bison flex cmake unzip zip wget git ninja-build && \
+  rm -rf /var/lib/apt/lists/* && \
+  git config --global advice.detachedHead false && \
+  git clone https://github.com/microsoft/vcpkg-tool vcpkg-tool --depth 1 --branch ${VCPKG_TOOL_VERSION} --single-branch && \
+  cd vcpkg-tool && mkdir build && cd build && cmake -DBUILD_TESTING=OFF .. && cmake --build . --target install && \
+  cd /workspace && git clone https://github.com/microsoft/vcpkg.git --depth 1 --branch ${VCPKG_VERSION} --single-branch && \
+  cd code && make deps
 
 FROM docker.io/library/buildpack-deps:bookworm AS builder
 
 WORKDIR /app
 
 COPY . .
-COPY --from=base /vcpkg_installed ./vcpkg_installed
-COPY --from=base /vcpkg/scripts ./vcpkg/scripts
+COPY --from=base /workspace/code/vcpkg_installed ./vcpkg_installed
+COPY --from=base /workspace/vcpkg/scripts ./vcpkg/scripts
 
 ENV VCPKG_ROOT=/app/vcpkg
 
