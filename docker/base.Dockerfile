@@ -1,4 +1,4 @@
-FROM docker.io/library/buildpack-deps:bookworm
+FROM docker.io/library/buildpack-deps:trixie
 
 ARG VCPKG_TOOL_VERSION=2026-07-27
 ARG VCPKG_VERSION=2026.07.29

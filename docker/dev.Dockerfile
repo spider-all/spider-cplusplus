@@ -1,6 +1,6 @@
 FROM ghcr.io/spider-all/spider-cplusplus:base-20241028 AS base
 
-FROM docker.io/library/buildpack-deps:bookworm
+FROM docker.io/library/buildpack-deps:trixie
 
 WORKDIR /app
 

@@ -1,10 +1,10 @@
-FROM docker.io/library/buildpack-deps:bookworm AS base
+FROM docker.io/library/buildpack-deps:trixie AS base
 
 ARG VCPKG_TOOL_VERSION=2026-07-27
 ARG VCPKG_VERSION=2026.07.29
 
 ENV VCPKG_ROOT=/workspace/vcpkg
-ENV VCPKG_FORCE_SYSTEM_BINARIES=1
+# ENV VCPKG_FORCE_SYSTEM_BINARIES=1
 
 WORKDIR /workspace
 
@@ -17,10 +17,11 @@ RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.
   git config --global advice.detachedHead false && \
   git clone https://github.com/microsoft/vcpkg-tool vcpkg-tool --depth 1 --branch ${VCPKG_TOOL_VERSION} --single-branch && \
   cd vcpkg-tool && mkdir build && cd build && cmake -DBUILD_TESTING=OFF .. && cmake --build . --target install && \
-  cd /workspace && git clone https://github.com/microsoft/vcpkg.git --depth 1 --branch ${VCPKG_VERSION} --single-branch && \
-  cd code && make deps
+  cd /workspace && git clone https://github.com/microsoft/vcpkg.git --depth 1 --branch ${VCPKG_VERSION} --single-branch
 
-FROM docker.io/library/buildpack-deps:bookworm AS builder
+RUN cd code && make deps
+
+FROM docker.io/library/buildpack-deps:trixie AS builder
 
 WORKDIR /app
 
@@ -34,7 +35,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends cmake libsas
   rm -rf /var/lib/apt/lists/* && \
   make release
 
-FROM docker.io/library/debian:bookworm-slim
+FROM docker.io/library/debian:trixie-slim
 
 ENV TZ=Asia/Shanghai
 
