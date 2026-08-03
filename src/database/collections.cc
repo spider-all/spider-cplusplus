@@ -19,12 +19,16 @@ int SQLiteDatabase::create_collections() {
   // Create data tables
   WRAP_FUNC(this->create_x_collection("users", "id:int64;login;node_id;type;name;company;blog;location;"
                                                "email;hireable;bio;created_at;updated_at;"
-                                               "public_gists:int64;public_repos:int64;following:int64;followers:int64"))
-  WRAP_FUNC(this->create_x_collection("orgs", "id:int64;login;node_id;description"))
+                                               "public_gists:int64;public_repos:int64;following:int64;followers:int64;"
+                                               "data_created_at:int64;data_updated_at:int64"))
+  WRAP_FUNC(this->create_x_collection("orgs", "id:int64;login;node_id;description;followers:int64;"
+                                              "data_created_at:int64;data_updated_at:int64"))
   WRAP_FUNC(this->create_x_collection("repos", "id:int64;node_id;name;full_name;xprivate;owner;owner_type;"
                                                 "description;fork;created_at;updated_at;pushed_at;homepage;"
                                                 "size:int64;stargazers_count:int64;watchers_count:int64;"
                                                 "forks_count:int64;language;license;forks:int64;"
-                                                "open_issues:int64;watchers:int64;default_branch"))
+                                                "open_issues:int64;watchers:int64;default_branch;"
+                                                "data_created_at:int64;data_updated_at:int64"))
+
   return EXIT_SUCCESS;
 }

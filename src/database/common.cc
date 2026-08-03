@@ -1,5 +1,7 @@
 #include <database/sqlite.h>
 
+#include <set>
+
 #include <string_utils.h>
 
 int64_t SQLiteDatabase::count_x(const std::string &c) {
@@ -154,6 +156,7 @@ int SQLiteDatabase::create_x_collection(const std::string &collection, std::stri
 
   std::string columns;
   std::string pk_col;
+  std::vector<std::pair<std::string, std::string>> parsed_columns;
   for (size_t i = 0; i < params.size(); i++) {
     std::string col_name = params[i];
     std::string col_type = "TEXT";
@@ -172,6 +175,7 @@ int SQLiteDatabase::create_x_collection(const std::string &collection, std::stri
         }
       }
     }
+    parsed_columns.emplace_back(col_name, col_type);
     if (i > 0)
       columns += ", ";
     columns += fmt::format("{} {}", col_name, col_type);
@@ -187,5 +191,25 @@ int SQLiteDatabase::create_x_collection(const std::string &collection, std::stri
   }
   sql += ")";
 
-  return this->execute(sql);
+  WRAP_FUNC(this->execute(sql))
+
+  std::set<std::string> existing_columns;
+  try {
+    SQLite::Statement query(*this->db, fmt::format("PRAGMA table_info({})", collection));
+    while (query.executeStep()) {
+      existing_columns.insert(query.getColumn(1).getString());
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("SQLite error: {}", e.what());
+    return SQL_EXEC_ERROR;
+  }
+
+  for (const auto &[col_name, col_type] : parsed_columns) {
+    if (existing_columns.contains(col_name)) {
+      continue;
+    }
+    WRAP_FUNC(this->execute(fmt::format("ALTER TABLE {} ADD COLUMN {} {}", collection, col_name, col_type)))
+  }
+
+  return EXIT_SUCCESS;
 }

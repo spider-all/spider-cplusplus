@@ -2,11 +2,19 @@
 
 int SQLiteDatabase::upsert_org(Org org) {
   std::string sql = fmt::format(
-      "INSERT OR REPLACE INTO orgs (id, login, node_id, description) VALUES ({}, '{}', '{}', '{}')",
+      "INSERT INTO orgs (id, login, node_id, description, followers, data_created_at, data_updated_at) "
+      "VALUES ({}, '{}', '{}', '{}', {}, CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER)) "
+      "ON CONFLICT(id) DO UPDATE SET "
+      "login = excluded.login, "
+      "node_id = excluded.node_id, "
+      "description = excluded.description, "
+      "followers = excluded.followers, "
+      "data_updated_at = CAST(strftime('%s','now') AS INTEGER)",
       org.id,
       this->escape(org.login),
       this->escape(org.node_id),
-      this->escape(org.description));
+      this->escape(org.description),
+      org.followers);
   return this->execute(sql);
 }
 

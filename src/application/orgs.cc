@@ -78,6 +78,9 @@ int Request::request_orgs(const nlohmann::json &content, enum request_type type_
         .login = con["login"].get<std::string>(),
         .node_id = con["node_id"].get<std::string>(),
         .description = con["description"].get<std::string>(),
+        .followers = con.contains("followers") && !con["followers"].is_null()
+                         ? con["followers"].get<int64_t>()
+                         : 0,
     };
     orgs.push_back(org);
   }

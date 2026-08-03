@@ -2,9 +2,29 @@
 
 int SQLiteDatabase::upsert_user(User user) {
   std::string sql = fmt::format(
-      "INSERT OR REPLACE INTO users (id, login, node_id, type, name, company, blog, location, "
-      "email, hireable, bio, created_at, updated_at, public_gists, public_repos, following, followers) "
-      "VALUES ({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, {}, {}, {})",
+      "INSERT INTO users (id, login, node_id, type, name, company, blog, location, "
+      "email, hireable, bio, created_at, updated_at, public_gists, public_repos, following, followers, "
+      "data_created_at, data_updated_at) "
+      "VALUES ({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, {}, {}, {}, "
+      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER)) "
+      "ON CONFLICT(id) DO UPDATE SET "
+      "login = excluded.login, "
+      "node_id = excluded.node_id, "
+      "type = excluded.type, "
+      "name = excluded.name, "
+      "company = excluded.company, "
+      "blog = excluded.blog, "
+      "location = excluded.location, "
+      "email = excluded.email, "
+      "hireable = excluded.hireable, "
+      "bio = excluded.bio, "
+      "created_at = excluded.created_at, "
+      "updated_at = excluded.updated_at, "
+      "public_gists = excluded.public_gists, "
+      "public_repos = excluded.public_repos, "
+      "following = excluded.following, "
+      "followers = excluded.followers, "
+      "data_updated_at = CAST(strftime('%s','now') AS INTEGER)",
       user.id,
       this->escape(user.login),
       this->escape(user.node_id),

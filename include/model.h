@@ -66,6 +66,7 @@ typedef struct Org {
   std::string login;
   std::string node_id;
   std::string description;
+  int64_t followers;
 } Org;
 
 typedef struct Repo {

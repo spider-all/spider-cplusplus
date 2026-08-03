@@ -2,12 +2,37 @@
 
 int SQLiteDatabase::upsert_repo(Repo repo) {
   std::string sql = fmt::format(
-      "INSERT OR REPLACE INTO repos (id, node_id, name, full_name, xprivate, owner, owner_type, "
+      "INSERT INTO repos (id, node_id, name, full_name, xprivate, owner, owner_type, "
       "description, fork, created_at, updated_at, pushed_at, homepage, size, "
       "stargazers_count, watchers_count, forks_count, language, license, forks, "
-      "open_issues, watchers, default_branch) "
+      "open_issues, watchers, default_branch, data_created_at, data_updated_at) "
       "VALUES ({}, '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, '{}', '{}', '{}', '{}', "
-      "{}, {}, {}, {}, '{}', '{}', {}, {}, {}, '{}')",
+      "{}, {}, {}, {}, '{}', '{}', {}, {}, {}, '{}', "
+      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER)) "
+      "ON CONFLICT(id) DO UPDATE SET "
+      "node_id = excluded.node_id, "
+      "name = excluded.name, "
+      "full_name = excluded.full_name, "
+      "xprivate = excluded.xprivate, "
+      "owner = excluded.owner, "
+      "owner_type = excluded.owner_type, "
+      "description = excluded.description, "
+      "fork = excluded.fork, "
+      "created_at = excluded.created_at, "
+      "updated_at = excluded.updated_at, "
+      "pushed_at = excluded.pushed_at, "
+      "homepage = excluded.homepage, "
+      "size = excluded.size, "
+      "stargazers_count = excluded.stargazers_count, "
+      "watchers_count = excluded.watchers_count, "
+      "forks_count = excluded.forks_count, "
+      "language = excluded.language, "
+      "license = excluded.license, "
+      "forks = excluded.forks, "
+      "open_issues = excluded.open_issues, "
+      "watchers = excluded.watchers, "
+      "default_branch = excluded.default_branch, "
+      "data_updated_at = CAST(strftime('%s','now') AS INTEGER)",
       repo.id,
       this->escape(repo.node_id),
       this->escape(repo.name),
