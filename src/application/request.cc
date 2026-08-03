@@ -72,10 +72,7 @@ int Request::startup() {
 
   WRAP_FUNC(this->startup_followx())
   WRAP_FUNC(this->startup_info())
-  WRAP_FUNC(this->startup_emojis())
   WRAP_FUNC(this->startup_orgs())
-  WRAP_FUNC(this->startup_gitignore())
-  WRAP_FUNC(this->startup_license())
   WRAP_FUNC(this->startup_xrepos())
   WRAP_FUNC(this->startup_events())
 
@@ -272,36 +269,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         break;
       case request_type_user:
         code = request_user(content, type_from);
-        if (code != 0) {
-          spdlog::error("Database with error: {}", code);
-        }
-        break;
-      case request_type_emoji:
-        code = request_emoji(content, type_from);
-        if (code != 0) {
-          spdlog::error("Database with error: {}", code);
-        }
-        break;
-      case request_type_gitignore_list:
-        code = request_gitignore_list(content, type_from);
-        if (code != 0) {
-          spdlog::error("Database with error: {}", code);
-        }
-        break;
-      case request_type_gitignore_info:
-        code = request_gitignore_info(content, type_from);
-        if (code != 0) {
-          spdlog::error("Database with error: {}", code);
-        }
-        break;
-      case request_type_license_list:
-        code = request_license_list(content, type_from);
-        if (code != 0) {
-          spdlog::error("Database with error: {}", code);
-        }
-        break;
-      case request_type_license_info:
-        code = request_license_info(content, type_from);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);
         }

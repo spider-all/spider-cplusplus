@@ -21,10 +21,6 @@ int SQLiteDatabase::create_collections() {
                                                "email;hireable;bio;created_at;updated_at;"
                                                "public_gists:int64;public_repos:int64;following:int64;followers:int64"))
   WRAP_FUNC(this->create_x_collection("orgs", "id:int64;login;node_id;description"))
-  WRAP_FUNC(this->create_x_collection("emojis", "name;url"))
-  WRAP_FUNC(this->create_x_collection("gitignores", "name;source"))
-  WRAP_FUNC(this->create_x_collection("licenses", "key;name;spdx_id;node_id;description;implementation;"
-                                                  "permissions;conditions;limitations;body;featured"))
   WRAP_FUNC(this->create_x_collection("repos", "id:int64;node_id;name;full_name;xprivate;owner;owner_type;"
                                                 "description;fork;created_at;updated_at;pushed_at;homepage;"
                                                 "size:int64;stargazers_count:int64;watchers_count:int64;"

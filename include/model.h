@@ -10,11 +10,6 @@ enum request_type {
   request_type_orgs_member,
   request_type_users_repos,
   request_type_orgs_repos,
-  request_type_emoji,
-  request_type_gitignore_list,
-  request_type_gitignore_info,
-  request_type_license_list,
-  request_type_license_info,
   request_type_events,
 };
 
@@ -34,16 +29,6 @@ inline const char *request_type_name(enum request_type type) {
     return "users_repos";
   case request_type_orgs_repos:
     return "orgs_repos";
-  case request_type_emoji:
-    return "emoji";
-  case request_type_gitignore_list:
-    return "gitignore_list";
-  case request_type_gitignore_info:
-    return "gitignore_info";
-  case request_type_license_list:
-    return "license_list";
-  case request_type_license_info:
-    return "license_info";
   case request_type_events:
     return "events";
   }
@@ -82,30 +67,6 @@ typedef struct Org {
   std::string node_id;
   std::string description;
 } Org;
-
-typedef struct Emoji {
-  std::string name;
-  std::string url;
-} Emoji;
-
-typedef struct Gitignore {
-  std::string name;
-  std::string source;
-} Gitignore;
-
-typedef struct License {
-  std::string key;
-  std::string name;
-  std::string spdx_id;
-  std::string node_id;
-  std::string description;
-  std::string implementation;
-  std::string permissions;
-  std::string conditions;
-  std::string limitations;
-  std::string body;
-  bool featured;
-} License;
 
 typedef struct Repo {
   int64_t id;

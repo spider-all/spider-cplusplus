@@ -70,10 +70,7 @@ private:
 
   int startup_followx();
   int startup_info();
-  int startup_emojis();
   int startup_orgs();
-  int startup_gitignore();
-  int startup_license();
   int startup_xrepos();
   int startup_events();
 
@@ -81,11 +78,6 @@ private:
   int request_orgs(const nlohmann::json &content, enum request_type type_from);
   int request_user(nlohmann::json content, enum request_type type_from);
   int request_followx(const nlohmann::json &content, enum request_type type_from);
-  int request_emoji(nlohmann::json content, enum request_type type_from);
-  int request_gitignore_list(const nlohmann::json &content, enum request_type type_from);
-  int request_gitignore_info(nlohmann::json content, enum request_type type_from);
-  int request_license_list(const nlohmann::json &content, enum request_type type_from);
-  int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
   int request_events(const nlohmann::json &content);
 

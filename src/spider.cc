@@ -36,7 +36,7 @@ int main(int argc, char const *argv[]) {
   app.add_option("-c,--config", config_path, "config path");
   CLI11_PARSE(app, argc, argv)
 
-  spdlog::set_pattern("[%L][%H:%M:%S][%s:%#][thread %t] %v");
+  spdlog::set_pattern("[%L][%H:%M:%S][thread %t] %v");
 
   const std::string default_config = "/etc/spider-cplusplus/config.yaml";
   if (config_path.empty()) {

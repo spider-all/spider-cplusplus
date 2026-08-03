@@ -28,9 +28,6 @@ public:
   bool crawler_type_orgs_member = false;
   bool crawler_type_users_repos = false;
   bool crawler_type_orgs_repos = false;
-  bool crawler_type_emojis = false;
-  bool crawler_type_gitignore_list = false;
-  bool crawler_type_license_list = false;
   bool crawler_type_events = false;
 
   int initialize(const std::string &config_path);

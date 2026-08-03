@@ -23,10 +23,6 @@ int Versions::initialize(SQLite::Database &db) {
         this->users_repos_version = ver;
       } else if (type_string == this->to_string(request_type_orgs_repos)) {
         this->orgs_repos_version = ver;
-      } else if (type_string == this->to_string(request_type_gitignore_list)) {
-        this->gitignore_list_version = ver;
-      } else if (type_string == this->to_string(request_type_license_list)) {
-        this->license_list_version = ver;
       } else if (type_string == this->to_string(request_type_events)) {
         this->events_version = ver;
       }
@@ -50,10 +46,6 @@ int64_t Versions::get(enum request_type type) {
     version = this->orgs_member_version;
   } else if (type == request_type_orgs_repos) {
     version = this->orgs_repos_version;
-  } else if (type == request_type_gitignore_list) {
-    version = this->gitignore_list_version;
-  } else if (type == request_type_license_list) {
-    version = this->license_list_version;
   } else if (type == request_type_users_repos) {
     version = this->users_repos_version;
   } else if (type == request_type_events) {
@@ -81,12 +73,6 @@ int64_t Versions::incr(enum request_type type) {
   } else if (type == request_type_orgs_repos) {
     this->orgs_repos_version++;
     version = this->orgs_repos_version;
-  } else if (type == request_type_gitignore_list) {
-    this->gitignore_list_version++;
-    version = this->gitignore_list_version;
-  } else if (type == request_type_license_list) {
-    this->license_list_version++;
-    version = this->license_list_version;
   } else if (type == request_type_users_repos) {
     this->users_repos_version++;
     version = this->users_repos_version;
@@ -111,10 +97,6 @@ std::string Versions::to_string(enum request_type type) {
     return "orgs_member";
   case request_type_orgs_repos:
     return "orgs_repos";
-  case request_type_gitignore_list:
-    return "gitignore";
-  case request_type_license_list:
-    return "license";
   case request_type_users_repos:
     return "users_repos";
   case request_type_events:

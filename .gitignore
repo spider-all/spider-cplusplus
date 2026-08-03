@@ -204,3 +204,4 @@ pkgs/
 
 build/
 vcpkg_installed/
+*.sqlite

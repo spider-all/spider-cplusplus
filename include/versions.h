@@ -16,8 +16,6 @@ private:
   int64_t orgs_version = 1;
   int64_t orgs_member_version = 1;
   int64_t orgs_repos_version = 1;
-  int64_t gitignore_list_version = 1;
-  int64_t license_list_version = 1;
   int64_t events_version = 1;
 
 public:

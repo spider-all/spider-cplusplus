@@ -49,15 +49,6 @@ int Config::initialize(const std::string &config_path) {
       if (crawler["orgs_repos"]) {
         this->crawler_type_orgs_repos = crawler["orgs_repos"].as<bool>();
       }
-      if (crawler["emojis"]) {
-        this->crawler_type_emojis = crawler["emojis"].as<bool>();
-      }
-      if (crawler["gitignore_list"]) {
-        this->crawler_type_gitignore_list = crawler["gitignore_list"].as<bool>();
-      }
-      if (crawler["license_list"]) {
-        this->crawler_type_license_list = crawler["license_list"].as<bool>();
-      }
       if (crawler["events"]) {
         this->crawler_type_events = crawler["events"].as<bool>();
       }

@@ -59,16 +59,6 @@ public:
   int64_t count_org() override;
   std::vector<std::string> list_orgs_random(enum request_type type) override;
 
-  int upsert_emoji(std::vector<Emoji> emojis) override;
-  int64_t count_emoji() override;
-
-  int upsert_gitignore(Gitignore gitignore) override;
-  int64_t count_gitignore() override;
-
-  int upsert_license(License license) override;
-  int upsert_license_with_version(License license, enum request_type type) override;
-  int64_t count_license() override;
-
   int upsert_repo(Repo repo) override;
   int upsert_repo(std::vector<Repo> repos) override;
   int upsert_repo_with_version(Repo repo, enum request_type type) override;
