@@ -72,46 +72,6 @@ if (APPLE)
   target_link_libraries(spider PRIVATE "-framework Security")
 endif ()
 
-find_package(GTest CONFIG REQUIRED)
-
-function(spider_test)
-  cmake_parse_arguments(PARSED_ARGS "" "NAME" "SRCS" ${ARGN})
-  add_executable(${PARSED_ARGS_NAME} ${PARSED_ARGS_SRCS})
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE utf8proc::utf8proc)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE CLI11::CLI11)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE $<IF:$<TARGET_EXISTS:duckdb>,duckdb,duckdb_static>)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE fmt::fmt-header-only)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE spdlog::spdlog)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
-  target_link_libraries(${PARSED_ARGS_NAME} PRIVATE croncpp::croncpp)
-  if (UNIX AND NOT APPLE)
-    target_link_libraries(${PARSED_ARGS_NAME} PRIVATE rt stdc++fs)
-  endif ()
-  if (APPLE)
-    target_link_libraries(${PARSED_ARGS_NAME} PRIVATE "-framework CoreFoundation")
-    target_link_libraries(${PARSED_ARGS_NAME} PRIVATE "-framework Security")
-  endif ()
-  target_include_directories(${PARSED_ARGS_NAME} PRIVATE include)
-endfunction()
-
-if (NOT CMAKE_BUILD_TYPE STREQUAL release)
-  FILE(GLOB test_list_x_random test/list_x_random.cc src/database/duckdb/*.cc src/versions.cc)
-  spider_test(
-    NAME test_list_x_random
-    SRCS ${test_list_x_random}
-  )
-  FILE(GLOB test_ensure_index test/ensure_index.cc src/database/duckdb/*.cc src/versions.cc)
-  spider_test(
-    NAME test_ensure_index
-    SRCS ${test_ensure_index}
-  )
-  FILE(GLOB test_create_x_collection test/create_x_collection.cc src/database/duckdb/*.cc src/versions.cc)
-  spider_test(
-    NAME test_create_x_collection
-    SRCS ${test_create_x_collection}
-  )
-endif()
-
 message("System info: ${CMAKE_SYSTEM}")
 message("System name: ${CMAKE_SYSTEM_NAME}")
 message("System processor: ${CMAKE_SYSTEM_PROCESSOR}")

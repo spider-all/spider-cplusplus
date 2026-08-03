@@ -28,6 +28,8 @@ int Versions::initialize(duckdb::Connection &con) {
         this->gitignore_list_version = ver;
       } else if (type_string == this->to_string(request_type_license_list)) {
         this->license_list_version = ver;
+      } else if (type_string == this->to_string(request_type_events)) {
+        this->events_version = ver;
       }
     }
   }
@@ -54,8 +56,10 @@ int64_t Versions::get(enum request_type type) {
     version = this->users_repos_version;
   } else if (type == request_type_users_repos_branches) {
     version = this->users_repos_branches_version;
+  } else if (type == request_type_events) {
+    version = this->events_version;
   } else {
-    spdlog::error("unknown request type {}", static_cast<int>(type));
+    spdlog::error("unknown request type in Versions::get: {} ({})", static_cast<int>(type), request_type_name(type));
   }
   return version;
 }
@@ -89,8 +93,11 @@ int64_t Versions::incr(enum request_type type) {
   } else if (type == request_type_users_repos_branches) {
     this->users_repos_branches_version++;
     version = this->users_repos_branches_version;
+  } else if (type == request_type_events) {
+    this->events_version++;
+    version = this->events_version;
   } else {
-    spdlog::error("unknown request type {}", static_cast<int>(type));
+    spdlog::error("unknown request type in Versions::incr: {} ({})", static_cast<int>(type), request_type_name(type));
   }
   return version;
 }
@@ -115,8 +122,10 @@ std::string Versions::to_string(enum request_type type) {
     return "users_repos";
   case request_type_users_repos_branches:
     return "users_repos_branches";
+  case request_type_events:
+    return "events";
   default:
-    spdlog::error("unknown request type {}", static_cast<int>(type));
+    spdlog::error("unknown request type in Versions::to_string: {} ({})", static_cast<int>(type), request_type_name(type));
     return "Unknown type";
   }
 }

@@ -20,6 +20,42 @@ enum request_type {
   request_type_events,
 };
 
+inline const char *request_type_name(enum request_type type) {
+  switch (type) {
+  case request_type_followers:
+    return "followers";
+  case request_type_following:
+    return "following";
+  case request_type_user:
+    return "user";
+  case request_type_orgs:
+    return "orgs";
+  case request_type_orgs_member:
+    return "orgs_member";
+  case request_type_users_repos:
+    return "users_repos";
+  case request_type_users_repos_branches:
+    return "users_repos_branches";
+  case request_type_users_repos_branches_commits:
+    return "users_repos_branches_commits";
+  case request_type_orgs_repos:
+    return "orgs_repos";
+  case request_type_emoji:
+    return "emoji";
+  case request_type_gitignore_list:
+    return "gitignore_list";
+  case request_type_gitignore_info:
+    return "gitignore_info";
+  case request_type_license_list:
+    return "license_list";
+  case request_type_license_info:
+    return "license_info";
+  case request_type_events:
+    return "events";
+  }
+  return "unknown";
+}
+
 typedef struct {
   long long page;
   long long limit;

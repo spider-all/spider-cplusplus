@@ -19,6 +19,7 @@ private:
   int64_t orgs_repos_version = 1;
   int64_t gitignore_list_version = 1;
   int64_t license_list_version = 1;
+  int64_t events_version = 1;
 
 public:
   int64_t get(enum request_type type);

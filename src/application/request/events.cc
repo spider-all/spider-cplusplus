@@ -16,7 +16,9 @@ int Request::startup_events() {
       if (code != 0) {
         spdlog::error("request events with error: {}", code);
       }
-      std::this_thread::sleep_for(std::chrono::seconds(60));
+      for (int i = 0; i < 600 && !stopping; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
     }
     spdlog::info("events thread stopped");
     semaphore--;
@@ -26,40 +28,56 @@ int Request::startup_events() {
 }
 
 int Request::request_events(const nlohmann::json &content) {
+  if (!content.is_array()) {
+    spdlog::error("events response is not an array: type={}", content.type_name());
+    return REQUEST_ERROR;
+  }
+
+  spdlog::info("processing events response: count={}", content.size());
   for (auto &event : content) {
     if (stopping) {
       return EXIT_SUCCESS;
     }
 
-    std::string event_type = event["type"].get<std::string>();
+    std::string event_type = event.value("type", std::string{});
+    std::string actor_login;
+    std::string repo_name;
+
+    if (event.contains("actor") && event["actor"].is_object()) {
+      actor_login = event["actor"].value("login", std::string{});
+    }
+    if (event.contains("repo") && event["repo"].is_object()) {
+      repo_name = event["repo"].value("name", std::string{});
+    }
+
+    if (actor_login == "Copilot") {
+      spdlog::info("skip event from Copilot actor: type={}, repo={}", event_type, repo_name);
+      continue;
+    }
+
+    spdlog::info("processing event: type={}, actor={}, repo={}", event_type, actor_login, repo_name);
 
     // Extract actor (user) info
-    if (event.contains("actor") && !event["actor"].is_null()) {
-      std::string login = event["actor"]["login"].get<std::string>();
-      if (!login.empty()) {
-        RequestConfig user_config{
-            .host = this->default_url_prefix,
-            .path = "/users/" + login,
-        };
-        int code = request(user_config, request_type_user, request_type_events);
-        if (code != 0) {
-          spdlog::error("request user {} from events with error: {}", login, code);
-        }
+    if (!actor_login.empty()) {
+      RequestConfig user_config{
+          .host = this->default_url_prefix,
+          .path = "/users/" + actor_login,
+      };
+      int code = request(user_config, request_type_user, request_type_events);
+      if (code != 0) {
+        spdlog::error("request user {} from events with error: {}", actor_login, code);
       }
     }
 
     // For PushEvent, also extract repo info
-    if (event_type == "PushEvent" && event.contains("repo") && !event["repo"].is_null()) {
-      std::string repo_name = event["repo"]["name"].get<std::string>();
-      if (!repo_name.empty()) {
-        RequestConfig repo_config{
-            .host = this->default_url_prefix,
-            .path = "/repos/" + repo_name,
-        };
-        int code = request(repo_config, request_type_users_repos, request_type_events);
-        if (code != 0) {
-          spdlog::error("request repo {} from events with error: {}", repo_name, code);
-        }
+    if (event_type == "PushEvent" && !repo_name.empty()) {
+      RequestConfig repo_config{
+          .host = this->default_url_prefix,
+          .path = "/repos/" + repo_name,
+      };
+      int code = request(repo_config, request_type_users_repos, request_type_events);
+      if (code != 0) {
+        spdlog::error("request repo {} from events with error: {}", repo_name, code);
       }
     }
 

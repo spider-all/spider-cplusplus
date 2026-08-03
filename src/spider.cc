@@ -3,6 +3,7 @@
 #include <thread>
 
 #include <CLI/CLI.hpp>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include <config.h>
@@ -37,7 +38,9 @@ int main(int argc, char const *argv[]) {
   app.add_option("-c,--config", config_path, "config path");
   CLI11_PARSE(app, argc, argv)
 
-  spdlog::set_pattern("[%L][%H:%M:%S][%s:%#][thread %t] %v");
+  auto logger = spdlog::stdout_color_mt("console");
+  spdlog::set_default_logger(logger);
+  spdlog::set_pattern("[%^%L%$][%H:%M:%S][%s:%#][thread %t] %v");
 
   const std::string default_config = "/etc/spider-cplusplus/config.yaml";
   if (config_path.empty()) {

@@ -22,6 +22,8 @@ int DuckDBDatabase::update_version(std::string key, enum request_type type) {
     version = 1;
   }
   std::string type_str = this->versions->to_string(type);
+  spdlog::info("update version tracking: type={}({}), key={}, version={}",
+               type_str, static_cast<int>(type), key, version);
   std::string sql = fmt::format(
       "INSERT OR REPLACE INTO version_tracking (type, key, version) VALUES ('{}', '{}', {})",
       this->escape(type_str), this->escape(key), version);
@@ -34,6 +36,8 @@ int DuckDBDatabase::update_version(std::vector<std::string> keys, enum request_t
     version = 1;
   }
   std::string type_str = this->versions->to_string(type);
+  spdlog::info("update version tracking batch: type={}({}), count={}, version={}",
+               type_str, static_cast<int>(type), keys.size(), version);
   for (const auto &key : keys) {
     std::string sql = fmt::format(
         "INSERT OR REPLACE INTO version_tracking (type, key, version) VALUES ('{}', '{}', {})",
@@ -46,6 +50,7 @@ int DuckDBDatabase::update_version(std::vector<std::string> keys, enum request_t
 int DuckDBDatabase::incr_version(enum request_type type) {
   int64_t version = this->versions->incr(type);
   std::string type_str = this->versions->to_string(type);
+  spdlog::info("increase version: type={}({}), version={}", type_str, static_cast<int>(type), version);
   std::string sql = fmt::format(
       "INSERT OR REPLACE INTO versions (type, version) VALUES ('{}', {})",
       this->escape(type_str), version);
@@ -60,6 +65,8 @@ int DuckDBDatabase::incr_version(enum request_type type) {
 std::vector<std::string> DuckDBDatabase::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
   std::string type_string = this->versions->to_string(type);
   int64_t version = this->versions->get(type);
+  spdlog::info("list random records: collection={}, keys={}, type={}({}), version={}",
+               collection, keys, type_string, static_cast<int>(type), version);
 
   std::vector<std::string> result;
 
@@ -124,8 +131,12 @@ std::vector<std::string> DuckDBDatabase::list_x_random(const std::string &collec
       result.push_back(res);
     }
     if (result.empty()) {
+      spdlog::info("list random records result is empty: collection={}, type={}({}), version={}",
+                   collection, type_string, static_cast<int>(type), version);
       this->incr_version(type);
     } else {
+      spdlog::info("list random records result: collection={}, type={}({}), count={}",
+                   collection, type_string, static_cast<int>(type), result.size());
       this->update_version(result, type);
     }
   } catch (const std::exception &e) {

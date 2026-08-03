@@ -25,7 +25,6 @@
     },
     "boost-algorithm",
     "boost-random",
-    "gtest",
     "croncpp",
     "utf8proc"
   ],

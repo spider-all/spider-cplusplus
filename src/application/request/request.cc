@@ -48,7 +48,10 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     return EXIT_SUCCESS;
   }
 
-  spdlog::info("Crawler url: {}{}", request_config.host, request_config.path);
+  spdlog::info("crawler request: type={}({}), type_from={}({}), url={}{}",
+               request_type_name(type), static_cast<int>(type),
+               request_type_name(type_from), static_cast<int>(type_from),
+               request_config.host, request_config.path);
 
   std::string _useragent = USERAGENT;
   if (!config.crawler_useragent.empty()) {
@@ -118,11 +121,10 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
 
   if (rate_limit_remaining % 10 == 0) {
-    spdlog::info("rate limit: {}/{}", rate_limit_remaining, rate_limit_limit);
     std::time_t result = rate_limit_reset;
     char buffer[32];
     std::strftime(buffer, 32, "%Y/%m/%d %H:%M:%S", std::localtime(&result));
-    spdlog::info("rate limit reset at: {}", buffer);
+    spdlog::info("rate limit: {}/{}, reset at: {}", rate_limit_remaining, rate_limit_limit, buffer);
   }
 
   if (response->status == 403) {
@@ -260,17 +262,26 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         }
         break;
       case request_type_events:
+        spdlog::info("dispatch events response: path={}, type_from={}({})",
+                     request_config.path, request_type_name(type_from), static_cast<int>(type_from));
         code = this->request_events(content);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);
         }
         break;
       default:
-        spdlog::info("unknown request type: {} (type_from={}) on path: {}", static_cast<int>(type), static_cast<int>(type_from), request_config.path);
+        spdlog::error("unknown request type in Request::request: type={}({}), type_from={}({}), path={}",
+                      request_type_name(type), static_cast<int>(type),
+                      request_type_name(type_from), static_cast<int>(type_from),
+                      request_config.path);
         return UNKNOWN_REQUEST_TYPE;
       }
     } catch (const nlohmann::json::type_error &e) {
-      spdlog::error("json error on {} (type={}): {}, body={}", request_config.path, static_cast<int>(type), e.what(), response->body);
+      spdlog::error("json error on {}: type={}({}), type_from={}({}), error={}, body={}",
+                    request_config.path,
+                    request_type_name(type), static_cast<int>(type),
+                    request_type_name(type_from), static_cast<int>(type_from),
+                    e.what(), response->body);
       return REQUEST_ERROR;
     }
   }
