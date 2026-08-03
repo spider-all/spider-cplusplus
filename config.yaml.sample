@@ -12,6 +12,7 @@ crawler:
   orgs_member: true
   users_repos: true
   orgs_repos: true
+  starred: true
   events: true
 
 database:

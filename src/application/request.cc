@@ -250,7 +250,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       switch (type) {
       case request_type_following:
       case request_type_followers:
-        code = request_followx(content, type_from);
+        code = request_followx(content, type, type_from, request_config.extra);
         if (code != 0) {
           spdlog::error("Request userinfo with error: {}", code);
         }
@@ -276,6 +276,12 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       case request_type_orgs_repos:
       case request_type_users_repos:
         code = this->request_repo_list(content, type_from);
+        if (code != 0) {
+          spdlog::error("Database with error: {}", code);
+        }
+        break;
+      case request_type_starred:
+        code = this->request_starred(content, request_config.extra);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);
         }

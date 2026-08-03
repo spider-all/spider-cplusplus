@@ -4,9 +4,9 @@ int SQLiteDatabase::upsert_user(User user) {
   std::string sql = fmt::format(
       "INSERT INTO users (id, login, node_id, type, name, company, blog, location, "
       "email, hireable, bio, created_at, updated_at, public_gists, public_repos, following, followers, "
-      "data_created_at, data_updated_at) "
+      "data_created_at, data_updated_at, data_version) "
       "VALUES ({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, {}, {}, {}, "
-      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER)) "
+      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER), 1) "
       "ON CONFLICT(id) DO UPDATE SET "
       "login = excluded.login, "
       "node_id = excluded.node_id, "
@@ -24,7 +24,8 @@ int SQLiteDatabase::upsert_user(User user) {
       "public_repos = excluded.public_repos, "
       "following = excluded.following, "
       "followers = excluded.followers, "
-      "data_updated_at = CAST(strftime('%s','now') AS INTEGER)",
+      "data_updated_at = CAST(strftime('%s','now') AS INTEGER), "
+      "data_version = COALESCE(users.data_version, 0) + 1",
       user.id,
       this->escape(user.login),
       this->escape(user.node_id),
@@ -47,7 +48,6 @@ int SQLiteDatabase::upsert_user(User user) {
 
 int SQLiteDatabase::upsert_user_with_version(User user, enum request_type type) {
   WRAP_FUNC(this->upsert_user(user))
-  WRAP_FUNC(this->update_version(std::to_string(user.id), type))
   return EXIT_SUCCESS;
 }
 
@@ -67,7 +67,7 @@ std::vector<User> SQLiteDatabase::list_usersx(common_args args) {
 }
 
 std::vector<std::string> SQLiteDatabase::list_users_random(enum request_type type) {
-  return this->list_x_random("users", "login", type);
+  return this->list_x_random("users", "id;login", type);
 }
 
 int64_t SQLiteDatabase::count_user() {

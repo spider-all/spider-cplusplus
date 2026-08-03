@@ -32,17 +32,11 @@ std::string SQLiteDatabase::escape(const std::string &s) {
 }
 
 int SQLiteDatabase::initialize() {
-  this->versions = new Versions();
   try {
     this->db = new SQLite::Database(this->db_path, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
   } catch (const std::exception &e) {
     spdlog::error("SQLite open error: {}", e.what());
     return DATABASE_OPEN_ERROR;
   }
-  WRAP_FUNC(this->create_collections())
-  return this->initialize_version();
-}
-
-int SQLiteDatabase::initialize_version() {
-  return this->versions->initialize(*this->db);
+  return this->create_collections();
 }

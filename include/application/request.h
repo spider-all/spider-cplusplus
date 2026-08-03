@@ -20,8 +20,7 @@
 #pragma once
 
 typedef struct ExtraData {
-  std::string user;
-  std::string repo;
+  int64_t user_id = 0;
 } ExtraData;
 
 typedef struct TrendingData {
@@ -77,8 +76,9 @@ private:
   int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
   int request_orgs(const nlohmann::json &content, enum request_type type_from);
   int request_user(nlohmann::json content, enum request_type type_from);
-  int request_followx(const nlohmann::json &content, enum request_type type_from);
+  int request_followx(const nlohmann::json &content, enum request_type type, enum request_type type_from, const ExtraData &extra);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
+  int request_starred(nlohmann::json content, const ExtraData &extra);
   int request_events(const nlohmann::json &content);
 
 public:

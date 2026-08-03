@@ -16,57 +16,45 @@ int64_t SQLiteDatabase::count_x(const std::string &c) {
   return 0;
 }
 
-int SQLiteDatabase::update_version(std::string key, enum request_type type) {
-  int64_t version = this->versions->get(type);
-  if (version == 0) {
-    version = 1;
+int64_t SQLiteDatabase::next_data_version(const std::string &collection) {
+  try {
+    SQLite::Statement query(*this->db, fmt::format("SELECT COALESCE(MAX(data_version), 0) + 1 FROM {}", collection));
+    if (query.executeStep()) {
+      return query.getColumn(0).getInt64();
+    }
+  } catch (const std::exception &e) {
+    spdlog::error("SQLite error: {}", e.what());
   }
-  std::string type_str = this->versions->to_string(type);
-  spdlog::info("update version tracking: type={}({}), key={}, version={}",
-               type_str, static_cast<int>(type), key, version);
+  return 1;
+}
+
+int SQLiteDatabase::update_data_version(const std::string &collection, const std::string &key_column, const std::string &key_value, int64_t version) {
   std::string sql = fmt::format(
-      "INSERT OR REPLACE INTO version_tracking (type, key, version) VALUES ('{}', '{}', {})",
-      this->escape(type_str), this->escape(key), version);
+      "UPDATE {} SET data_version = {} WHERE {} = '{}'",
+      collection, version, key_column, this->escape(key_value));
   return this->execute(sql);
 }
 
-int SQLiteDatabase::update_version(std::vector<std::string> keys, enum request_type type) {
-  int64_t version = this->versions->get(type);
-  if (version == 0) {
-    version = 1;
-  }
-  std::string type_str = this->versions->to_string(type);
-  spdlog::info("update version tracking batch: type={}({}), count={}, version={}",
-               type_str, static_cast<int>(type), keys.size(), version);
-  for (const auto &key : keys) {
-    std::string sql = fmt::format(
-        "INSERT OR REPLACE INTO version_tracking (type, key, version) VALUES ('{}', '{}', {})",
-        this->escape(type_str), this->escape(key), version);
-    WRAP_FUNC(this->execute(sql))
-  }
-  return EXIT_SUCCESS;
-}
-
-int SQLiteDatabase::incr_version(enum request_type type) {
-  int64_t version = this->versions->incr(type);
-  std::string type_str = this->versions->to_string(type);
-  spdlog::info("increase version: type={}({}), version={}", type_str, static_cast<int>(type), version);
+int SQLiteDatabase::upsert_relation(const std::string &collection, const std::string &first_column, int64_t first_id, const std::string &second_column, int64_t second_id) {
   std::string sql = fmt::format(
-      "INSERT OR REPLACE INTO versions (type, version) VALUES ('{}', {})",
-      this->escape(type_str), version);
-  WRAP_FUNC(this->execute(sql))
-  spdlog::info("Increase {} to {}", fmt::format("{}_version", type_str), version);
-  return EXIT_SUCCESS;
+      "INSERT INTO {} ({}, {}, data_created_at, data_updated_at, data_version) "
+      "VALUES ({}, {}, CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER), 1) "
+      "ON CONFLICT({}, {}) DO UPDATE SET "
+      "data_updated_at = CAST(strftime('%s','now') AS INTEGER), "
+      "data_version = COALESCE({}.data_version, 0) + 1",
+      collection, first_column, second_column,
+      first_id, second_id,
+      first_column, second_column,
+      collection);
+  return this->execute(sql);
 }
 
 // list_x_random
 // @params
 //    keys name:string;id:int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
 std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
-  std::string type_string = this->versions->to_string(type);
-  int64_t version = this->versions->get(type);
-  spdlog::info("list random records: collection={}, keys={}, type={}({}), version={}",
-               collection, keys, type_string, static_cast<int>(type), version);
+  spdlog::info("list random records: collection={}, keys={}, type={}({})",
+               collection, keys, request_type_name(type), static_cast<int>(type));
 
   std::vector<std::string> result;
 
@@ -95,14 +83,12 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
   }
 
   std::string sql = fmt::format(
-      "SELECT {} FROM {} t LEFT JOIN version_tracking v ON v.type = '{}' AND v.key = CAST(t.{} AS TEXT) "
-      "WHERE v.version IS NULL OR v.version < {} "
-      "ORDER BY RANDOM() LIMIT {}",
-      select_expr, collection, this->escape(type_string),
-      select_cols[0], version, this->sample_size);
+      "SELECT {} FROM {} t ORDER BY COALESCE(t.data_version, 0), RANDOM() LIMIT {}",
+      select_expr, collection, this->sample_size);
 
   try {
     SQLite::Statement query(*this->db, sql);
+    std::vector<std::string> selected_keys;
     while (query.executeStep()) {
       std::string res;
       bool first = true;
@@ -120,15 +106,22 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
         }
       }
       result.push_back(res);
+      selected_keys.push_back(query.getColumn(0).getString());
     }
     if (result.empty()) {
-      spdlog::info("list random records result is empty: collection={}, type={}({}), version={}",
-                   collection, type_string, static_cast<int>(type), version);
-      this->incr_version(type);
+      spdlog::info("list random records result is empty: collection={}, type={}({})",
+                   collection, request_type_name(type), static_cast<int>(type));
     } else {
       spdlog::info("list random records result: collection={}, type={}({}), count={}",
-                   collection, type_string, static_cast<int>(type), result.size());
-      this->update_version(result, type);
+                   collection, request_type_name(type), static_cast<int>(type), result.size());
+      int64_t version = this->next_data_version(collection);
+      for (const auto &selected_key : selected_keys) {
+        int code = this->update_data_version(collection, select_cols[0], selected_key, version);
+        if (code != EXIT_SUCCESS) {
+          spdlog::error("update data version failed: collection={}, key={}, version={}", collection, selected_key, version);
+          return result;
+        }
+      }
     }
   } catch (const std::exception &e) {
     spdlog::error("SQLite error: {}", e.what());

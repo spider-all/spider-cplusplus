@@ -28,6 +28,7 @@ public:
   bool crawler_type_orgs_member = false;
   bool crawler_type_users_repos = false;
   bool crawler_type_orgs_repos = false;
+  bool crawler_type_starred = false;
   bool crawler_type_events = false;
 
   int initialize(const std::string &config_path);

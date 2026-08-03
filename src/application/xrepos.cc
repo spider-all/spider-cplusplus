@@ -1,5 +1,40 @@
 #include <application/request.h>
 
+#include <string_utils.h>
+
+namespace {
+Repo repo_from_json(const nlohmann::json &con) {
+  Repo repo{
+      .id = con["id"].get<int64_t>(),
+      .node_id = con["node_id"].get<std::string>(),
+      .name = con["name"].get<std::string>(),
+      .full_name = con["full_name"].get<std::string>(),
+      .xprivate = con["private"].get<bool>(),
+      .owner = con["owner"]["login"].get<std::string>(),
+      .owner_type = con["owner"]["type"].get<std::string>(),
+      .description = con.value("description", ""),
+      .fork = con["fork"].get<bool>(),
+      .created_at = con["created_at"].get<std::string>(),
+      .updated_at = con["updated_at"].get<std::string>(),
+      .pushed_at = con["pushed_at"].get<std::string>(),
+      .homepage = con.value("homepage", ""),
+      .size = con["size"].get<int64_t>(),
+      .stargazers_count = con["stargazers_count"].get<int64_t>(),
+      .watchers_count = con["watchers_count"].get<int64_t>(),
+      .forks_count = con["forks_count"].get<int64_t>(),
+      .language = con.value("language", ""),
+      .forks = con["forks"].get<int64_t>(),
+      .open_issues = con["open_issues"].get<int64_t>(),
+      .watchers = con["watchers"].get<int64_t>(),
+      .default_branch = con.value("default_branch", ""),
+  };
+  if (!con["license"].is_null() && !con["license"].is_string()) {
+    repo.license = con["license"].value("key", "");
+  }
+  return repo;
+}
+} // namespace
+
 int Request::startup_xrepos() {
   if (config.crawler_type_users_repos) {
     semaphore++;
@@ -8,9 +43,14 @@ int Request::startup_xrepos() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_users_repos);
         for (const std::string &u : users) {
+          std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
+          if (parts.size() != 2) {
+            spdlog::error("invalid user record: {}", u);
+            continue;
+          }
           RequestConfig request_config{
               .host = this->default_url_prefix,
-              .path = "/users/" + u + "/repos?per_page=100",
+              .path = "/users/" + parts[1] + "/repos?per_page=100",
           };
           int code = request(request_config, request_type_users_repos, request_type_users_repos);
           if (code != 0) {
@@ -35,9 +75,14 @@ int Request::startup_xrepos() {
       while (!stopping) {
         std::vector<std::string> users = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &u : users) {
+          std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
+          if (parts.size() != 2) {
+            spdlog::error("invalid org record: {}", u);
+            continue;
+          }
           RequestConfig request_config{
               .host = this->default_url_prefix,
-              .path = "/orgs/" + u + "/repos?per_page=100",
+              .path = "/orgs/" + parts[1] + "/repos?per_page=100",
           };
           int code = request(request_config, request_type_orgs_repos, request_type_orgs_repos);
           if (code != 0) {
@@ -54,6 +99,40 @@ int Request::startup_xrepos() {
     });
     orgs_repos_thread.detach();
   }
+  if (config.crawler_type_starred) {
+    semaphore++;
+    std::thread starred_thread([=, this]() {
+      spdlog::info("starred repos thread is starting...");
+      while (!stopping) {
+        std::vector<std::string> users = database->list_users_random(request_type_starred);
+        for (const std::string &u : users) {
+          std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
+          if (parts.size() != 2) {
+            spdlog::error("invalid user record: {}", u);
+            continue;
+          }
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/users/" + parts[1] + "/starred?per_page=100",
+              .extra = {
+                  .user_id = std::stoll(parts[0]),
+              },
+          };
+          int code = request(request_config, request_type_starred, request_type_starred);
+          if (code != 0) {
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
+          }
+          if (stopping) {
+            break;
+          }
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+      }
+      spdlog::info("starred repos thread stopped");
+      semaphore--;
+    });
+    starred_thread.detach();
+  }
   return EXIT_SUCCESS;
 }
 
@@ -65,34 +144,23 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
   }
   std::vector<Repo> repos;
   for (auto &&con : content) {
-    Repo repo{
-        .id = con["id"].get<int64_t>(),
-        .node_id = con["node_id"].get<std::string>(),
-        .name = con["name"].get<std::string>(),
-        .full_name = con["full_name"].get<std::string>(),
-        .xprivate = con["private"].get<bool>(),
-        .owner = con["owner"]["login"].get<std::string>(),
-        .owner_type = con["owner"]["type"].get<std::string>(),
-        .description = con.value("description", ""),
-        .fork = con["fork"].get<bool>(),
-        .created_at = con["created_at"].get<std::string>(),
-        .updated_at = con["updated_at"].get<std::string>(),
-        .pushed_at = con["pushed_at"].get<std::string>(),
-        .homepage = con.value("homepage", ""),
-        .size = con["size"].get<int64_t>(),
-        .stargazers_count = con["stargazers_count"].get<int64_t>(),
-        .watchers_count = con["watchers_count"].get<int64_t>(),
-        .forks_count = con["forks_count"].get<int64_t>(),
-        .language = con.value("language", ""),
-        .forks = con["forks"].get<int64_t>(),
-        .open_issues = con["open_issues"].get<int64_t>(),
-        .watchers = con["watchers"].get<int64_t>(),
-        .default_branch = con.value("default_branch", ""),
-    };
-    if (!con["license"].is_null() && !con["license"].is_string()) {
-      repo.license = con["license"].value("key", "");
-    }
-    repos.push_back(repo);
+    repos.push_back(repo_from_json(con));
   }
   return database->upsert_repo_with_version(repos, type_from);
+}
+
+int Request::request_starred(nlohmann::json content, const ExtraData &extra) {
+  if (!content.is_array()) {
+    nlohmann::json arr = nlohmann::json::array();
+    arr.push_back(content);
+    content = arr;
+  }
+  for (auto &&con : content) {
+    Repo repo = repo_from_json(con);
+    WRAP_FUNC(this->database->upsert_repo(repo))
+    if (extra.user_id != 0) {
+      WRAP_FUNC(this->database->upsert_starred(extra.user_id, repo.id))
+    }
+  }
+  return EXIT_SUCCESS;
 }

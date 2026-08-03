@@ -5,10 +5,10 @@ int SQLiteDatabase::upsert_repo(Repo repo) {
       "INSERT INTO repos (id, node_id, name, full_name, xprivate, owner, owner_type, "
       "description, fork, created_at, updated_at, pushed_at, homepage, size, "
       "stargazers_count, watchers_count, forks_count, language, license, forks, "
-      "open_issues, watchers, default_branch, data_created_at, data_updated_at) "
+      "open_issues, watchers, default_branch, data_created_at, data_updated_at, data_version) "
       "VALUES ({}, '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, '{}', '{}', '{}', '{}', "
       "{}, {}, {}, {}, '{}', '{}', {}, {}, {}, '{}', "
-      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER)) "
+      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER), 1) "
       "ON CONFLICT(id) DO UPDATE SET "
       "node_id = excluded.node_id, "
       "name = excluded.name, "
@@ -32,7 +32,8 @@ int SQLiteDatabase::upsert_repo(Repo repo) {
       "open_issues = excluded.open_issues, "
       "watchers = excluded.watchers, "
       "default_branch = excluded.default_branch, "
-      "data_updated_at = CAST(strftime('%s','now') AS INTEGER)",
+      "data_updated_at = CAST(strftime('%s','now') AS INTEGER), "
+      "data_version = COALESCE(repos.data_version, 0) + 1",
       repo.id,
       this->escape(repo.node_id),
       this->escape(repo.name),
@@ -68,22 +69,16 @@ int SQLiteDatabase::upsert_repo(std::vector<Repo> repos) {
 
 int SQLiteDatabase::upsert_repo_with_version(Repo repo, enum request_type type) {
   WRAP_FUNC(this->upsert_repo(repo))
-  WRAP_FUNC(this->update_version(fmt::format("{}:{}", repo.name, repo.owner), type))
   return EXIT_SUCCESS;
 }
 
 int SQLiteDatabase::upsert_repo_with_version(std::vector<Repo> repos, enum request_type type) {
   WRAP_FUNC(this->upsert_repo(repos))
-  std::vector<std::string> keys;
-  for (const auto &repo : repos) {
-    keys.push_back(fmt::format("{}:{}", repo.name, repo.owner));
-  }
-  WRAP_FUNC(this->update_version(keys, type))
   return EXIT_SUCCESS;
 }
 
 std::vector<std::string> SQLiteDatabase::list_repos_random(enum request_type type) {
-  return this->list_x_random("repos", "name;owner", type);
+  return this->list_x_random("repos", "id;name;owner", type);
 }
 
 int64_t SQLiteDatabase::count_repo() {

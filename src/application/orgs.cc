@@ -1,5 +1,7 @@
 #include <application/request.h>
 
+#include <string_utils.h>
+
 int Request::startup_orgs() {
   if (config.crawler_type_orgs) {
     semaphore++;
@@ -8,9 +10,14 @@ int Request::startup_orgs() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_orgs);
         for (const std::string &u : users) {
+          std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
+          if (parts.size() != 2) {
+            spdlog::error("invalid user record: {}", u);
+            continue;
+          }
           RequestConfig request_config{
               .host = this->default_url_prefix,
-              .path = "/users/" + u + "/orgs?per_page=100",
+              .path = "/users/" + parts[1] + "/orgs?per_page=100",
           };
           int code = request(request_config, request_type_orgs, request_type_orgs);
           if (code != 0) {
@@ -34,9 +41,14 @@ int Request::startup_orgs() {
       while (!stopping) {
         std::vector<std::string> orgs = database->list_orgs_random(request_type_orgs_repos);
         for (const std::string &org : orgs) {
+          std::vector<std::string> parts = string_split(org, KEYS_DELIMITER[0]);
+          if (parts.size() != 2) {
+            spdlog::error("invalid org record: {}", org);
+            continue;
+          }
           RequestConfig request_config{
               .host = this->default_url_prefix,
-              .path = "/orgs/" + org + "/public_members?per_page=100",
+              .path = "/orgs/" + parts[1] + "/public_members?per_page=100",
           };
           int code = request(request_config, request_type_orgs_member, request_type_orgs_member);
           if (code != 0) {

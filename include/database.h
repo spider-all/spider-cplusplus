@@ -9,11 +9,6 @@ public:
   int code = 0;
   virtual ~Database() = default;
   virtual int initialize() = 0;
-  virtual int initialize_version() = 0;
-
-  virtual int update_version(std::string key, enum request_type type) = 0;
-  virtual int update_version(std::vector<std::string> key, enum request_type type) = 0;
-  virtual int incr_version(enum request_type type) = 0;
 
   virtual int upsert_user(User user) = 0;
   virtual int upsert_user_with_version(User user, enum request_type type) = 0;
@@ -35,4 +30,7 @@ public:
   virtual int upsert_repo_with_version(std::vector<Repo> repos, enum request_type type) = 0;
   virtual std::vector<std::string> list_repos_random(enum request_type type) = 0;
   virtual int64_t count_repo() = 0;
+
+  virtual int upsert_following(int64_t upstream_user_id, int64_t downstream_user_id) = 0;
+  virtual int upsert_starred(int64_t user_id, int64_t repo_id) = 0;
 };

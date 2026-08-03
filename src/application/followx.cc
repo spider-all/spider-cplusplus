@@ -1,5 +1,7 @@
 #include <application/request.h>
 
+#include <string_utils.h>
+
 int Request::startup_followx() {
   if (config.crawler_type_followers) {
     semaphore++;
@@ -8,9 +10,17 @@ int Request::startup_followx() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_followers);
         for (const std::string &u : users) {
+          std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
+          if (parts.size() != 2) {
+            spdlog::error("invalid user record: {}", u);
+            continue;
+          }
           RequestConfig request_config{
               .host = this->default_url_prefix,
-              .path = "/users/" + u + "/followers?per_page=100",
+              .path = "/users/" + parts[1] + "/followers?per_page=100",
+              .extra = {
+                  .user_id = std::stoll(parts[0]),
+              },
           };
           int code = request(request_config, request_type_followers, request_type_followers);
           if (code != 0) {
@@ -34,9 +44,17 @@ int Request::startup_followx() {
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random(request_type_following);
         for (const std::string &u : users) {
+          std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
+          if (parts.size() != 2) {
+            spdlog::error("invalid user record: {}", u);
+            continue;
+          }
           RequestConfig request_config{
               .host = this->default_url_prefix,
-              .path = "/users/" + u + "/following?per_page=100",
+              .path = "/users/" + parts[1] + "/following?per_page=100",
+              .extra = {
+                  .user_id = std::stoll(parts[0]),
+              },
           };
           int code = request(request_config, request_type_following, request_type_following);
           if (code != 0) {
@@ -83,8 +101,11 @@ int Request::request_user(nlohmann::json content, enum request_type type_from) {
   return code;
 }
 
-int Request::request_followx(const nlohmann::json &content, enum request_type type_from) {
+int Request::request_followx(const nlohmann::json &content, enum request_type type, enum request_type type_from, const ExtraData &extra) {
   for (auto i : content) {
+    if (type == request_type_following && extra.user_id != 0) {
+      WRAP_FUNC(this->database->upsert_following(extra.user_id, i["id"].get<int64_t>()))
+    }
     RequestConfig request_config{
         .host = this->default_url_prefix,
         .path = "/users/" + i["login"].get<std::string>(),
