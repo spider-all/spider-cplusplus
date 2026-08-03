@@ -12,19 +12,18 @@ Make sure you have installed all of the following prerequisites on your developm
 - cmake - open-source, cross-platform family of tools designed to build, test and package software.
 - make - build automation tool that automatically builds executable programs and libraries from source code by reading files called Makefiles which specify how to derive the target program.
 - ccache - speeds up recompilation by caching previous compilations and detecting when the same compilation is being done.
-- jq - jq is like sed for JSON data.
 
 ### MacOS
 
 ``` sh
 xcode-select --install
-brew install jq ccache cmake make
+brew install ccache cmake make
 ```
 
 ### Ubuntu
 
 ``` bash
-apt-get install build-essential make cmake ccache jq
+apt-get install build-essential make cmake ccache
 ```
 
 ## Compile
