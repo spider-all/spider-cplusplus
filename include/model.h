@@ -9,8 +9,6 @@ enum request_type {
   request_type_orgs,
   request_type_orgs_member,
   request_type_users_repos,
-  request_type_users_repos_branches,
-  request_type_users_repos_branches_commits,
   request_type_orgs_repos,
   request_type_emoji,
   request_type_gitignore_list,
@@ -34,10 +32,6 @@ inline const char *request_type_name(enum request_type type) {
     return "orgs_member";
   case request_type_users_repos:
     return "users_repos";
-  case request_type_users_repos_branches:
-    return "users_repos_branches";
-  case request_type_users_repos_branches_commits:
-    return "users_repos_branches_commits";
   case request_type_orgs_repos:
     return "orgs_repos";
   case request_type_emoji:
@@ -139,13 +133,6 @@ typedef struct Repo {
   std::string default_branch;
 } Repo;
 
-typedef struct Branch {
-  std::string owner;
-  std::string repo;
-  std::string name;
-  std::string commit;
-} Branch;
-
 typedef struct Trending {
   std::string seq;
   std::string spoken_language;
@@ -154,18 +141,3 @@ typedef struct Trending {
   std::string repo;
   int64_t star;
 } Trending;
-
-typedef struct Commit {
-  std::string owner;
-  std::string repo;
-  std::string branch;
-  std::string sha;
-  std::string node_id;
-  std::string commit;
-  std::string committer;
-  std::string author;
-  std::string message;
-  std::string url;
-  std::string comment_count;
-  std::string parents;
-} Commit;

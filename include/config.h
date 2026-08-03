@@ -28,8 +28,6 @@ public:
   bool crawler_type_orgs = false;
   bool crawler_type_orgs_member = false;
   bool crawler_type_users_repos = false;
-  bool crawler_type_users_repos_branches = false;
-  bool crawler_type_users_repos_branches_commits = false;
   bool crawler_type_orgs_repos = false;
   bool crawler_type_emojis = false;
   bool crawler_type_gitignore_list = false;

@@ -2,7 +2,7 @@
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spider-all/spider-cplusplus)
 
-Crawl GitHub APIs and store the discovered orgs, repos, commits...
+Crawl GitHub APIs and store the discovered orgs and repos...
 
 ## Prerequisites
 
@@ -15,20 +15,20 @@ Make sure you have installed all of the following prerequisites on your developm
 
 ### MacOS
 
-``` sh
+```bash
 xcode-select --install
 brew install ccache cmake make
 ```
 
 ### Ubuntu
 
-``` bash
+```bash
 apt-get install build-essential make cmake ccache
 ```
 
 ## Compile
 
-``` bash
+```bash
 make # generate the debug mode executable binary
 make debug # same as before
 make release # generate the release mode executable binary

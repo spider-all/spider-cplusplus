@@ -80,15 +80,4 @@ public:
   int upsert_repo_with_version(std::vector<Repo> repos, enum request_type type) override;
   std::vector<std::string> list_repos_random(enum request_type type) override;
   int64_t count_repo() override;
-
-  int upsert_branch(Branch branch) override;
-  int upsert_branch(std::vector<Branch> branches) override;
-  int upsert_branch_with_version(Branch branch, enum request_type type) override;
-  int upsert_branch_with_version(std::vector<Branch> branches, enum request_type type) override;
-  std::vector<std::string> list_branches_random(enum request_type type) override;
-
-  int upsert_commit(Commit commit) override;
-  int upsert_commit(std::vector<Commit> commits) override;
-  int upsert_commit_with_version(Commit commit, enum request_type type) override;
-  int upsert_commit_with_version(std::vector<Commit> commits, enum request_type type) override;
 };

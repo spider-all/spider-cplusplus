@@ -30,8 +30,5 @@ int DuckDBDatabase::create_collections() {
                                                 "size:int64;stargazers_count:int64;watchers_count:int64;"
                                                 "forks_count:int64;language;license;forks:int64;"
                                                 "open_issues:int64;watchers:int64;default_branch"))
-  WRAP_FUNC(this->create_x_collection("branches", "owner;repo;name;commit"))
-  WRAP_FUNC(this->create_x_collection("commits", "sha;owner;repo;branch;node_id;commit;committer;"
-                                                  "author;message;url;comment_count;parents"))
   return EXIT_SUCCESS;
 }

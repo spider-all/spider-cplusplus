@@ -54,8 +54,6 @@ int64_t Versions::get(enum request_type type) {
     version = this->license_list_version;
   } else if (type == request_type_users_repos) {
     version = this->users_repos_version;
-  } else if (type == request_type_users_repos_branches) {
-    version = this->users_repos_branches_version;
   } else if (type == request_type_events) {
     version = this->events_version;
   } else {
@@ -90,9 +88,6 @@ int64_t Versions::incr(enum request_type type) {
   } else if (type == request_type_users_repos) {
     this->users_repos_version++;
     version = this->users_repos_version;
-  } else if (type == request_type_users_repos_branches) {
-    this->users_repos_branches_version++;
-    version = this->users_repos_branches_version;
   } else if (type == request_type_events) {
     this->events_version++;
     version = this->events_version;
@@ -120,8 +115,6 @@ std::string Versions::to_string(enum request_type type) {
     return "license";
   case request_type_users_repos:
     return "users_repos";
-  case request_type_users_repos_branches:
-    return "users_repos_branches";
   case request_type_events:
     return "events";
   default:

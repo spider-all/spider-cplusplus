@@ -27,7 +27,6 @@
 typedef struct ExtraData {
   std::string user;
   std::string repo;
-  std::string branch;
 } ExtraData;
 
 typedef struct TrendingData {
@@ -81,8 +80,6 @@ private:
   int startup_gitignore();
   int startup_license();
   int startup_xrepos();
-  int startup_repos_branches();
-  int startup_repos_branches_commits();
   int startup_events();
 
   int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
@@ -95,8 +92,6 @@ private:
   int request_license_list(const nlohmann::json &content, enum request_type type_from);
   int request_license_info(nlohmann::json content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
-  int request_repo_branches(nlohmann::json content, ExtraData extra, enum request_type type_from);
-  int request_commits(nlohmann::json content, ExtraData extra, enum request_type type_from);
   int request_events(const nlohmann::json &content);
 
 public:

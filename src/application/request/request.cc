@@ -36,8 +36,6 @@ int Request::startup() {
   WRAP_FUNC(this->startup_gitignore())
   WRAP_FUNC(this->startup_license())
   WRAP_FUNC(this->startup_xrepos())
-  WRAP_FUNC(this->startup_repos_branches())
-  WRAP_FUNC(this->startup_repos_branches_commits())
   WRAP_FUNC(this->startup_events())
 
   return EXIT_SUCCESS;
@@ -247,18 +245,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         code = this->request_repo_list(content, type_from);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);
-        }
-        break;
-      case request_type_users_repos_branches:
-        code = this->request_repo_branches(content, request_config.extra, type_from);
-        if (code != 0) {
-          spdlog::error("database with error: {}", code);
-        }
-        break;
-      case request_type_users_repos_branches_commits:
-        code = this->request_commits(content, request_config.extra, type_from);
-        if (code != 0) {
-          spdlog::error("database with error: {}", code);
         }
         break;
       case request_type_events:
