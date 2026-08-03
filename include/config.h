@@ -3,7 +3,6 @@
 #include <string>
 #include <thread>
 
-#include <boost/algorithm/string.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include <yaml-cpp/yaml.h>

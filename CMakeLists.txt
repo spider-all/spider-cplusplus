@@ -10,7 +10,7 @@ add_definitions(-DSPIDER_VERSION=${SPIDER_VERSION})
 
 project(spider)
 
-FILE(GLOB source src/*.cc src/application/*.cc src/application/request/*.cc src/database/sqlite/*.cc)
+FILE(GLOB source src/*.cc src/application/*.cc src/database/*.cc)
 add_executable(spider ${source})
 
 if (CMAKE_BUILD_TYPE STREQUAL release)
@@ -26,17 +26,8 @@ target_link_libraries(spider PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
 find_package(yaml-cpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE yaml-cpp::yaml-cpp)
 
-find_package(OpenSSL REQUIRED)
-target_link_libraries(spider PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-
 find_package(SQLiteCpp CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE SQLiteCpp)
-
-find_package(libfort CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE libfort::fort)
-
-find_package(ZLIB REQUIRED)
-target_link_libraries(spider PRIVATE ZLIB::ZLIB)
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE fmt::fmt-header-only)
@@ -46,18 +37,6 @@ target_link_libraries(spider PRIVATE spdlog::spdlog_header_only)
 
 find_package(CURL CONFIG REQUIRED)
 target_link_libraries(spider PRIVATE CURL::libcurl)
-
-find_path(CPP_HTTPLIB_INCLUDE_DIRS "httplib.h")
-target_include_directories(spider PRIVATE ${CPP_HTTPLIB_INCLUDE_DIRS})
-
-find_package(prometheus-cpp CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE prometheus-cpp::core prometheus-cpp::pull)
-
-find_package(croncpp CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE croncpp::croncpp)
-
-find_package(utf8proc CONFIG REQUIRED)
-target_link_libraries(spider PRIVATE utf8proc::utf8proc)
 
 target_include_directories(spider PRIVATE include)
 

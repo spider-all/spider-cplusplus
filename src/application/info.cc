@@ -11,22 +11,8 @@ int Request::startup_info() {
         checker = 0;
         int64_t user_count = database->count_user();
         int64_t org_count = database->count_org();
-        spdlog::info("database have users: {}, orgs: {}", user_count, org_count);
-
-        fort::char_table table;
-        table.set_border_style(FT_DOUBLE2_STYLE);
-        table << fort::header
-              << "Catalog"
-              << "Count" << fort::endr
-              << "users"
-              << user_count << fort::endr
-              << "orgs"
-              << org_count << fort::endr;
-
-        table.column(1).set_cell_text_align(fort::text_align::center);
-
-        std::cout << std::endl
-                  << table.to_string() << std::endl;
+        spdlog::info("database users count: {}", user_count);
+        spdlog::info("database organizations count: {}", org_count);
       }
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }

@@ -1,5 +1,7 @@
 #include <database/sqlite.h>
 
+#include <string_utils.h>
+
 int64_t SQLiteDatabase::count_x(const std::string &c) {
   try {
     SQLite::Statement query(*this->db, fmt::format("SELECT COUNT(*) AS cnt FROM {}", c));
@@ -68,15 +70,15 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
 
   std::vector<std::string> params{keys};
   std::string key = keys;
-  if (boost::algorithm::contains(keys, KEYS_DELIMITER)) {
+  if (string_contains(keys, KEYS_DELIMITER)) {
     key = keys.substr(0, keys.find(KEYS_DELIMITER));
-    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(KEYS_DELIMITER));
+    params = string_split(keys, KEYS_DELIMITER[0]);
   }
 
   // Build select list: extract the first part before ":" for each param
   std::vector<std::string> select_cols;
   for (const auto &param : params) {
-    if (boost::algorithm::contains(param, VALUE_DELIMITER)) {
+    if (string_contains(param, VALUE_DELIMITER)) {
       select_cols.push_back(param.substr(0, param.find(VALUE_DELIMITER)));
     } else {
       select_cols.push_back(param);
@@ -133,8 +135,8 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
 }
 
 int SQLiteDatabase::ensure_index(const std::string &collection, std::vector<std::string> keys) {
-  std::string index_name = fmt::format("{}_index", boost::algorithm::join(keys, "_"));
-  std::string cols = boost::algorithm::join(keys, ", ");
+  std::string index_name = fmt::format("{}_index", string_join(keys, "_"));
+  std::string cols = string_join(keys, ", ");
   std::string sql = fmt::format(
       "CREATE UNIQUE INDEX IF NOT EXISTS {} ON {} ({})",
       index_name, collection, cols);
@@ -146,8 +148,8 @@ int SQLiteDatabase::create_x_collection(const std::string &collection, std::stri
     return EXIT_SUCCESS;
   }
   std::vector<std::string> params{keys};
-  if (boost::algorithm::contains(keys, KEYS_DELIMITER)) {
-    boost::algorithm::split(params, keys, boost::algorithm::is_any_of(KEYS_DELIMITER));
+  if (string_contains(keys, KEYS_DELIMITER)) {
+    params = string_split(keys, KEYS_DELIMITER[0]);
   }
 
   std::string columns;
@@ -155,9 +157,9 @@ int SQLiteDatabase::create_x_collection(const std::string &collection, std::stri
   for (size_t i = 0; i < params.size(); i++) {
     std::string col_name = params[i];
     std::string col_type = "TEXT";
-    if (boost::algorithm::contains(col_name, VALUE_DELIMITER)) {
+    if (string_contains(col_name, VALUE_DELIMITER)) {
       std::vector<std::string> parts;
-      boost::algorithm::split(parts, col_name, boost::algorithm::is_any_of(VALUE_DELIMITER));
+      parts = string_split(col_name, VALUE_DELIMITER[0]);
       if (parts.size() == 2) {
         col_name = parts[0];
         std::string type_str = parts[1];

@@ -3,14 +3,12 @@
 #include <thread>
 
 #include <CLI/CLI.hpp>
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include <config.h>
 #include <const.h>
 
 #include <application/request.h>
-#include <application/server.h>
 #include <database/sqlite.h>
 
 bool keep_running = true; // test keep running
@@ -38,9 +36,7 @@ int main(int argc, char const *argv[]) {
   app.add_option("-c,--config", config_path, "config path");
   CLI11_PARSE(app, argc, argv)
 
-  auto logger = spdlog::stdout_color_mt("console");
-  spdlog::set_default_logger(logger);
-  spdlog::set_pattern("[%^%L%$][%H:%M:%S][%s:%#][thread %t] %v");
+  spdlog::set_pattern("[%L][%H:%M:%S][%s:%#][thread %t] %v");
 
   const std::string default_config = "/etc/spider-cplusplus/config.yaml";
   if (config_path.empty()) {
@@ -81,20 +77,11 @@ int main(int argc, char const *argv[]) {
     keep_running = false;
   }
 
-  Application *server = new Server(config, database);
-
-  code = server->startup();
-  if (code != 0) {
-    spdlog::error("Server startup got error: {}", code);
-    keep_running = false;
-  }
-
   while (keep_running) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200)); // run loop
   }
 
   delete request;
-  delete server;
   delete database;
 
   spdlog::info("All of applications stopped...");

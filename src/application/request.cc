@@ -1,5 +1,46 @@
 #include <application/request.h>
 
+#include <curl/curl.h>
+#include <fmt/core.h>
+
+#include <map>
+#include <random>
+
+#include <string_utils.h>
+
+namespace {
+struct HttpResponse {
+  long status = 0;
+  std::string body;
+  std::map<std::string, std::string> headers;
+};
+
+size_t write_body(char *ptr, size_t size, size_t nmemb, void *userdata) {
+  auto *body = static_cast<std::string *>(userdata);
+  body->append(ptr, size * nmemb);
+  return size * nmemb;
+}
+
+size_t write_header(char *buffer, size_t size, size_t nitems, void *userdata) {
+  size_t total = size * nitems;
+  std::string header(buffer, total);
+  size_t pos = header.find(':');
+  if (pos == std::string::npos) {
+    return total;
+  }
+
+  std::string key = header.substr(0, pos);
+  std::string value = header.substr(pos + 1);
+  string_trim(key);
+  string_trim(value);
+  string_to_lower(key);
+
+  auto *headers = static_cast<std::map<std::string, std::string> *>(userdata);
+  (*headers)[key] = value;
+  return total;
+}
+} // namespace
+
 Request::Request(Config c, Database *db) {
   config = std::move(c);
   database = db;
@@ -65,55 +106,80 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     url_prefix = this->default_url_prefix;
   }
 
-  std::string header_host = boost::algorithm::trim_left_copy_if(url_prefix, boost::is_any_of("https://"));
-  httplib::Client client(url_prefix.c_str());
-  httplib::Headers headers = {
-      {"Host", header_host},
-      {"User-Agent", _useragent},
-      {"Time-Zone", _timezone},
-      {"Authorization", "Bearer " + config.crawler_token[token_index]},
-  };
-
-  if (request_config.response_type == "" || request_config.response_type == "json") {
-    headers.insert(std::make_pair("Accept", "application/json"));
+  std::string header_host = url_prefix;
+  if (header_host.starts_with("https://")) {
+    header_host.erase(0, std::string("https://").size());
   }
 
   if (!skip_sleep) {
     std::time_t now = std::time(0);
-    boost::random::mt19937 gen{static_cast<std::uint16_t>(now)};
-    boost::random::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
+    std::mt19937 gen{static_cast<std::uint32_t>(now)};
+    std::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
     std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
   }
 
   this->request_locker.lock();
   if (this->stopping) {
+    this->request_locker.unlock();
     return EXIT_SUCCESS;
   }
-  httplib::Result response(nullptr, httplib::Error::Unknown, httplib::Headers{});
+
+  HttpResponse response;
+  CURL *curl = curl_easy_init();
+  if (curl == nullptr) {
+    this->request_locker.unlock();
+    spdlog::error("init curl with error: {}", request_config.path);
+    return REQUEST_ERROR;
+  }
+
+  struct curl_slist *headers = nullptr;
+  headers = curl_slist_append(headers, fmt::format("Host: {}", header_host).c_str());
+  headers = curl_slist_append(headers, fmt::format("User-Agent: {}", _useragent).c_str());
+  headers = curl_slist_append(headers, fmt::format("Time-Zone: {}", _timezone).c_str());
+  headers = curl_slist_append(headers, fmt::format("Authorization: Bearer {}", config.crawler_token[token_index]).c_str());
+  if (request_config.response_type == "" || request_config.response_type == "json") {
+    headers = curl_slist_append(headers, "Accept: application/json");
+  }
+
+  std::string request_url = url_prefix + request_config.path;
   try {
-    response = client.Get(request_config.path.c_str(), headers);
+    curl_easy_setopt(curl, CURLOPT_URL, request_url.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_body);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.body);
+    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_header);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response.headers);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    CURLcode result = curl_easy_perform(curl);
+    if (result != CURLE_OK) {
+      this->request_locker.unlock();
+      spdlog::error("request with error: {}, {}", request_config.path, curl_easy_strerror(result));
+      curl_slist_free_all(headers);
+      curl_easy_cleanup(curl);
+      return REQUEST_ERROR;
+    }
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.status);
   } catch (const std::exception &e) {
     this->request_locker.unlock();
     spdlog::error("request with error: {}, {}", request_config.path, e.what());
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
     return REQUEST_ERROR;
   }
+  curl_slist_free_all(headers);
+  curl_easy_cleanup(curl);
   this->request_locker.unlock();
 
   if (this->stopping) {
     return EXIT_SUCCESS;
   }
 
-  if (response == nullptr) {
-    spdlog::error("Request with error: {}", request_config.path);
-    return REQUEST_ERROR;
-  }
-
-  for (const auto &header : response->headers) {
-    if (header.first == "X-RateLimit-Limit") {
+  for (const auto &header : response.headers) {
+    if (header.first == "x-ratelimit-limit") {
       rate_limit_limit = std::stoi(header.second, nullptr);
-    } else if (header.first == "X-RateLimit-Reset") {
+    } else if (header.first == "x-ratelimit-reset") {
       rate_limit_reset = std::stoi(header.second);
-    } else if (header.first == "X-RateLimit-Remaining") {
+    } else if (header.first == "x-ratelimit-remaining") {
       rate_limit_remaining = std::stoi(header.second);
     }
   }
@@ -125,7 +191,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     spdlog::info("rate limit: {}/{}, reset at: {}", rate_limit_remaining, rate_limit_limit, buffer);
   }
 
-  if (response->status == 403) {
+  if (response.status == 403) {
     auto now = std::chrono::system_clock::now();
     auto current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
@@ -142,19 +208,19 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
   this->sleep_for_another_token = 1000;
 
-  if (response->status != 200) {
-    spdlog::error("Got {} on request url: {}{}, {}", response->status, request_config.host, request_config.path, response->body);
+  if (response.status != 200) {
+    spdlog::error("Got {} on request url: {}{}, {}", response.status, request_config.host, request_config.path, response.body);
     return REQUEST_ERROR;
   }
 
-  if (response->body.empty()) {
+  if (response.body.empty()) {
     return REQUEST_ERROR;
   }
 
   if (request_config.response_type == "" || request_config.response_type == "json") {
     nlohmann::json content;
     try {
-      content = nlohmann::json::parse(response->body);
+      content = nlohmann::json::parse(response.body);
     } catch (const std::exception &e) {
       spdlog::error("parse json with error: {}, {}", request_config.path, e.what());
       return REQUEST_ERROR;
@@ -167,7 +233,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
               std::string str = parsed.dump();
               str.erase(str.begin(), str.begin() + 1);
               str.erase(str.end() - 1, str.end());
-              if (boost::algorithm::ends_with(str, "_url") or str == "url") {
+              if (string_ends_with(str, "_url") or str == "url") {
                 return false;
               }
             } else if (event == nlohmann::json::parse_event_t::value && parsed.dump() == "null") {
@@ -176,7 +242,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
             }
             return true;
           };
-      content = nlohmann::json::parse(response->body, cb);
+      content = nlohmann::json::parse(response.body, cb);
     } catch (nlohmann::detail::parse_error &e) {
       spdlog::error("Request {} got error: {}", request_config.path, e.what());
       return REQUEST_ERROR;
@@ -267,7 +333,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
                     request_config.path,
                     request_type_name(type), static_cast<int>(type),
                     request_type_name(type_from), static_cast<int>(type_from),
-                    e.what(), response->body);
+                    e.what(), response.body);
       return REQUEST_ERROR;
     }
   }
@@ -275,8 +341,8 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
   std::string header_link;
-  httplib::Headers::iterator it = response->headers.find("Link");
-  if (response->headers.end() != it && !it->second.empty()) {
+  auto it = response.headers.find("link");
+  if (response.headers.end() != it && !it->second.empty()) {
     header_link = it->second;
   }
   while (!header_link.empty() && regex_search(header_link, result, pieces_regex)) {

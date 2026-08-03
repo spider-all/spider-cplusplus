@@ -4,7 +4,6 @@
 #include <thread>
 #include <utility>
 
-#include <boost/algorithm/string.hpp>
 #include <fmt/core.h>
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <spdlog/spdlog.h>

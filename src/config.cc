@@ -1,5 +1,7 @@
 #include <config.h>
 
+#include <string_utils.h>
+
 int Config::initialize(const std::string &config_path) {
   try {
     YAML::Node config = YAML::LoadFile(config_path);
@@ -9,7 +11,7 @@ int Config::initialize(const std::string &config_path) {
     }
     std::string token_env = this->getenv("TOKEN");
     if (crawler_token.size() == 0 && token_env.size() > 0) {
-      boost::algorithm::split(crawler_token, token_env, boost::algorithm::is_any_of(","));
+      crawler_token = string_split(token_env, ',');
     }
     crawler_useragent = config["useragent"].as<std::string>();
     crawler_timezone = config["timezone"].as<std::string>();
