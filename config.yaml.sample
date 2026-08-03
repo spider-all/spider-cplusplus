@@ -16,6 +16,4 @@ crawler:
   events: true
 
 database:
-  type: sqlite
-  sqlite:
-    path: "/tmp/spider.sqlite"
+  path: "/tmp/spider.sqlite"

@@ -2,8 +2,6 @@
 
 #pragma once
 
-const std::string DATABASE_SQLITE = "sqlite";
-
 const int DEFAULT_SLEEP_EACH_REQUEST = 1000;
 
 const std::string KEYS_DELIMITER = ";";

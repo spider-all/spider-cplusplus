@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1710" height="1180" viewBox="0 0 1710 1180">
+  <defs>
+    <marker id="arrow-red" markerWidth="7" markerHeight="7" viewBox="0 0 10 6" preserveAspectRatio="none" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#dc3545"/>
+    </marker>
+    <marker id="arrow-users" markerWidth="7" markerHeight="7" viewBox="0 0 10 6" preserveAspectRatio="none" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#3578c8"/>
+    </marker>
+    <marker id="arrow-user-following" markerWidth="7" markerHeight="7" viewBox="0 0 10 6" preserveAspectRatio="none" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7654ad"/>
+    </marker>
+    <marker id="arrow-orgs" markerWidth="7" markerHeight="7" viewBox="0 0 10 6" preserveAspectRatio="none" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#d9822b"/>
+    </marker>
+    <marker id="arrow-repos" markerWidth="7" markerHeight="7" viewBox="0 0 10 6" preserveAspectRatio="none" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#32805a"/>
+    </marker>
+    <marker id="arrow-repo-star" markerWidth="7" markerHeight="7" viewBox="0 0 10 6" preserveAspectRatio="none" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#0ca6a6"/>
+    </marker>
+    <style>
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 26px; font-weight: 650; fill: #111827; }
+      .cluster-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px; font-weight: 650; fill: #374151; }
+      .node-text { font-family: Menlo, Consolas, monospace; font-size: 12px; fill: #1f2937; }
+      .cluster { fill: #fdfefe; stroke: #d8dee6; stroke-width: 1.8; rx: 16; }
+      .seed { fill: #fff0f1; stroke: #d98b95; stroke-width: 1.8; rx: 9; }
+      .crawler { fill: #eef5ff; stroke: #78a7df; stroke-width: 1.8; rx: 9; }
+      .api-list { fill: #fff8df; stroke: #d7b858; stroke-width: 1.8; rx: 9; }
+      .api-detail { fill: #f3edff; stroke: #9274c7; stroke-width: 1.8; rx: 9; }
+      .table-users { fill: #edf5ff; stroke: #3578c8; stroke-width: 1.8; rx: 9; }
+      .table-user-following { fill: #f3edff; stroke: #7654ad; stroke-width: 1.8; rx: 9; }
+      .table-orgs { fill: #fff3e5; stroke: #d9822b; stroke-width: 1.8; rx: 9; }
+      .table-repos { fill: #e7f5ed; stroke: #32805a; stroke-width: 1.8; rx: 9; }
+      .table-repo-star { fill: #e6fcfc; stroke: #0ca6a6; stroke-width: 1.8; rx: 9; }
+      .request { fill: none; stroke: #dc3545; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-red); }
+      .request-join { fill: none; stroke: #dc3545; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .write-users { fill: none; stroke: #3578c8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-users); }
+      .write-user-following { fill: none; stroke: #7654ad; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-user-following); }
+      .write-orgs { fill: none; stroke: #d9822b; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-orgs); }
+      .write-repos { fill: none; stroke: #32805a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-repos); }
+      .write-repos-join { fill: none; stroke: #32805a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .write-repo-star { fill: none; stroke: #0ca6a6; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-repo-star); }
+      .feed-users { fill: none; stroke: #3578c8; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-users); }
+      .feed-orgs { fill: none; stroke: #d9822b; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-orgs); }
+      .flow-overlay { pointer-events: none; opacity: 0.6; }
+      .flow-overlay path { marker-end: none; stroke-width: 4; stroke-dasharray: 10 18; animation: flow 1.2s linear infinite; }
+      @keyframes flow { to { stroke-dashoffset: -28; } }
+      @media (prefers-reduced-motion: reduce) { .flow-overlay { display: none; } }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1710" height="1180" fill="#ffffff"/>
+  <text x="855" y="42" text-anchor="middle" class="title">crawler and tables</text>
+
+  <rect x="110" y="85" width="300" height="1015" class="cluster"/>
+  <text x="260" y="115" text-anchor="middle" class="cluster-title">crawler</text>
+
+  <rect x="470" y="85" width="720" height="1015" class="cluster"/>
+  <text x="830" y="115" text-anchor="middle" class="cluster-title">GitHub API</text>
+
+  <rect x="1250" y="85" width="350" height="1015" class="cluster"/>
+  <text x="1425" y="115" text-anchor="middle" class="cluster-title">tables</text>
+
+  <rect x="140" y="149" width="240" height="42" class="seed"/>
+  <text x="260" y="175" text-anchor="middle" class="node-text">startup seed</text>
+  <rect x="860" y="149" width="300" height="42" class="api-detail"/>
+  <text x="1010" y="175" text-anchor="middle" class="node-text">/users/{login}</text>
+
+  <rect x="140" y="249" width="240" height="42" class="crawler"/>
+  <text x="260" y="275" text-anchor="middle" class="node-text">followers</text>
+  <rect x="500" y="249" width="300" height="42" class="api-list"/>
+  <text x="650" y="275" text-anchor="middle" class="node-text">/users/{login}/followers</text>
+
+  <rect x="140" y="349" width="240" height="42" class="crawler"/>
+  <text x="260" y="375" text-anchor="middle" class="node-text">followings</text>
+  <rect x="500" y="349" width="300" height="42" class="api-list"/>
+  <text x="650" y="375" text-anchor="middle" class="node-text">/users/{login}/following</text>
+
+  <rect x="140" y="449" width="240" height="42" class="crawler"/>
+  <text x="260" y="475" text-anchor="middle" class="node-text">orgs</text>
+  <rect x="500" y="449" width="300" height="42" class="api-list"/>
+  <text x="650" y="475" text-anchor="middle" class="node-text">/users/{login}/orgs</text>
+
+  <rect x="140" y="549" width="240" height="42" class="crawler"/>
+  <text x="260" y="575" text-anchor="middle" class="node-text">orgs_member</text>
+  <rect x="500" y="549" width="300" height="42" class="api-list"/>
+  <text x="650" y="575" text-anchor="middle" class="node-text">/orgs/{login}/public_members</text>
+
+  <rect x="140" y="649" width="240" height="42" class="crawler"/>
+  <text x="260" y="675" text-anchor="middle" class="node-text">users_repos</text>
+  <rect x="500" y="649" width="300" height="42" class="api-list"/>
+  <text x="650" y="675" text-anchor="middle" class="node-text">/users/{login}/repos</text>
+
+  <rect x="140" y="749" width="240" height="42" class="crawler"/>
+  <text x="260" y="775" text-anchor="middle" class="node-text">orgs_repos</text>
+  <rect x="500" y="749" width="300" height="42" class="api-list"/>
+  <text x="650" y="775" text-anchor="middle" class="node-text">/orgs/{login}/repos</text>
+
+  <rect x="140" y="849" width="240" height="42" class="crawler"/>
+  <text x="260" y="875" text-anchor="middle" class="node-text">starred</text>
+  <rect x="500" y="849" width="300" height="42" class="api-list"/>
+  <text x="650" y="875" text-anchor="middle" class="node-text">/users/{login}/starred</text>
+
+  <rect x="140" y="949" width="240" height="42" class="crawler"/>
+  <text x="260" y="975" text-anchor="middle" class="node-text">events</text>
+  <rect x="500" y="949" width="300" height="42" class="api-list"/>
+  <text x="650" y="975" text-anchor="middle" class="node-text">/events</text>
+  <rect x="860" y="949" width="300" height="42" class="api-detail"/>
+  <text x="1010" y="975" text-anchor="middle" class="node-text">/repos/{owner}/{repo}</text>
+
+  <rect x="1280" y="149" width="290" height="42" class="table-users"/>
+  <text x="1425" y="175" text-anchor="middle" class="node-text">users</text>
+  <rect x="1280" y="349" width="290" height="42" class="table-user-following"/>
+  <text x="1425" y="376" text-anchor="middle" class="node-text">user_following</text>
+  <rect x="1280" y="449" width="290" height="42" class="table-orgs"/>
+  <text x="1425" y="476" text-anchor="middle" class="node-text">orgs</text>
+  <rect x="1280" y="649" width="290" height="42" class="table-repos"/>
+  <text x="1425" y="675" text-anchor="middle" class="node-text">repos</text>
+  <rect x="1280" y="849" width="290" height="42" class="table-repo-star"/>
+  <text x="1425" y="876" text-anchor="middle" class="node-text">repo_star</text>
+
+  <g>
+  <path class="request" d="M380 170 H860"/>
+  <path class="request" d="M380 270 L500 270"/>
+  <path class="request-join" d="M800 270 H820 Q830 270 830 260"/>
+  <path class="request" d="M380 370 L500 370"/>
+  <path class="request-join" d="M800 363 H820 Q830 363 830 353"/>
+  <path class="request" d="M380 470 L500 470"/>
+  <path class="request" d="M380 570 L500 570"/>
+  <path class="request-join" d="M800 570 H820 Q830 570 830 560"/>
+  <path class="request" d="M380 670 L500 670"/>
+  <path class="request" d="M380 770 L500 770"/>
+  <path class="request" d="M380 870 L500 870"/>
+  <path class="request" d="M380 970 L500 970"/>
+  <path class="request-join" d="M800 963 H820 Q830 963 830 953"/>
+  <path class="request-join" d="M830 953 V180 Q830 170 840 170"/>
+  <path class="request" d="M800 977 L860 977"/>
+
+  <path class="write-users" d="M1160 170 L1280 170"/>
+  <path class="write-user-following" d="M800 377 L1280 377"/>
+  <path class="write-orgs" d="M800 470 L1280 470"/>
+  <path class="write-repos" d="M800 670 H1280"/>
+  <path class="write-repos-join" d="M800 770 H1210 Q1220 770 1220 760"/>
+  <path class="write-repos-join" d="M800 863 H1210 Q1220 863 1220 853"/>
+  <path class="write-repo-star" d="M800 877 L1280 877"/>
+  <path class="write-repos-join" d="M1160 970 H1210 Q1220 970 1220 960 V680 Q1220 670 1230 670"/>
+
+  <path class="feed-users" d="M1570 170 H1640 Q1650 170 1650 180 V1140 Q1650 1150 1640 1150 H70 Q60 1150 60 1140 V280 Q60 270 70 270 H140"/>
+  <path class="feed-users" d="M60 380 Q60 370 70 370 H140"/>
+  <path class="feed-users" d="M60 480 Q60 470 70 470 H140"/>
+  <path class="feed-users" d="M60 680 Q60 670 70 670 H140"/>
+  <path class="feed-users" d="M60 880 Q60 870 70 870 H140"/>
+  <path class="feed-orgs" d="M1570 470 H1615 Q1625 470 1625 480 V1115 Q1625 1125 1615 1125 H95 Q85 1125 85 1115 V580 Q85 570 95 570 H140"/>
+  <path class="feed-orgs" d="M85 780 Q85 770 95 770 H140"/>
+  </g>
+
+  <g class="flow-overlay">
+    <path class="request" d="M380 170 H860"/>
+    <path class="request" d="M380 270 L500 270"/>
+    <path class="request-join" d="M800 270 H820 Q830 270 830 260"/>
+    <path class="request" d="M380 370 L500 370"/>
+    <path class="request-join" d="M800 363 H820 Q830 363 830 353"/>
+    <path class="request" d="M380 470 L500 470"/>
+    <path class="request" d="M380 570 L500 570"/>
+    <path class="request-join" d="M800 570 H820 Q830 570 830 560"/>
+    <path class="request" d="M380 670 L500 670"/>
+    <path class="request" d="M380 770 L500 770"/>
+    <path class="request" d="M380 870 L500 870"/>
+    <path class="request" d="M380 970 L500 970"/>
+    <path class="request-join" d="M800 963 H820 Q830 963 830 953"/>
+    <path class="request-join" d="M830 953 V180 Q830 170 840 170"/>
+    <path class="request" d="M800 977 L860 977"/>
+
+    <path class="write-users" d="M1160 170 L1280 170"/>
+    <path class="write-user-following" d="M800 377 L1280 377"/>
+    <path class="write-orgs" d="M800 470 L1280 470"/>
+    <path class="write-repos" d="M800 670 H1280"/>
+    <path class="write-repos-join" d="M800 770 H1210 Q1220 770 1220 760"/>
+    <path class="write-repos-join" d="M800 863 H1210 Q1220 863 1220 853"/>
+    <path class="write-repo-star" d="M800 877 L1280 877"/>
+    <path class="write-repos-join" d="M1160 970 H1210 Q1220 970 1220 960 V680 Q1220 670 1230 670"/>
+
+    <path class="feed-users" d="M1570 170 H1640 Q1650 170 1650 180 V1140 Q1650 1150 1640 1150 H70 Q60 1150 60 1140 V280 Q60 270 70 270 H140"/>
+    <path class="feed-users" d="M60 380 Q60 370 70 370 H140"/>
+    <path class="feed-users" d="M60 480 Q60 470 70 470 H140"/>
+    <path class="feed-users" d="M60 680 Q60 670 70 670 H140"/>
+    <path class="feed-users" d="M60 880 Q60 870 70 870 H140"/>
+    <path class="feed-orgs" d="M1570 470 H1615 Q1625 470 1625 480 V1115 Q1625 1125 1615 1125 H95 Q85 1125 85 1115 V580 Q85 570 95 570 H140"/>
+    <path class="feed-orgs" d="M85 780 Q85 770 95 770 H140"/>
+  </g>
+</svg>

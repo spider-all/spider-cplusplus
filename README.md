@@ -1,8 +1,12 @@
 # spider
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spider-all/spider-cplusplus)
-
 Crawl GitHub APIs and store the discovered orgs and repos...
+
+## Architecture
+
+The following diagram shows the relationships between crawlers, GitHub APIs, and database tables.
+
+![Crawler and table relationships](./spider.svg)
 
 ## Prerequisites
 
