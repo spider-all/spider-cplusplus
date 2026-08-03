@@ -27,11 +27,12 @@ WORKDIR /app
 
 COPY . .
 COPY --from=base /workspace/code/vcpkg_installed ./vcpkg_installed
-COPY --from=base /workspace/vcpkg/scripts ./vcpkg/scripts
+COPY --from=base /workspace/vcpkg ./vcpkg
 
 ENV VCPKG_ROOT=/app/vcpkg
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends cmake libsasl2-dev && \
+RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources && \
+  apt-get update -y && apt-get install -y --no-install-recommends cmake libsasl2-dev && \
   rm -rf /var/lib/apt/lists/* && \
   make release
 
@@ -39,7 +40,8 @@ FROM docker.io/library/debian:trixie-slim
 
 ENV TZ=Asia/Shanghai
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && \
+RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources && \
+  apt-get update -y && apt-get install -y --no-install-recommends ca-certificates && \
   rm -rf /var/lib/apt/lists/*
 
 COPY config.yaml.sample /etc/spider-cplusplus/config.yaml

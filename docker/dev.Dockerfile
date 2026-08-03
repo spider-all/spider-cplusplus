@@ -5,7 +5,7 @@ FROM docker.io/library/buildpack-deps:trixie
 WORKDIR /app
 
 COPY --from=base /vcpkg_installed /app/vcpkg_installed
-COPY --from=base /vcpkg/scripts /app/vcpkg/scripts
+COPY --from=base /vcpkg /app/vcpkg
 
 ENV VCPKG_ROOT=/app/vcpkg
 

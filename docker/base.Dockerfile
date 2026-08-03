@@ -23,4 +23,4 @@ RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.
 FROM scratch
 
 COPY --from=0 /workspace/code/vcpkg_installed /vcpkg_installed
-COPY --from=0 /workspace/vcpkg/scripts /vcpkg/scripts
+COPY --from=0 /workspace/vcpkg /vcpkg
