@@ -32,7 +32,7 @@ COPY --from=base /workspace/vcpkg ./vcpkg
 ENV VCPKG_ROOT=/app/vcpkg
 
 RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/debian.sources && \
-  apt-get update -y && apt-get install -y --no-install-recommends cmake libsasl2-dev && \
+  apt-get update -y && apt-get install -y --no-install-recommends build-essential make cmake libsasl2-dev && \
   rm -rf /var/lib/apt/lists/* && \
   make release
 
