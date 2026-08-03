@@ -18,6 +18,8 @@ RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.
   git clone https://github.com/microsoft/vcpkg-tool vcpkg-tool --depth 1 --branch ${VCPKG_TOOL_VERSION} --single-branch && \
   cd vcpkg-tool && mkdir build && cd build && cmake -DBUILD_TESTING=OFF .. && cmake --build . --target install && \
   cd /workspace && git clone https://github.com/microsoft/vcpkg.git --depth 1 --branch ${VCPKG_VERSION} --single-branch && \
+  cp "$(command -v vcpkg)" /workspace/vcpkg/vcpkg && \
+  chmod +x /workspace/vcpkg/vcpkg && \
   cd code && make deps
 
 FROM scratch

@@ -13,8 +13,8 @@ RUN set -eux && sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends sudo ccache build-essential make cmake libsasl2-dev && \
   rm -rf /var/lib/apt/lists/* && \
-  wget -O /usr/bin/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2023-03-14/vcpkg-muslc && \
-  chmod +x /usr/bin/vcpkg
+  wget -O /app/vcpkg/vcpkg https://github.com/microsoft/vcpkg-tool/releases/download/2023-03-14/vcpkg-muslc && \
+  chmod +x /app/vcpkg/vcpkg
 
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
   -t robbyrussell -p git -p 'history-substring-search' \
