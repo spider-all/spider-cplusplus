@@ -66,8 +66,8 @@ std::vector<User> SQLiteDatabase::list_usersx(common_args args) {
   return users;
 }
 
-std::vector<std::string> SQLiteDatabase::list_users_random(enum request_type type) {
-  return this->list_x_random("users", "id;login", type);
+std::vector<std::string> SQLiteDatabase::list_users_random() {
+  return this->list_x_random("users", "id;login");
 }
 
 int64_t SQLiteDatabase::count_user() {

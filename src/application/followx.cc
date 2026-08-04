@@ -8,7 +8,7 @@ int Request::startup_followx() {
     std::thread followers_thread([=, this]() {
       spdlog::info("followers thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random(request_type_followers);
+        std::vector<std::string> users = database->list_users_random();
         for (const std::string &u : users) {
           std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
           if (parts.size() != 2) {
@@ -42,7 +42,7 @@ int Request::startup_followx() {
     std::thread followings_thread([=, this]() {
       spdlog::info("following thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random(request_type_following);
+        std::vector<std::string> users = database->list_users_random();
         for (const std::string &u : users) {
           std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
           if (parts.size() != 2) {

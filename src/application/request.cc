@@ -287,8 +287,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         }
         break;
       case request_type_events:
-        spdlog::info("dispatch events response: path={}, type_from={}({})",
-                     request_config.path, request_type_name(type_from), static_cast<int>(type_from));
         code = this->request_events(content);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);

@@ -33,7 +33,6 @@ int Request::request_events(const nlohmann::json &content) {
     return REQUEST_ERROR;
   }
 
-  spdlog::info("processing events response: count={}", content.size());
   for (auto &event : content) {
     if (stopping) {
       return EXIT_SUCCESS;
@@ -54,8 +53,6 @@ int Request::request_events(const nlohmann::json &content) {
       spdlog::info("skip event from Copilot actor: type={}, repo={}", event_type, repo_name);
       continue;
     }
-
-    spdlog::info("processing event: type={}, actor={}, repo={}", event_type, actor_login, repo_name);
 
     // Extract actor (user) info
     if (!actor_login.empty()) {

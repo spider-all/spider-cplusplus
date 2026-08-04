@@ -8,7 +8,7 @@ int Request::startup_orgs() {
     std::thread orgs_thread([=, this]() {
       spdlog::info("orgs thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random(request_type_orgs);
+        std::vector<std::string> users = database->list_users_random();
         for (const std::string &u : users) {
           std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
           if (parts.size() != 2) {
@@ -39,7 +39,7 @@ int Request::startup_orgs() {
     std::thread orgs_member_thread([=, this]() {
       spdlog::info("orgs thread is starting...");
       while (!stopping) {
-        std::vector<std::string> orgs = database->list_orgs_random(request_type_orgs_repos);
+        std::vector<std::string> orgs = database->list_orgs_random();
         for (const std::string &org : orgs) {
           std::vector<std::string> parts = string_split(org, KEYS_DELIMITER[0]);
           if (parts.size() != 2) {

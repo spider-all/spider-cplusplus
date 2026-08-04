@@ -41,7 +41,7 @@ int Request::startup_xrepos() {
     std::thread users_repos_thread([=, this]() {
       spdlog::info("users repos thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random(request_type_users_repos);
+        std::vector<std::string> users = database->list_users_random();
         for (const std::string &u : users) {
           std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
           if (parts.size() != 2) {
@@ -73,7 +73,7 @@ int Request::startup_xrepos() {
     std::thread orgs_repos_thread([=, this]() {
       spdlog::info("repos thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_orgs_random(request_type_orgs_repos);
+        std::vector<std::string> users = database->list_orgs_random();
         for (const std::string &u : users) {
           std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
           if (parts.size() != 2) {
@@ -104,7 +104,7 @@ int Request::startup_xrepos() {
     std::thread starred_thread([=, this]() {
       spdlog::info("starred repos thread is starting...");
       while (!stopping) {
-        std::vector<std::string> users = database->list_users_random(request_type_starred);
+        std::vector<std::string> users = database->list_users_random();
         for (const std::string &u : users) {
           std::vector<std::string> parts = string_split(u, KEYS_DELIMITER[0]);
           if (parts.size() != 2) {

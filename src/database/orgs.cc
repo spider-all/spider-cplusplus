@@ -36,8 +36,8 @@ int SQLiteDatabase::upsert_org_with_version(std::vector<Org> orgs, enum request_
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> SQLiteDatabase::list_orgs_random(enum request_type type) {
-  return this->list_x_random("orgs", "id;login", type);
+std::vector<std::string> SQLiteDatabase::list_orgs_random() {
+  return this->list_x_random("orgs", "id;login");
 }
 
 int64_t SQLiteDatabase::count_org() {

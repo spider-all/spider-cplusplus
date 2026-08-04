@@ -77,8 +77,8 @@ int SQLiteDatabase::upsert_repo_with_version(std::vector<Repo> repos, enum reque
   return EXIT_SUCCESS;
 }
 
-std::vector<std::string> SQLiteDatabase::list_repos_random(enum request_type type) {
-  return this->list_x_random("repos", "id;name;owner", type);
+std::vector<std::string> SQLiteDatabase::list_repos_random() {
+  return this->list_x_random("repos", "id;name;owner");
 }
 
 int64_t SQLiteDatabase::count_repo() {

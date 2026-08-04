@@ -52,10 +52,7 @@ int SQLiteDatabase::upsert_relation(const std::string &collection, const std::st
 // list_x_random
 // @params
 //    keys name:string;id:int64 代表获取 name 字段类型为 string, id 字段类型为 int64 的数据
-std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collection, std::string keys, enum request_type type) {
-  spdlog::info("list random records: collection={}, keys={}, type={}({})",
-               collection, keys, request_type_name(type), static_cast<int>(type));
-
+std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collection, std::string keys) {
   std::vector<std::string> result;
 
   std::vector<std::string> params{keys};
@@ -108,12 +105,7 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
       result.push_back(res);
       selected_keys.push_back(query.getColumn(0).getString());
     }
-    if (result.empty()) {
-      spdlog::info("list random records result is empty: collection={}, type={}({})",
-                   collection, request_type_name(type), static_cast<int>(type));
-    } else {
-      spdlog::info("list random records result: collection={}, type={}({}), count={}",
-                   collection, request_type_name(type), static_cast<int>(type), result.size());
+    if (!result.empty()) {
       int64_t version = this->next_data_version(collection);
       for (const auto &selected_key : selected_keys) {
         int code = this->update_data_version(collection, select_cols[0], selected_key, version);
