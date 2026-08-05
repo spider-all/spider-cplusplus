@@ -35,6 +35,14 @@ int64_t SQLiteDatabase::min_data_version(const std::string &collection) {
   return 1;
 }
 
+int64_t SQLiteDatabase::initial_data_version(const std::string &collection) {
+  int64_t version = this->min_data_version(collection);
+  if (version < 1) {
+    return 1;
+  }
+  return version;
+}
+
 int SQLiteDatabase::update_data_version(const std::string &collection, const std::string &key_column, const std::string &key_value, int64_t version) {
   std::string sql = fmt::format(
       "UPDATE {} SET data_version = {} WHERE {} = '{}'",
@@ -44,13 +52,14 @@ int SQLiteDatabase::update_data_version(const std::string &collection, const std
 
 int SQLiteDatabase::upsert_relation(const std::string &collection, const std::string &first_column, int64_t first_id, const std::string &second_column, int64_t second_id) {
   int64_t now = this->current_timestamp();
+  int64_t version = this->initial_data_version(collection);
   std::string sql = fmt::format(
       "INSERT INTO {} ({}, {}, data_created_at, data_updated_at, data_version) "
-      "VALUES ({}, {}, {}, {}, 1) "
+      "VALUES ({}, {}, {}, {}, {}) "
       "ON CONFLICT({}, {}) DO UPDATE SET "
       "data_updated_at = {}",
       collection, first_column, second_column,
-      first_id, second_id, now, now,
+      first_id, second_id, now, now, version,
       first_column, second_column, now);
   return this->execute(sql);
 }

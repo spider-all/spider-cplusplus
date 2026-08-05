@@ -2,9 +2,10 @@
 
 int SQLiteDatabase::upsert_org(Org org) {
   int64_t now = this->current_timestamp();
+  int64_t version = this->initial_data_version("orgs");
   std::string sql = fmt::format(
       "INSERT INTO orgs (id, login, node_id, description, followers, data_created_at, data_updated_at, data_version) "
-      "VALUES ({}, '{}', '{}', '{}', {}, {}, {}, 1) "
+      "VALUES ({}, '{}', '{}', '{}', {}, {}, {}, {}) "
       "ON CONFLICT(id) DO UPDATE SET "
       "login = excluded.login, "
       "node_id = excluded.node_id, "
@@ -18,6 +19,7 @@ int SQLiteDatabase::upsert_org(Org org) {
       org.followers,
       now,
       now,
+      version,
       now);
   return this->execute(sql);
 }

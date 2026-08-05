@@ -2,12 +2,13 @@
 
 int SQLiteDatabase::upsert_user(User user) {
   int64_t now = this->current_timestamp();
+  int64_t version = this->initial_data_version("users");
   std::string sql = fmt::format(
       "INSERT INTO users (id, login, node_id, type, name, company, blog, location, "
       "email, hireable, bio, created_at, updated_at, public_gists, public_repos, following, followers, "
       "data_created_at, data_updated_at, data_version) "
       "VALUES ({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, {}, {}, {}, "
-      "{}, {}, 1) "
+      "{}, {}, {}) "
       "ON CONFLICT(id) DO UPDATE SET "
       "login = excluded.login, "
       "node_id = excluded.node_id, "
@@ -45,6 +46,7 @@ int SQLiteDatabase::upsert_user(User user) {
       user.followers,
       now,
       now,
+      version,
       now);
   return this->execute(sql);
 }

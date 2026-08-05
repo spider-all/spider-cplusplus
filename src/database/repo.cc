@@ -2,6 +2,7 @@
 
 int SQLiteDatabase::upsert_repo(Repo repo) {
   int64_t now = this->current_timestamp();
+  int64_t version = this->initial_data_version("repos");
   std::string sql = fmt::format(
       "INSERT INTO repos (id, node_id, name, full_name, xprivate, owner, owner_type, "
       "description, fork, created_at, updated_at, pushed_at, homepage, size, "
@@ -9,7 +10,7 @@ int SQLiteDatabase::upsert_repo(Repo repo) {
       "open_issues, watchers, default_branch, data_created_at, data_updated_at, data_version) "
       "VALUES ({}, '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, '{}', '{}', '{}', '{}', "
       "{}, {}, {}, {}, '{}', '{}', {}, {}, {}, '{}', "
-      "{}, {}, 1) "
+      "{}, {}, {}) "
       "ON CONFLICT(id) DO UPDATE SET "
       "node_id = excluded.node_id, "
       "name = excluded.name, "
@@ -59,6 +60,7 @@ int SQLiteDatabase::upsert_repo(Repo repo) {
       this->escape(repo.default_branch),
       now,
       now,
+      version,
       now);
   return this->execute(sql);
 }
