@@ -1,21 +1,24 @@
 #include <database/sqlite.h>
 
 int SQLiteDatabase::upsert_org(Org org) {
+  int64_t now = this->current_timestamp();
   std::string sql = fmt::format(
       "INSERT INTO orgs (id, login, node_id, description, followers, data_created_at, data_updated_at, data_version) "
-      "VALUES ({}, '{}', '{}', '{}', {}, CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER), 1) "
+      "VALUES ({}, '{}', '{}', '{}', {}, {}, {}, 1) "
       "ON CONFLICT(id) DO UPDATE SET "
       "login = excluded.login, "
       "node_id = excluded.node_id, "
       "description = excluded.description, "
       "followers = excluded.followers, "
-      "data_updated_at = CAST(strftime('%s','now') AS INTEGER), "
-      "data_version = COALESCE(orgs.data_version, 0) + 1",
+      "data_updated_at = {}",
       org.id,
       this->escape(org.login),
       this->escape(org.node_id),
       this->escape(org.description),
-      org.followers);
+      org.followers,
+      now,
+      now,
+      now);
   return this->execute(sql);
 }
 

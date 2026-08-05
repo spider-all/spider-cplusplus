@@ -1,12 +1,13 @@
 #include <database/sqlite.h>
 
 int SQLiteDatabase::upsert_user(User user) {
+  int64_t now = this->current_timestamp();
   std::string sql = fmt::format(
       "INSERT INTO users (id, login, node_id, type, name, company, blog, location, "
       "email, hireable, bio, created_at, updated_at, public_gists, public_repos, following, followers, "
       "data_created_at, data_updated_at, data_version) "
       "VALUES ({}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, {}, {}, {}, "
-      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER), 1) "
+      "{}, {}, 1) "
       "ON CONFLICT(id) DO UPDATE SET "
       "login = excluded.login, "
       "node_id = excluded.node_id, "
@@ -24,8 +25,7 @@ int SQLiteDatabase::upsert_user(User user) {
       "public_repos = excluded.public_repos, "
       "following = excluded.following, "
       "followers = excluded.followers, "
-      "data_updated_at = CAST(strftime('%s','now') AS INTEGER), "
-      "data_version = COALESCE(users.data_version, 0) + 1",
+      "data_updated_at = {}",
       user.id,
       this->escape(user.login),
       this->escape(user.node_id),
@@ -42,7 +42,10 @@ int SQLiteDatabase::upsert_user(User user) {
       user.public_gists,
       user.public_repos,
       user.following,
-      user.followers);
+      user.followers,
+      now,
+      now,
+      now);
   return this->execute(sql);
 }
 

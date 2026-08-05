@@ -1,6 +1,7 @@
 #include <database/sqlite.h>
 
 int SQLiteDatabase::upsert_repo(Repo repo) {
+  int64_t now = this->current_timestamp();
   std::string sql = fmt::format(
       "INSERT INTO repos (id, node_id, name, full_name, xprivate, owner, owner_type, "
       "description, fork, created_at, updated_at, pushed_at, homepage, size, "
@@ -8,7 +9,7 @@ int SQLiteDatabase::upsert_repo(Repo repo) {
       "open_issues, watchers, default_branch, data_created_at, data_updated_at, data_version) "
       "VALUES ({}, '{}', '{}', '{}', {}, '{}', '{}', '{}', {}, '{}', '{}', '{}', '{}', "
       "{}, {}, {}, {}, '{}', '{}', {}, {}, {}, '{}', "
-      "CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER), 1) "
+      "{}, {}, 1) "
       "ON CONFLICT(id) DO UPDATE SET "
       "node_id = excluded.node_id, "
       "name = excluded.name, "
@@ -32,8 +33,7 @@ int SQLiteDatabase::upsert_repo(Repo repo) {
       "open_issues = excluded.open_issues, "
       "watchers = excluded.watchers, "
       "default_branch = excluded.default_branch, "
-      "data_updated_at = CAST(strftime('%s','now') AS INTEGER), "
-      "data_version = COALESCE(repos.data_version, 0) + 1",
+      "data_updated_at = {}",
       repo.id,
       this->escape(repo.node_id),
       this->escape(repo.name),
@@ -56,7 +56,10 @@ int SQLiteDatabase::upsert_repo(Repo repo) {
       repo.forks,
       repo.open_issues,
       repo.watchers,
-      this->escape(repo.default_branch));
+      this->escape(repo.default_branch),
+      now,
+      now,
+      now);
   return this->execute(sql);
 }
 

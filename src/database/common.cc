@@ -1,5 +1,6 @@
 #include <database/sqlite.h>
 
+#include <chrono>
 #include <set>
 
 #include <string_utils.h>
@@ -16,9 +17,15 @@ int64_t SQLiteDatabase::count_x(const std::string &c) {
   return 0;
 }
 
-int64_t SQLiteDatabase::next_data_version(const std::string &collection) {
+int64_t SQLiteDatabase::current_timestamp() const {
+  return std::chrono::duration_cast<std::chrono::seconds>(
+             std::chrono::system_clock::now().time_since_epoch())
+      .count();
+}
+
+int64_t SQLiteDatabase::min_data_version(const std::string &collection) {
   try {
-    SQLite::Statement query(*this->db, fmt::format("SELECT COALESCE(MAX(data_version), 0) + 1 FROM {}", collection));
+    SQLite::Statement query(*this->db, fmt::format("SELECT COALESCE(MIN(COALESCE(data_version, 0)), 0) FROM {}", collection));
     if (query.executeStep()) {
       return query.getColumn(0).getInt64();
     }
@@ -36,16 +43,15 @@ int SQLiteDatabase::update_data_version(const std::string &collection, const std
 }
 
 int SQLiteDatabase::upsert_relation(const std::string &collection, const std::string &first_column, int64_t first_id, const std::string &second_column, int64_t second_id) {
+  int64_t now = this->current_timestamp();
   std::string sql = fmt::format(
       "INSERT INTO {} ({}, {}, data_created_at, data_updated_at, data_version) "
-      "VALUES ({}, {}, CAST(strftime('%s','now') AS INTEGER), CAST(strftime('%s','now') AS INTEGER), 1) "
+      "VALUES ({}, {}, {}, {}, 1) "
       "ON CONFLICT({}, {}) DO UPDATE SET "
-      "data_updated_at = CAST(strftime('%s','now') AS INTEGER), "
-      "data_version = COALESCE({}.data_version, 0) + 1",
+      "data_updated_at = {}",
       collection, first_column, second_column,
-      first_id, second_id,
-      first_column, second_column,
-      collection);
+      first_id, second_id, now, now,
+      first_column, second_column, now);
   return this->execute(sql);
 }
 
@@ -80,8 +86,11 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
   }
 
   std::string sql = fmt::format(
-      "SELECT {} FROM {} t ORDER BY COALESCE(t.data_version, 0), RANDOM() LIMIT {}",
-      select_expr, collection, this->sample_size);
+      "SELECT {} FROM {} t "
+      "WHERE COALESCE(t.data_version, 0) = ("
+      "SELECT COALESCE(MIN(COALESCE(data_version, 0)), 0) FROM {}) "
+      "ORDER BY RANDOM() LIMIT {}",
+      select_expr, collection, collection, this->sample_size);
 
   try {
     SQLite::Statement query(*this->db, sql);
@@ -106,7 +115,7 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
       selected_keys.push_back(query.getColumn(0).getString());
     }
     if (!result.empty()) {
-      int64_t version = this->next_data_version(collection);
+      int64_t version = this->min_data_version(collection) + 1;
       for (const auto &selected_key : selected_keys) {
         int code = this->update_data_version(collection, select_cols[0], selected_key, version);
         if (code != EXIT_SUCCESS) {

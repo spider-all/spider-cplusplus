@@ -4,8 +4,8 @@
 #include <thread>
 #include <utility>
 
-#include <fmt/core.h>
 #include <SQLiteCpp/SQLiteCpp.h>
+#include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
 #include <common.h>
@@ -24,7 +24,8 @@ private:
 
   int execute(const std::string &sql);
   std::string escape(const std::string &s);
-  int64_t next_data_version(const std::string &collection);
+  int64_t current_timestamp() const;
+  int64_t min_data_version(const std::string &collection);
   int update_data_version(const std::string &collection, const std::string &key_column, const std::string &key_value, int64_t version);
   int upsert_relation(const std::string &collection, const std::string &first_column, int64_t first_id, const std::string &second_column, int64_t second_id);
 
