@@ -47,19 +47,8 @@ private:
   Config config;
   Database *database;
 
-  int rate_limit_remaining{};
-  int rate_limit_limit{};
-  int rate_limit_reset{};
-
-  std::mutex request_locker;
-
-  unsigned long token_index = 0;
-
   int semaphore = 0;
   bool stopping = false;
-
-  // sleep for a while change another token if rate limit is reached
-  int sleep_for_another_token = 1000;
 
   std::string url_host = "api.github.com";
   std::string default_url_prefix = "https://" + url_host;
@@ -88,6 +77,6 @@ public:
 
   int startup() override;
 
-  // skip_sleep is used to skip sleep when requesting, but firstly we need to skip sleep when requesting
+  // skip_sleep skips the configured per-request sleep.
   int request(RequestConfig &url, enum request_type type, enum request_type type_from, bool skip_sleep = false);
 };

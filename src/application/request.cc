@@ -115,16 +115,13 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
   }
 
-  this->request_locker.lock();
   if (this->stopping) {
-    this->request_locker.unlock();
     return EXIT_SUCCESS;
   }
 
   HttpResponse response;
   CURL *curl = curl_easy_init();
   if (curl == nullptr) {
-    this->request_locker.unlock();
     spdlog::error("init curl with error: {}", request_config.path);
     return REQUEST_ERROR;
   }
@@ -133,7 +130,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   headers = curl_slist_append(headers, fmt::format("Host: {}", header_host).c_str());
   headers = curl_slist_append(headers, fmt::format("User-Agent: {}", _useragent).c_str());
   headers = curl_slist_append(headers, fmt::format("Time-Zone: {}", _timezone).c_str());
-  headers = curl_slist_append(headers, fmt::format("Authorization: Bearer {}", config.crawler_token[token_index]).c_str());
+  headers = curl_slist_append(headers, fmt::format("Authorization: Bearer {}", config.crawler_token).c_str());
   if (request_config.response_type == "" || request_config.response_type == "json") {
     headers = curl_slist_append(headers, "Accept: application/json");
   }
@@ -149,7 +146,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     CURLcode result = curl_easy_perform(curl);
     if (result != CURLE_OK) {
-      this->request_locker.unlock();
       spdlog::error("request with error: {}, {}", request_config.path, curl_easy_strerror(result));
       curl_slist_free_all(headers);
       curl_easy_cleanup(curl);
@@ -157,7 +153,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     }
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.status);
   } catch (const std::exception &e) {
-    this->request_locker.unlock();
     spdlog::error("request with error: {}, {}", request_config.path, e.what());
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
@@ -165,45 +160,52 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   }
   curl_slist_free_all(headers);
   curl_easy_cleanup(curl);
-  this->request_locker.unlock();
 
   if (this->stopping) {
     return EXIT_SUCCESS;
   }
 
+  int rate_limit_remaining{};
+  int rate_limit_limit{};
+  int rate_limit_reset{};
+  bool has_rate_limit = false;
   for (const auto &header : response.headers) {
     if (header.first == "x-ratelimit-limit") {
       rate_limit_limit = std::stoi(header.second, nullptr);
+      has_rate_limit = true;
     } else if (header.first == "x-ratelimit-reset") {
       rate_limit_reset = std::stoi(header.second);
+      has_rate_limit = true;
     } else if (header.first == "x-ratelimit-remaining") {
       rate_limit_remaining = std::stoi(header.second);
+      has_rate_limit = true;
     }
   }
 
-  if (rate_limit_remaining % 10 == 0) {
+  if (has_rate_limit) {
     std::time_t result = rate_limit_reset;
     char buffer[32];
     std::strftime(buffer, 32, "%Y/%m/%d %H:%M:%S", std::localtime(&result));
     spdlog::info("rate limit: {}/{}, reset at: {}", rate_limit_remaining, rate_limit_limit, buffer);
   }
 
-  if (response.status == 403) {
+  if (has_rate_limit && response.status == 403) {
     auto now = std::chrono::system_clock::now();
     auto current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-
-    spdlog::info("wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", rate_limit_reset - current, rate_limit_reset);
-    spdlog::info("Change token to next and retry");
-    token_index++;
-    token_index = token_index % config.crawler_token.size();
-    std::this_thread::sleep_for(std::chrono::milliseconds(this->sleep_for_another_token));
-    this->sleep_for_another_token *= 2;
-    if (this->sleep_for_another_token >= 30 * 1000 * 60 /* 30min */) {
-      this->sleep_for_another_token = 30 * 1000 * 60;
+    int64_t wait_seconds = rate_limit_reset - current;
+    if (wait_seconds > 0) {
+      spdlog::info("wait for another {}s to request due to rate limit, X-RateLimit-Reset: {}", wait_seconds, rate_limit_reset);
+      auto retry_at = std::chrono::steady_clock::now() + std::chrono::seconds(wait_seconds);
+      while (!this->stopping && std::chrono::steady_clock::now() < retry_at) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+      if (this->stopping) {
+        return EXIT_SUCCESS;
+      }
+      return request(request_config, type, type_from);
     }
-    return request(request_config, type, type_from);
+    return REQUEST_ERROR;
   }
-  this->sleep_for_another_token = 1000;
 
   if (response.status != 200) {
     spdlog::error("Got {} on request url: {}{}, {}", response.status, request_config.host, request_config.path, response.body);

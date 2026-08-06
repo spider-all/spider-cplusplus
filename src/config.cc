@@ -1,17 +1,14 @@
 #include <config.h>
 
-#include <string_utils.h>
-
 int Config::initialize(const std::string &config_path) {
   try {
     YAML::Node config = YAML::LoadFile(config_path);
     crawler_entry_username = config["entry"].as<std::string>();
     if (config["token"]) {
-      crawler_token = config["token"].as<std::vector<std::string>>();
+      crawler_token = config["token"].as<std::string>();
     }
-    std::string token_env = this->getenv("TOKEN");
-    if (crawler_token.size() == 0 && token_env.size() > 0) {
-      crawler_token = string_split(token_env, ',');
+    if (crawler_token.empty()) {
+      crawler_token = this->getenv("TOKEN");
     }
     crawler_useragent = config["useragent"].as<std::string>();
     crawler_timezone = config["timezone"].as<std::string>();
@@ -59,9 +56,6 @@ int Config::initialize(const std::string &config_path) {
 
     auto repositories = config["repositories"];
     if (repositories) {
-      if (repositories["names"]) {
-        this->repository_names = repositories["names"].as<std::vector<std::string>>();
-      }
       if (repositories["trend_languages"]) {
         this->repository_trend_languages = repositories["trend_languages"].as<std::vector<std::string>>();
       }

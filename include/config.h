@@ -17,11 +17,11 @@ class Config {
 public:
   std::string database_sqlite_path;
 
-  std::string crawler_entry_username;       // entry username
-  std::vector<std::string> crawler_token{}; // client id
-  std::string crawler_useragent;            // useragent
-  std::string crawler_timezone;             // timezone
-  int64_t crawler_sleep_each_request;       // sleep each request
+  std::string crawler_entry_username; // entry username
+  std::string crawler_token;          // client id
+  std::string crawler_useragent;      // useragent
+  std::string crawler_timezone;       // timezone
+  int64_t crawler_sleep_each_request; // sleep each request
 
   bool crawler_type_followers = false;
   bool crawler_type_followings = false;
@@ -32,7 +32,6 @@ public:
   bool crawler_type_starred = false;
   bool crawler_type_events = false;
 
-  std::vector<std::string> repository_names{};
   std::vector<std::string> repository_trend_languages{};
   int64_t repository_refresh_interval_minutes = 10;
 

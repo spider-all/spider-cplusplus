@@ -1,6 +1,7 @@
 #include <application/request.h>
 
 #include <chrono>
+#include <vector>
 
 #include <string_utils.h>
 
@@ -66,58 +67,6 @@ Repo repo_from_json(const nlohmann::json &con) {
 } // namespace
 
 int Request::startup_xrepos() {
-  auto request_config_repo = [this](std::string repo_name) -> int {
-    string_trim(repo_name);
-    if (repo_name.empty()) {
-      return EXIT_SUCCESS;
-    }
-
-    std::vector<std::string> parts = string_split(repo_name, '/');
-    if (parts.size() != 2 || parts[0].empty() || parts[1].empty()) {
-      spdlog::error("invalid config repo name: {}", repo_name);
-      return REQUEST_ERROR;
-    }
-
-    RequestConfig request_config{
-        .host = this->default_url_prefix,
-        .path = "/repos/" + repo_name,
-    };
-    int code = request(request_config, request_type_config_repos, request_type_config_repos);
-    if (code != 0) {
-      spdlog::error("request url: {} with error: {}", request_config.path, code);
-    }
-    return code;
-  };
-
-  if (!config.repository_names.empty()) {
-    semaphore++;
-    std::thread config_repos_thread([this, request_config_repo]() {
-      spdlog::info("config repos thread is starting...");
-      const auto interval = std::chrono::minutes(config.repository_refresh_interval_minutes);
-      auto next_refresh = std::chrono::steady_clock::now();
-
-      while (!stopping) {
-        auto now = std::chrono::steady_clock::now();
-        if (now < next_refresh) {
-          std::this_thread::sleep_for(std::chrono::milliseconds(100));
-          continue;
-        }
-        next_refresh = now + interval;
-
-        for (std::string repo_name : config.repository_names) {
-          request_config_repo(repo_name);
-          if (stopping) {
-            break;
-          }
-        }
-      }
-
-      spdlog::info("config repos thread stopped");
-      semaphore--;
-    });
-    config_repos_thread.detach();
-  }
-
   if (!config.repository_trend_languages.empty()) {
     semaphore++;
     std::thread trend_repos_thread([this]() {
@@ -133,12 +82,7 @@ int Request::startup_xrepos() {
         }
         next_refresh = now + interval;
 
-        for (std::string language : config.repository_trend_languages) {
-          string_trim(language);
-          if (language.empty()) {
-            continue;
-          }
-
+        auto request_trending_language = [this](const std::string &language) {
           RequestConfig request_config{
               .host = "https://api.ossinsight.io",
               .path = "/v1/trends/repos/?period=past_week&language=" + ossinsight_language_query_value(language),
@@ -147,9 +91,23 @@ int Request::startup_xrepos() {
           if (code != 0) {
             spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
+        };
+
+        std::vector<std::thread> language_threads;
+        for (std::string language : config.repository_trend_languages) {
+          string_trim(language);
+          if (language.empty()) {
+            continue;
+          }
           if (stopping) {
             break;
           }
+
+          language_threads.emplace_back(request_trending_language, language);
+        }
+
+        for (auto &language_thread : language_threads) {
+          language_thread.join();
         }
       }
 
