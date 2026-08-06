@@ -74,11 +74,17 @@ int SQLiteDatabase::upsert_repo(std::vector<Repo> repos) {
 
 int SQLiteDatabase::upsert_repo_with_version(Repo repo, enum request_type type) {
   WRAP_FUNC(this->upsert_repo(repo))
+  if (type == request_type_config_repos) {
+    int64_t version = this->min_data_version("repos") + 1;
+    return this->update_data_version("repos", "id", std::to_string(repo.id), version);
+  }
   return EXIT_SUCCESS;
 }
 
 int SQLiteDatabase::upsert_repo_with_version(std::vector<Repo> repos, enum request_type type) {
-  WRAP_FUNC(this->upsert_repo(repos))
+  for (const auto &repo : repos) {
+    WRAP_FUNC(this->upsert_repo_with_version(repo, type))
+  }
   return EXIT_SUCCESS;
 }
 

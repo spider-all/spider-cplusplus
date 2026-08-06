@@ -57,6 +57,19 @@ int Config::initialize(const std::string &config_path) {
       }
     }
 
+    auto repositories = config["repositories"];
+    if (repositories) {
+      if (repositories["names"]) {
+        this->repository_names = repositories["names"].as<std::vector<std::string>>();
+      }
+      if (repositories["refresh_interval_minutes"]) {
+        this->repository_refresh_interval_minutes = repositories["refresh_interval_minutes"].as<int64_t>();
+      }
+    }
+    if (this->repository_refresh_interval_minutes <= 0) {
+      this->repository_refresh_interval_minutes = 10;
+    }
+
     if (crawler_entry_username.empty() || crawler_token.empty()) {
       spdlog::error("Config {0} or env have not the import value(entry username or crawler token).", config_path);
       return CONFIG_PARSE_ERROR;

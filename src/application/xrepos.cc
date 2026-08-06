@@ -1,5 +1,7 @@
 #include <application/request.h>
 
+#include <chrono>
+
 #include <string_utils.h>
 
 namespace {
@@ -36,6 +38,53 @@ Repo repo_from_json(const nlohmann::json &con) {
 } // namespace
 
 int Request::startup_xrepos() {
+  if (!config.repository_names.empty()) {
+    semaphore++;
+    std::thread config_repos_thread([=, this]() {
+      spdlog::info("config repos thread is starting...");
+      const auto interval = std::chrono::minutes(config.repository_refresh_interval_minutes);
+      auto next_refresh = std::chrono::steady_clock::now();
+
+      while (!stopping) {
+        auto now = std::chrono::steady_clock::now();
+        if (now < next_refresh) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          continue;
+        }
+        next_refresh = now + interval;
+
+        for (std::string repo_name : config.repository_names) {
+          string_trim(repo_name);
+          if (repo_name.empty()) {
+            continue;
+          }
+
+          std::vector<std::string> parts = string_split(repo_name, '/');
+          if (parts.size() != 2 || parts[0].empty() || parts[1].empty()) {
+            spdlog::error("invalid config repo name: {}", repo_name);
+            continue;
+          }
+
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/repos/" + repo_name,
+          };
+          int code = request(request_config, request_type_config_repos, request_type_config_repos);
+          if (code != 0) {
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
+          }
+          if (stopping) {
+            break;
+          }
+        }
+      }
+
+      spdlog::info("config repos thread stopped");
+      semaphore--;
+    });
+    config_repos_thread.detach();
+  }
+
   if (config.crawler_type_users_repos) {
     semaphore++;
     std::thread users_repos_thread([=, this]() {

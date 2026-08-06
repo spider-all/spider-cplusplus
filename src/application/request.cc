@@ -275,6 +275,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         break;
       case request_type_orgs_repos:
       case request_type_users_repos:
+      case request_type_config_repos:
         code = this->request_repo_list(content, type_from);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);

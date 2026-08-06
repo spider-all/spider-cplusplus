@@ -2,6 +2,7 @@
 #include <regex>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -30,6 +31,9 @@ public:
   bool crawler_type_orgs_repos = false;
   bool crawler_type_starred = false;
   bool crawler_type_events = false;
+
+  std::vector<std::string> repository_names{};
+  int64_t repository_refresh_interval_minutes = 10;
 
   int initialize(const std::string &config_path);
 
