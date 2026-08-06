@@ -5,6 +5,34 @@
 #include <string_utils.h>
 
 namespace {
+std::string ossinsight_language_query_value(const std::string &language) {
+  switch (language.size()) {
+  case 2:
+    if (language == "C#") {
+      return "C%23";
+    }
+    break;
+  case 3:
+    if (language == "C++") {
+      return "C%2B%2B";
+    }
+    break;
+  case 10:
+    if (language == "Emacs Lisp") {
+      return "Emacs%20Lisp";
+    }
+    break;
+  case 11:
+    if (language == "Common Lisp") {
+      return "Common%20Lisp";
+    }
+    break;
+  default:
+    break;
+  }
+  return language;
+}
+
 Repo repo_from_json(const nlohmann::json &con) {
   Repo repo{
       .id = con["id"].get<int64_t>(),
@@ -38,9 +66,32 @@ Repo repo_from_json(const nlohmann::json &con) {
 } // namespace
 
 int Request::startup_xrepos() {
+  auto request_config_repo = [this](std::string repo_name) -> int {
+    string_trim(repo_name);
+    if (repo_name.empty()) {
+      return EXIT_SUCCESS;
+    }
+
+    std::vector<std::string> parts = string_split(repo_name, '/');
+    if (parts.size() != 2 || parts[0].empty() || parts[1].empty()) {
+      spdlog::error("invalid config repo name: {}", repo_name);
+      return REQUEST_ERROR;
+    }
+
+    RequestConfig request_config{
+        .host = this->default_url_prefix,
+        .path = "/repos/" + repo_name,
+    };
+    int code = request(request_config, request_type_config_repos, request_type_config_repos);
+    if (code != 0) {
+      spdlog::error("request url: {} with error: {}", request_config.path, code);
+    }
+    return code;
+  };
+
   if (!config.repository_names.empty()) {
     semaphore++;
-    std::thread config_repos_thread([=, this]() {
+    std::thread config_repos_thread([this, request_config_repo]() {
       spdlog::info("config repos thread is starting...");
       const auto interval = std::chrono::minutes(config.repository_refresh_interval_minutes);
       auto next_refresh = std::chrono::steady_clock::now();
@@ -54,25 +105,7 @@ int Request::startup_xrepos() {
         next_refresh = now + interval;
 
         for (std::string repo_name : config.repository_names) {
-          string_trim(repo_name);
-          if (repo_name.empty()) {
-            continue;
-          }
-
-          std::vector<std::string> parts = string_split(repo_name, '/');
-          if (parts.size() != 2 || parts[0].empty() || parts[1].empty()) {
-            spdlog::error("invalid config repo name: {}", repo_name);
-            continue;
-          }
-
-          RequestConfig request_config{
-              .host = this->default_url_prefix,
-              .path = "/repos/" + repo_name,
-          };
-          int code = request(request_config, request_type_config_repos, request_type_config_repos);
-          if (code != 0) {
-            spdlog::error("request url: {} with error: {}", request_config.path, code);
-          }
+          request_config_repo(repo_name);
           if (stopping) {
             break;
           }
@@ -85,9 +118,50 @@ int Request::startup_xrepos() {
     config_repos_thread.detach();
   }
 
+  if (!config.repository_trend_languages.empty()) {
+    semaphore++;
+    std::thread trend_repos_thread([this]() {
+      spdlog::info("trend repos thread is starting...");
+      const auto interval = std::chrono::minutes(config.repository_refresh_interval_minutes);
+      auto next_refresh = std::chrono::steady_clock::now();
+
+      while (!stopping) {
+        auto now = std::chrono::steady_clock::now();
+        if (now < next_refresh) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          continue;
+        }
+        next_refresh = now + interval;
+
+        for (std::string language : config.repository_trend_languages) {
+          string_trim(language);
+          if (language.empty()) {
+            continue;
+          }
+
+          RequestConfig request_config{
+              .host = "https://api.ossinsight.io",
+              .path = "/v1/trends/repos/?period=past_week&language=" + ossinsight_language_query_value(language),
+          };
+          int code = request(request_config, request_type_trend_repos, request_type_trend_repos, true);
+          if (code != 0) {
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
+          }
+          if (stopping) {
+            break;
+          }
+        }
+      }
+
+      spdlog::info("trend repos thread stopped");
+      semaphore--;
+    });
+    trend_repos_thread.detach();
+  }
+
   if (config.crawler_type_users_repos) {
     semaphore++;
-    std::thread users_repos_thread([=, this]() {
+    std::thread users_repos_thread([this]() {
       spdlog::info("users repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random();
@@ -119,7 +193,7 @@ int Request::startup_xrepos() {
 
   if (config.crawler_type_orgs_repos) {
     semaphore++;
-    std::thread orgs_repos_thread([=, this]() {
+    std::thread orgs_repos_thread([this]() {
       spdlog::info("repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_orgs_random();
@@ -150,7 +224,7 @@ int Request::startup_xrepos() {
   }
   if (config.crawler_type_starred) {
     semaphore++;
-    std::thread starred_thread([=, this]() {
+    std::thread starred_thread([this]() {
       spdlog::info("starred repos thread is starting...");
       while (!stopping) {
         std::vector<std::string> users = database->list_users_random();
@@ -196,6 +270,34 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
     repos.push_back(repo_from_json(con));
   }
   return database->upsert_repo_with_version(repos, type_from);
+}
+
+int Request::request_trending_repos(const nlohmann::json &content) {
+  if (!content.contains("data") || !content["data"].contains("rows") || !content["data"]["rows"].is_array()) {
+    spdlog::error("invalid ossinsight trends response");
+    return REQUEST_ERROR;
+  }
+
+  for (const auto &row : content["data"]["rows"]) {
+    std::string repo_name = row.value("repo_name", "");
+    string_trim(repo_name);
+    if (repo_name.empty()) {
+      continue;
+    }
+
+    RequestConfig request_config{
+        .host = this->default_url_prefix,
+        .path = "/repos/" + repo_name,
+    };
+    int code = request(request_config, request_type_config_repos, request_type_config_repos);
+    if (code != 0) {
+      spdlog::error("request url: {} with error: {}", request_config.path, code);
+    }
+    if (stopping) {
+      break;
+    }
+  }
+  return EXIT_SUCCESS;
 }
 
 int Request::request_starred(nlohmann::json content, const ExtraData &extra) {

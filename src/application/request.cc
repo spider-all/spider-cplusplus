@@ -293,6 +293,12 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
           spdlog::error("Database with error: {}", code);
         }
         break;
+      case request_type_trend_repos:
+        code = this->request_trending_repos(content);
+        if (code != 0) {
+          spdlog::error("Request trending repos with error: {}", code);
+        }
+        break;
       default:
         spdlog::error("unknown request type in Request::request: type={}({}), type_from={}({}), path={}",
                       request_type_name(type), static_cast<int>(type),

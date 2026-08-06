@@ -33,6 +33,7 @@ public:
   bool crawler_type_events = false;
 
   std::vector<std::string> repository_names{};
+  std::vector<std::string> repository_trend_languages{};
   int64_t repository_refresh_interval_minutes = 10;
 
   int initialize(const std::string &config_path);

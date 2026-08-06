@@ -62,6 +62,9 @@ int Config::initialize(const std::string &config_path) {
       if (repositories["names"]) {
         this->repository_names = repositories["names"].as<std::vector<std::string>>();
       }
+      if (repositories["trend_languages"]) {
+        this->repository_trend_languages = repositories["trend_languages"].as<std::vector<std::string>>();
+      }
       if (repositories["refresh_interval_minutes"]) {
         this->repository_refresh_interval_minutes = repositories["refresh_interval_minutes"].as<int64_t>();
       }

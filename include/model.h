@@ -13,6 +13,7 @@ enum request_type {
   request_type_starred,
   request_type_events,
   request_type_config_repos,
+  request_type_trend_repos,
 };
 
 inline const char *request_type_name(enum request_type type) {
@@ -37,6 +38,8 @@ inline const char *request_type_name(enum request_type type) {
     return "events";
   case request_type_config_repos:
     return "config_repos";
+  case request_type_trend_repos:
+    return "trend_repos";
   }
   return "unknown";
 }
