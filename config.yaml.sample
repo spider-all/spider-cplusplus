@@ -12,7 +12,6 @@ crawler:
   orgs: true
   orgs_member: true
   orgs_repos: true
-  repo_stargazers: true
   events: true
 
 repositories:

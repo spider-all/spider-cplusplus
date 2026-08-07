@@ -43,9 +43,6 @@ int Config::initialize(const std::string &config_path) {
       if (crawler["orgs_repos"]) {
         this->crawler_type_orgs_repos = crawler["orgs_repos"].as<bool>();
       }
-      if (crawler["repo_stargazers"]) {
-        this->crawler_type_repo_stargazers = crawler["repo_stargazers"].as<bool>();
-      }
       if (crawler["user_starred_repos"]) {
         this->crawler_type_user_starred_repos = crawler["user_starred_repos"].as<bool>();
       }

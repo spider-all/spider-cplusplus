@@ -29,7 +29,6 @@ public:
   bool crawler_type_orgs_member = false;
   bool crawler_type_users_repos = false;
   bool crawler_type_orgs_repos = false;
-  bool crawler_type_repo_stargazers = false;
   bool crawler_type_user_starred_repos = false;
   bool crawler_type_events = false;
 

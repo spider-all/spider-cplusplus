@@ -232,7 +232,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     spdlog::info("rate limit: {}/{}, reset at: {}", rate_limit_remaining, rate_limit_limit, buffer);
   }
 
-  if (has_rate_limit && response.status == 403) {
+  if (has_rate_limit && response.status == 403 && rate_limit_remaining <= 0) {
     auto now = std::chrono::system_clock::now();
     auto current = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
     int64_t wait_seconds = rate_limit_reset - current;
@@ -324,12 +324,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         code = this->request_repo_list(content, type_from);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);
-        }
-        break;
-      case request_type_repo_stargazers:
-        code = this->request_repo_stargazers(content, type_from);
-        if (code != 0) {
-          spdlog::error("Request repo stargazers with error: {}", code);
         }
         break;
       case request_type_user_starred_repos:

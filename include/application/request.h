@@ -65,7 +65,6 @@ private:
   int request_user(nlohmann::json content, enum request_type type_from);
   int request_followx(const nlohmann::json &content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
-  int request_repo_stargazers(const nlohmann::json &content, enum request_type type_from);
   int request_starred(nlohmann::json content);
   int request_events(const nlohmann::json &content);
   int request_trending_repos(const nlohmann::json &content);
