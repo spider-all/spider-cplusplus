@@ -222,7 +222,15 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
   }
   std::vector<Repo> repos;
   for (auto &&con : content) {
-    repos.push_back(repo_from_json(con));
+    Repo repo = repo_from_json(con);
+    bool recent = false;
+    int64_t remaining_seconds = 0;
+    WRAP_FUNC(this->database->is_recently_updated("repos", "full_name", repo.full_name, DETAIL_REFRESH_SKIP_SECONDS, recent, remaining_seconds))
+    if (recent) {
+      spdlog::info("skip repo list item refresh within 12h: {}, remaining: {}", repo.full_name, format_duration(remaining_seconds));
+      continue;
+    }
+    repos.push_back(repo);
   }
   return database->upsert_repo_with_version(repos, type_from);
 }
@@ -259,6 +267,13 @@ int Request::request_starred(nlohmann::json content) {
   }
   for (auto &&con : content) {
     Repo repo = repo_from_json(con);
+    bool recent = false;
+    int64_t remaining_seconds = 0;
+    WRAP_FUNC(this->database->is_recently_updated("repos", "full_name", repo.full_name, DETAIL_REFRESH_SKIP_SECONDS, recent, remaining_seconds))
+    if (recent) {
+      spdlog::info("skip starred repo refresh within 12h: {}, remaining: {}", repo.full_name, format_duration(remaining_seconds));
+      continue;
+    }
     WRAP_FUNC(this->database->upsert_repo(repo))
   }
   return EXIT_SUCCESS;

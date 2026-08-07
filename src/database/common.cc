@@ -58,13 +58,13 @@ int SQLiteDatabase::update_data_version(const std::string &collection, const std
   return this->execute(sql);
 }
 
-int SQLiteDatabase::update_version_if_recent(const std::string &collection,
-                                             const std::string &key_column,
-                                             const std::string &key_value,
-                                             int64_t max_age_seconds,
-                                             bool &updated,
-                                             int64_t &remaining_seconds) {
-  updated = false;
+int SQLiteDatabase::is_recently_updated(const std::string &collection,
+                                        const std::string &key_column,
+                                        const std::string &key_value,
+                                        int64_t max_age_seconds,
+                                        bool &recent,
+                                        int64_t &remaining_seconds) {
+  recent = false;
   remaining_seconds = 0;
   std::string sql = fmt::format(
       "SELECT data_updated_at FROM {} WHERE {} = '{}'",
@@ -86,15 +86,29 @@ int SQLiteDatabase::update_version_if_recent(const std::string &collection,
     }
 
     remaining_seconds = refresh_at - now;
-    int64_t version = this->min_data_version(collection) + 1;
-    WRAP_FUNC(this->update_data_version(collection, key_column, key_value, version))
-    updated = true;
+    recent = true;
   } catch (const std::exception &e) {
     auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
     spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), SQLiteDatabase::format_sql_cost(cost), sql);
     return SQL_EXEC_ERROR;
   }
   return EXIT_SUCCESS;
+}
+
+int SQLiteDatabase::update_version_if_recent(const std::string &collection,
+                                             const std::string &key_column,
+                                             const std::string &key_value,
+                                             int64_t max_age_seconds,
+                                             bool &updated,
+                                             int64_t &remaining_seconds) {
+  updated = false;
+  WRAP_FUNC(this->is_recently_updated(collection, key_column, key_value, max_age_seconds, updated, remaining_seconds))
+  if (!updated) {
+    return EXIT_SUCCESS;
+  }
+
+  int64_t version = this->min_data_version(collection) + 1;
+  return this->update_data_version(collection, key_column, key_value, version);
 }
 
 // list_x_random
