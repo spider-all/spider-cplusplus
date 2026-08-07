@@ -180,7 +180,38 @@ int Request::startup_xrepos() {
     });
     orgs_repos_thread.detach();
   }
-  if (config.crawler_type_starred) {
+  if (config.crawler_type_repo_stargazers) {
+    semaphore++;
+    std::thread repo_stargazers_thread([this]() {
+      spdlog::info("repo stargazers thread is starting...");
+      while (!stopping) {
+        std::vector<std::string> repos = database->list_repos_random();
+        for (const std::string &repo : repos) {
+          std::vector<std::string> parts = string_split(repo, KEYS_DELIMITER[0]);
+          if (parts.size() != 3) {
+            spdlog::error("invalid repo record: {}", repo);
+            continue;
+          }
+          RequestConfig request_config{
+              .host = this->default_url_prefix,
+              .path = "/repos/" + parts[2] + "/" + parts[1] + "/stargazers?per_page=100",
+          };
+          int code = request(request_config, request_type_repo_stargazers, request_type_repo_stargazers);
+          if (code != 0) {
+            spdlog::error("request url: {} with error: {}", request_config.path, code);
+          }
+          if (stopping) {
+            break;
+          }
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+      }
+      spdlog::info("repo stargazers thread stopped");
+      semaphore--;
+    });
+    repo_stargazers_thread.detach();
+  }
+  if (config.crawler_type_user_starred_repos) {
     semaphore++;
     std::thread starred_thread([this]() {
       spdlog::info("starred repos thread is starting...");
@@ -196,7 +227,7 @@ int Request::startup_xrepos() {
               .host = this->default_url_prefix,
               .path = "/users/" + parts[1] + "/starred?per_page=100",
           };
-          int code = request(request_config, request_type_starred, request_type_starred);
+          int code = request(request_config, request_type_user_starred_repos, request_type_user_starred_repos);
           if (code != 0) {
             spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
@@ -233,6 +264,25 @@ int Request::request_repo_list(nlohmann::json content, enum request_type type_fr
     repos.push_back(repo);
   }
   return database->upsert_repo_with_version(repos, type_from);
+}
+
+int Request::request_repo_stargazers(const nlohmann::json &content, enum request_type type_from) {
+  if (!content.is_array()) {
+    spdlog::error("repo stargazers response is not an array: type={}", content.type_name());
+    return REQUEST_ERROR;
+  }
+  for (const auto &user : content) {
+    std::string login = user.value("login", "");
+    string_trim(login);
+    if (login.empty()) {
+      continue;
+    }
+    WRAP_FUNC(request_user_detail(login, type_from))
+    if (stopping) {
+      return EXIT_SUCCESS;
+    }
+  }
+  return EXIT_SUCCESS;
 }
 
 int Request::request_trending_repos(const nlohmann::json &content) {

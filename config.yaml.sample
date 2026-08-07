@@ -5,13 +5,14 @@ token: github_token
 log_level: debug
 
 crawler:
-  followers: true
-  followings: true
+  user_followers: true
+  user_following: true
+  user_starred_repos: true
+  users_repos: true
   orgs: true
   orgs_member: true
-  users_repos: true
   orgs_repos: true
-  starred: true
+  repo_stargazers: true
   events: true
 
 repositories:

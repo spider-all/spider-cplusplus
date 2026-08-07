@@ -23,13 +23,14 @@ public:
   std::string crawler_timezone;       // timezone
   std::string log_level = "debug";
 
-  bool crawler_type_followers = false;
-  bool crawler_type_followings = false;
+  bool crawler_type_user_followers = false;
+  bool crawler_type_user_following = false;
   bool crawler_type_orgs = false;
   bool crawler_type_orgs_member = false;
   bool crawler_type_users_repos = false;
   bool crawler_type_orgs_repos = false;
-  bool crawler_type_starred = false;
+  bool crawler_type_repo_stargazers = false;
+  bool crawler_type_user_starred_repos = false;
   bool crawler_type_events = false;
 
   std::vector<std::string> repository_trend_languages{};

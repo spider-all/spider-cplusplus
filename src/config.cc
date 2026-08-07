@@ -25,11 +25,11 @@ int Config::initialize(const std::string &config_path) {
 
     auto crawler = config["crawler"];
     if (crawler) {
-      if (crawler["followers"]) {
-        this->crawler_type_followers = crawler["followers"].as<bool>();
+      if (crawler["user_followers"]) {
+        this->crawler_type_user_followers = crawler["user_followers"].as<bool>();
       }
-      if (crawler["followings"]) {
-        this->crawler_type_followings = crawler["followings"].as<bool>();
+      if (crawler["user_following"]) {
+        this->crawler_type_user_following = crawler["user_following"].as<bool>();
       }
       if (crawler["orgs"]) {
         this->crawler_type_orgs = crawler["orgs"].as<bool>();
@@ -43,8 +43,11 @@ int Config::initialize(const std::string &config_path) {
       if (crawler["orgs_repos"]) {
         this->crawler_type_orgs_repos = crawler["orgs_repos"].as<bool>();
       }
-      if (crawler["starred"]) {
-        this->crawler_type_starred = crawler["starred"].as<bool>();
+      if (crawler["repo_stargazers"]) {
+        this->crawler_type_repo_stargazers = crawler["repo_stargazers"].as<bool>();
+      }
+      if (crawler["user_starred_repos"]) {
+        this->crawler_type_user_starred_repos = crawler["user_starred_repos"].as<bool>();
       }
       if (crawler["events"]) {
         this->crawler_type_events = crawler["events"].as<bool>();

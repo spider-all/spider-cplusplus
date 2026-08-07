@@ -3,14 +3,15 @@
 #pragma once
 
 enum request_type {
-  request_type_followers,
-  request_type_following,
+  request_type_user_followers,
+  request_type_user_following,
   request_type_user,
   request_type_orgs,
   request_type_orgs_member,
   request_type_users_repos,
   request_type_orgs_repos,
-  request_type_starred,
+  request_type_repo_stargazers,
+  request_type_user_starred_repos,
   request_type_events,
   request_type_config_repos,
   request_type_trend_repos,
@@ -18,10 +19,10 @@ enum request_type {
 
 inline const char *request_type_name(enum request_type type) {
   switch (type) {
-  case request_type_followers:
-    return "followers";
-  case request_type_following:
-    return "following";
+  case request_type_user_followers:
+    return "user_followers";
+  case request_type_user_following:
+    return "user_following";
   case request_type_user:
     return "user";
   case request_type_orgs:
@@ -32,8 +33,10 @@ inline const char *request_type_name(enum request_type type) {
     return "users_repos";
   case request_type_orgs_repos:
     return "orgs_repos";
-  case request_type_starred:
-    return "starred";
+  case request_type_repo_stargazers:
+    return "repo_stargazers";
+  case request_type_user_starred_repos:
+    return "user_starred_repos";
   case request_type_events:
     return "events";
   case request_type_config_repos:

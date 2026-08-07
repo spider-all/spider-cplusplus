@@ -67,7 +67,7 @@ Request::~Request() {
 
 int Request::startup() {
   spdlog::info("spider is running...");
-  WRAP_FUNC(request_user_detail(config.crawler_entry_username, request_type_followers))
+  WRAP_FUNC(request_user_detail(config.crawler_entry_username, request_type_user_followers))
 
   if (stopping) {
     return EXIT_SUCCESS;
@@ -293,8 +293,8 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     int code;
     try {
       switch (type) {
-      case request_type_following:
-      case request_type_followers:
+      case request_type_user_following:
+      case request_type_user_followers:
         code = request_followx(content, type_from);
         if (code != 0) {
           spdlog::error("Request userinfo with error: {}", code);
@@ -326,7 +326,13 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
           spdlog::error("Database with error: {}", code);
         }
         break;
-      case request_type_starred:
+      case request_type_repo_stargazers:
+        code = this->request_repo_stargazers(content, type_from);
+        if (code != 0) {
+          spdlog::error("Request repo stargazers with error: {}", code);
+        }
+        break;
+      case request_type_user_starred_repos:
         code = this->request_starred(content);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);
@@ -361,7 +367,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     }
   }
 
-  std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[0-9a-z\/\?_=&]+)>;\srel="(next|last|prev|first)")lit");
+  std::regex pieces_regex(R"lit(<(https:\/\/api\.github\.com\/[^>]+)>;\srel="(next|last|prev|first)")lit");
   std::smatch result;
   std::string header_link;
   auto it = response.headers.find("link");

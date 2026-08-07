@@ -3,7 +3,7 @@
 #include <string_utils.h>
 
 int Request::startup_followx() {
-  if (config.crawler_type_followers) {
+  if (config.crawler_type_user_followers) {
     semaphore++;
     std::thread followers_thread([=, this]() {
       spdlog::info("followers thread is starting...");
@@ -19,7 +19,7 @@ int Request::startup_followx() {
               .host = this->default_url_prefix,
               .path = "/users/" + parts[1] + "/followers?per_page=100",
           };
-          int code = request(request_config, request_type_followers, request_type_followers);
+          int code = request(request_config, request_type_user_followers, request_type_user_followers);
           if (code != 0) {
             spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
@@ -34,7 +34,7 @@ int Request::startup_followx() {
     });
     followers_thread.detach();
   }
-  if (config.crawler_type_followings) {
+  if (config.crawler_type_user_following) {
     semaphore++;
     std::thread followings_thread([=, this]() {
       spdlog::info("following thread is starting...");
@@ -50,7 +50,7 @@ int Request::startup_followx() {
               .host = this->default_url_prefix,
               .path = "/users/" + parts[1] + "/following?per_page=100",
           };
-          int code = request(request_config, request_type_following, request_type_following);
+          int code = request(request_config, request_type_user_following, request_type_user_following);
           if (code != 0) {
             spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
