@@ -28,7 +28,7 @@ int64_t SQLiteDatabase::current_timestamp() const {
 }
 
 int64_t SQLiteDatabase::min_data_version(const std::string &collection) {
-  std::string sql = fmt::format("SELECT COALESCE(MIN(COALESCE(data_version, 0)), 0) FROM {}", collection);
+  std::string sql = fmt::format("SELECT COALESCE(MIN(data_version), 0) FROM {}", collection);
   auto start = std::chrono::steady_clock::now();
   try {
     SQLite::Statement query(*this->db, sql);
@@ -144,7 +144,7 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
   std::string sql = fmt::format(
       "SELECT {} FROM {} t "
       "WHERE COALESCE(t.data_version, 0) = ("
-      "SELECT COALESCE(MIN(COALESCE(data_version, 0)), 0) FROM {}) "
+      "SELECT COALESCE(MIN(data_version), 0) FROM {}) "
       "ORDER BY RANDOM() LIMIT {}",
       select_expr, collection, collection, this->sample_size);
 
