@@ -54,8 +54,10 @@ int SQLiteDatabase::update_version_if_recent(const std::string &collection,
                                              const std::string &key_column,
                                              const std::string &key_value,
                                              int64_t max_age_seconds,
-                                             bool &updated) {
+                                             bool &updated,
+                                             int64_t &remaining_seconds) {
   updated = false;
+  remaining_seconds = 0;
   try {
     SQLite::Statement query(*this->db, fmt::format(
                                            "SELECT data_updated_at FROM {} WHERE {} = '{}'",
@@ -65,10 +67,13 @@ int SQLiteDatabase::update_version_if_recent(const std::string &collection,
     }
 
     int64_t data_updated_at = query.getColumn(0).getInt64();
-    if (data_updated_at < this->current_timestamp() - max_age_seconds) {
+    int64_t now = this->current_timestamp();
+    int64_t refresh_at = data_updated_at + max_age_seconds;
+    if (refresh_at <= now) {
       return EXIT_SUCCESS;
     }
 
+    remaining_seconds = refresh_at - now;
     int64_t version = this->min_data_version(collection) + 1;
     WRAP_FUNC(this->update_data_version(collection, key_column, key_value, version))
     updated = true;

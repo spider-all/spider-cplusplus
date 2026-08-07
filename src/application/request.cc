@@ -39,11 +39,19 @@ size_t write_header(char *buffer, size_t size, size_t nitems, void *userdata) {
   (*headers)[key] = value;
   return total;
 }
+
 } // namespace
 
 Request::Request(Config c, Database *db) {
   config = std::move(c);
   database = db;
+}
+
+std::string Request::format_duration(int64_t seconds) {
+  if (seconds < 60) {
+    return fmt::format("{}s", seconds);
+  }
+  return fmt::format("{}min", seconds / 60);
 }
 
 Request::~Request() {
@@ -83,9 +91,10 @@ int Request::request_user_detail(const std::string &login, enum request_type typ
   }
 
   bool updated = false;
-  WRAP_FUNC(database->update_version_if_recent("users", "login", user_login, DETAIL_REFRESH_SKIP_SECONDS, updated))
+  int64_t remaining_seconds = 0;
+  WRAP_FUNC(database->update_version_if_recent("users", "login", user_login, DETAIL_REFRESH_SKIP_SECONDS, updated, remaining_seconds))
   if (updated) {
-    spdlog::info("skip user detail refresh within 12h: {}", user_login);
+    spdlog::info("skip user detail refresh within 12h: {}, remaining: {}", user_login, format_duration(remaining_seconds));
     return EXIT_SUCCESS;
   }
 
@@ -104,9 +113,10 @@ int Request::request_repo_detail(const std::string &full_name, enum request_type
   }
 
   bool updated = false;
-  WRAP_FUNC(database->update_version_if_recent("repos", "full_name", repo_full_name, DETAIL_REFRESH_SKIP_SECONDS, updated))
+  int64_t remaining_seconds = 0;
+  WRAP_FUNC(database->update_version_if_recent("repos", "full_name", repo_full_name, DETAIL_REFRESH_SKIP_SECONDS, updated, remaining_seconds))
   if (updated) {
-    spdlog::info("skip repo detail refresh within 12h: {}", repo_full_name);
+    spdlog::info("skip repo detail refresh within 12h: {}, remaining: {}", repo_full_name, format_duration(remaining_seconds));
     return EXIT_SUCCESS;
   }
 

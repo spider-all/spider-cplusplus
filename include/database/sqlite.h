@@ -37,7 +37,8 @@ public:
                                const std::string &key_column,
                                const std::string &key_value,
                                int64_t max_age_seconds,
-                               bool &updated) override;
+                               bool &updated,
+                               int64_t &remaining_seconds) override;
 
   int64_t count_x(const std::string &c);
   std::vector<std::string> list_x_random(const std::string &collection, std::string keys);

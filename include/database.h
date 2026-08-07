@@ -13,7 +13,8 @@ public:
                                        const std::string &key_column,
                                        const std::string &key_value,
                                        int64_t max_age_seconds,
-                                       bool &updated) = 0;
+                                       bool &updated,
+                                       int64_t &remaining_seconds) = 0;
 
   virtual int upsert_user(User user) = 0;
   virtual int upsert_user_with_version(User user, enum request_type type) = 0;

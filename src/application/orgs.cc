@@ -83,9 +83,10 @@ int Request::request_orgs(const nlohmann::json &content, enum request_type type_
   for (auto con : content) {
     std::string login = con["login"].get<std::string>();
     bool updated = false;
-    WRAP_FUNC(this->database->update_version_if_recent("orgs", "login", login, DETAIL_REFRESH_SKIP_SECONDS, updated))
+    int64_t remaining_seconds = 0;
+    WRAP_FUNC(this->database->update_version_if_recent("orgs", "login", login, DETAIL_REFRESH_SKIP_SECONDS, updated, remaining_seconds))
     if (updated) {
-      spdlog::info("skip org refresh within 12h: {}", login);
+      spdlog::info("skip org refresh within 12h: {}, remaining: {}", login, format_duration(remaining_seconds));
       continue;
     }
 

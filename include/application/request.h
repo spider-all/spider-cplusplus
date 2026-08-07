@@ -40,6 +40,7 @@ typedef struct RequestConfig {
 class Request : public Application {
 private:
   static constexpr int64_t DETAIL_REFRESH_SKIP_SECONDS = 12 * 60 * 60;
+  static std::string format_duration(int64_t seconds);
 
   Config config;
   Database *database;
