@@ -4,7 +4,6 @@
 #include <fmt/core.h>
 
 #include <map>
-#include <random>
 
 #include <string_utils.h>
 
@@ -156,11 +155,6 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     header_host.erase(0, std::string("https://").size());
   }
   bool is_github_request = header_host == this->url_host;
-
-  std::time_t now = std::time(0);
-  std::mt19937 gen{static_cast<std::uint32_t>(now)};
-  std::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
-  std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
 
   if (this->stopping) {
     return EXIT_SUCCESS;
