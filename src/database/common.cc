@@ -6,13 +6,17 @@
 #include <string_utils.h>
 
 int64_t SQLiteDatabase::count_x(const std::string &c) {
+  std::string sql = fmt::format("SELECT COUNT(*) AS cnt FROM {}", c);
+  auto start = std::chrono::steady_clock::now();
   try {
-    SQLite::Statement query(*this->db, fmt::format("SELECT COUNT(*) AS cnt FROM {}", c));
+    SQLite::Statement query(*this->db, sql);
     if (query.executeStep()) {
+      this->log_query(sql, start);
       return query.getColumn(0).getInt64();
     }
   } catch (const std::exception &e) {
-    spdlog::error("SQLite error: {}", e.what());
+    auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
+    spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), SQLiteDatabase::format_sql_cost(cost), sql);
   }
   return 0;
 }
@@ -24,13 +28,17 @@ int64_t SQLiteDatabase::current_timestamp() const {
 }
 
 int64_t SQLiteDatabase::min_data_version(const std::string &collection) {
+  std::string sql = fmt::format("SELECT COALESCE(MIN(COALESCE(data_version, 0)), 0) FROM {}", collection);
+  auto start = std::chrono::steady_clock::now();
   try {
-    SQLite::Statement query(*this->db, fmt::format("SELECT COALESCE(MIN(COALESCE(data_version, 0)), 0) FROM {}", collection));
+    SQLite::Statement query(*this->db, sql);
     if (query.executeStep()) {
+      this->log_query(sql, start);
       return query.getColumn(0).getInt64();
     }
   } catch (const std::exception &e) {
-    spdlog::error("SQLite error: {}", e.what());
+    auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
+    spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), SQLiteDatabase::format_sql_cost(cost), sql);
   }
   return 1;
 }
@@ -58,13 +66,17 @@ int SQLiteDatabase::update_version_if_recent(const std::string &collection,
                                              int64_t &remaining_seconds) {
   updated = false;
   remaining_seconds = 0;
+  std::string sql = fmt::format(
+      "SELECT data_updated_at FROM {} WHERE {} = '{}'",
+      collection, key_column, this->escape(key_value));
+  auto start = std::chrono::steady_clock::now();
   try {
-    SQLite::Statement query(*this->db, fmt::format(
-                                           "SELECT data_updated_at FROM {} WHERE {} = '{}'",
-                                           collection, key_column, this->escape(key_value)));
+    SQLite::Statement query(*this->db, sql);
     if (!query.executeStep()) {
+      this->log_query(sql, start);
       return EXIT_SUCCESS;
     }
+    this->log_query(sql, start);
 
     int64_t data_updated_at = query.getColumn(0).getInt64();
     int64_t now = this->current_timestamp();
@@ -78,7 +90,8 @@ int SQLiteDatabase::update_version_if_recent(const std::string &collection,
     WRAP_FUNC(this->update_data_version(collection, key_column, key_value, version))
     updated = true;
   } catch (const std::exception &e) {
-    spdlog::error("SQLite error: {}", e.what());
+    auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
+    spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), SQLiteDatabase::format_sql_cost(cost), sql);
     return SQL_EXEC_ERROR;
   }
   return EXIT_SUCCESS;
@@ -121,6 +134,7 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
       "ORDER BY RANDOM() LIMIT {}",
       select_expr, collection, collection, this->sample_size);
 
+  auto start = std::chrono::steady_clock::now();
   try {
     SQLite::Statement query(*this->db, sql);
     std::vector<std::string> selected_keys;
@@ -143,6 +157,7 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
       result.push_back(res);
       selected_keys.push_back(query.getColumn(0).getString());
     }
+    this->log_query(sql, start);
     if (!result.empty()) {
       int64_t version = this->min_data_version(collection) + 1;
       for (const auto &selected_key : selected_keys) {
@@ -154,7 +169,8 @@ std::vector<std::string> SQLiteDatabase::list_x_random(const std::string &collec
       }
     }
   } catch (const std::exception &e) {
-    spdlog::error("SQLite error: {}", e.what());
+    auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
+    spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), SQLiteDatabase::format_sql_cost(cost), sql);
   }
   return result;
 }
@@ -217,13 +233,17 @@ int SQLiteDatabase::create_x_collection(const std::string &collection, std::stri
   WRAP_FUNC(this->execute(sql))
 
   std::set<std::string> existing_columns;
+  std::string table_info_sql = fmt::format("PRAGMA table_info({})", collection);
+  auto table_info_start = std::chrono::steady_clock::now();
   try {
-    SQLite::Statement query(*this->db, fmt::format("PRAGMA table_info({})", collection));
+    SQLite::Statement query(*this->db, table_info_sql);
     while (query.executeStep()) {
       existing_columns.insert(query.getColumn(1).getString());
     }
+    this->log_query(table_info_sql, table_info_start);
   } catch (const std::exception &e) {
-    spdlog::error("SQLite error: {}", e.what());
+    auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - table_info_start).count();
+    spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), SQLiteDatabase::format_sql_cost(cost), table_info_sql);
     return SQL_EXEC_ERROR;
   }
 

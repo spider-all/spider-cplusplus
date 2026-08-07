@@ -18,6 +18,9 @@ int Config::initialize(const std::string &config_path) {
     if (crawler_sleep_each_request == 0) {
       crawler_sleep_each_request = DEFAULT_SLEEP_EACH_REQUEST;
     }
+    if (config["log_level"]) {
+      log_level = config["log_level"].as<std::string>();
+    }
 
     if (config["database"] && config["database"]["path"]) {
       database_sqlite_path = config["database"]["path"].as<std::string>();

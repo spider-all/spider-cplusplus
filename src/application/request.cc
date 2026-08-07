@@ -155,6 +155,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   if (header_host.starts_with("https://")) {
     header_host.erase(0, std::string("https://").size());
   }
+  bool is_github_request = header_host == this->url_host;
 
   std::time_t now = std::time(0);
   std::mt19937 gen{static_cast<std::uint32_t>(now)};
@@ -215,16 +216,18 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
   int rate_limit_limit{};
   int rate_limit_reset{};
   bool has_rate_limit = false;
-  for (const auto &header : response.headers) {
-    if (header.first == "x-ratelimit-limit") {
-      rate_limit_limit = std::stoi(header.second, nullptr);
-      has_rate_limit = true;
-    } else if (header.first == "x-ratelimit-reset") {
-      rate_limit_reset = std::stoi(header.second);
-      has_rate_limit = true;
-    } else if (header.first == "x-ratelimit-remaining") {
-      rate_limit_remaining = std::stoi(header.second);
-      has_rate_limit = true;
+  if (is_github_request) {
+    for (const auto &header : response.headers) {
+      if (header.first == "x-ratelimit-limit") {
+        rate_limit_limit = std::stoi(header.second, nullptr);
+        has_rate_limit = true;
+      } else if (header.first == "x-ratelimit-reset") {
+        rate_limit_reset = std::stoi(header.second);
+        has_rate_limit = true;
+      } else if (header.first == "x-ratelimit-remaining") {
+        rate_limit_remaining = std::stoi(header.second);
+        has_rate_limit = true;
+      }
     }
   }
 

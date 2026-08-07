@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <map>
 #include <random>
@@ -23,6 +24,8 @@ private:
   const int32_t sample_size = 100;
 
   int execute(const std::string &sql);
+  void log_query(const std::string &sql, std::chrono::steady_clock::time_point start) const;
+  static std::string format_sql_cost(int64_t microseconds);
   std::string escape(const std::string &s);
   int64_t current_timestamp() const;
   int64_t min_data_version(const std::string &collection);

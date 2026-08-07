@@ -58,15 +58,19 @@ int SQLiteDatabase::upsert_user_with_version(User user, enum request_type type) 
 
 std::vector<User> SQLiteDatabase::list_usersx(common_args args) {
   std::vector<User> users;
+  std::string sql = "SELECT id, login, node_id, type, name, company, blog, location, "
+                    "email, hireable, bio, created_at, updated_at, public_gists, "
+                    "public_repos, following, followers FROM users";
+  auto start = std::chrono::steady_clock::now();
   try {
-    SQLite::Statement query(*this->db, "SELECT id, login, node_id, type, name, company, blog, location, "
-                                       "email, hireable, bio, created_at, updated_at, public_gists, "
-                                       "public_repos, following, followers FROM users");
+    SQLite::Statement query(*this->db, sql);
     while (query.executeStep()) {
       std::cout << query.getColumn(1).getString() << "\n";
     }
+    this->log_query(sql, start);
   } catch (const std::exception &e) {
-    spdlog::error("SQLite error: {}", e.what());
+    auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
+    spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), SQLiteDatabase::format_sql_cost(cost), sql);
   }
   return users;
 }

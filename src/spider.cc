@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cctype>
 #include <csignal>
 #include <iostream>
 #include <thread>
@@ -26,6 +28,36 @@ Database *switcher(const Config &config) {
   return ret;
 }
 
+spdlog::level::level_enum parse_log_level(std::string level) {
+  std::transform(level.begin(), level.end(), level.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+
+  if (level == "trace") {
+    return spdlog::level::trace;
+  }
+  if (level == "debug") {
+    return spdlog::level::debug;
+  }
+  if (level == "info") {
+    return spdlog::level::info;
+  }
+  if (level == "warn" || level == "warning") {
+    return spdlog::level::warn;
+  }
+  if (level == "error") {
+    return spdlog::level::err;
+  }
+  if (level == "critical") {
+    return spdlog::level::critical;
+  }
+  if (level == "off") {
+    return spdlog::level::off;
+  }
+  spdlog::warn("unknown log level: {}, fallback to debug", level);
+  return spdlog::level::debug;
+}
+
 #define STRINGIZE(x) #x
 #define STRINGIZE_VALUE_OF(x) STRINGIZE(x)
 
@@ -37,7 +69,6 @@ int main(int argc, char const *argv[]) {
   CLI11_PARSE(app, argc, argv)
 
   spdlog::set_pattern("[%L][%H:%M:%S][thread %t] %v");
-  spdlog::set_level(spdlog::level::debug);
 
   const std::string default_config = "/etc/spider-cplusplus/config.yaml";
   if (config_path.empty()) {
@@ -55,6 +86,7 @@ int main(int argc, char const *argv[]) {
     spdlog::error("Parse config with error: {}", code);
     return EXIT_FAILURE;
   }
+  spdlog::set_level(parse_log_level(config.log_level));
 
   Database *database = switcher(config);
   if (database == nullptr) {
