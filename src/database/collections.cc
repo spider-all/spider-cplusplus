@@ -24,9 +24,21 @@ int SQLiteDatabase::create_collections() {
   WRAP_FUNC(this->execute(
       "CREATE INDEX IF NOT EXISTS users_data_version_index ON users (data_version)"))
   WRAP_FUNC(this->execute(
+      "CREATE INDEX IF NOT EXISTS users_data_version_id_index ON users (data_version, id)"))
+  WRAP_FUNC(this->execute(
+      "CREATE INDEX IF NOT EXISTS users_login_index ON users (login)"))
+  WRAP_FUNC(this->execute(
       "CREATE INDEX IF NOT EXISTS orgs_data_version_index ON orgs (data_version)"))
   WRAP_FUNC(this->execute(
+      "CREATE INDEX IF NOT EXISTS orgs_data_version_id_index ON orgs (data_version, id)"))
+  WRAP_FUNC(this->execute(
+      "CREATE INDEX IF NOT EXISTS orgs_login_index ON orgs (login)"))
+  WRAP_FUNC(this->execute(
       "CREATE INDEX IF NOT EXISTS repos_data_version_index ON repos (data_version)"))
+  WRAP_FUNC(this->execute(
+      "CREATE INDEX IF NOT EXISTS repos_data_version_id_index ON repos (data_version, id)"))
+  WRAP_FUNC(this->execute(
+      "CREATE INDEX IF NOT EXISTS repos_full_name_index ON repos (full_name)"))
   WRAP_FUNC(this->execute(
       "CREATE INDEX IF NOT EXISTS repos_stargazers_count_index ON repos (stargazers_count)"))
 
