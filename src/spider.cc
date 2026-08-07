@@ -37,6 +37,7 @@ int main(int argc, char const *argv[]) {
   CLI11_PARSE(app, argc, argv)
 
   spdlog::set_pattern("[%L][%H:%M:%S][thread %t] %v");
+  spdlog::set_level(spdlog::level::debug);
 
   const std::string default_config = "/etc/spider-cplusplus/config.yaml";
   if (config_path.empty()) {
