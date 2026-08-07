@@ -2,6 +2,15 @@
 
 #include <chrono>
 
+namespace {
+std::string format_sql_cost(int64_t microseconds) {
+  if (microseconds < 1000) {
+    return fmt::format("{}us", microseconds);
+  }
+  return fmt::format("{}ms", microseconds / 1000);
+}
+} // namespace
+
 SQLiteDatabase::SQLiteDatabase(const std::string &path) {
   this->db_path = path;
 }
@@ -16,11 +25,11 @@ int SQLiteDatabase::execute(const std::string &sql) {
     this->db->exec(sql);
   } catch (const std::exception &e) {
     auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
-    spdlog::error("SQLite error: {}, cost={}us, sql={}", e.what(), cost, sql);
+    spdlog::error("SQLite error: {}, cost={}, sql={}", e.what(), format_sql_cost(cost), sql);
     return SQL_EXEC_ERROR;
   }
   auto cost = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
-  spdlog::debug("SQLite execute cost={}us, sql={}", cost, sql);
+  spdlog::debug("SQLite execute cost={}, sql={}", format_sql_cost(cost), sql);
   return EXIT_SUCCESS;
 }
 
