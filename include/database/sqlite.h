@@ -28,12 +28,16 @@ private:
   int64_t min_data_version(const std::string &collection);
   int64_t initial_data_version(const std::string &collection);
   int update_data_version(const std::string &collection, const std::string &key_column, const std::string &key_value, int64_t version);
-  int upsert_relation(const std::string &collection, const std::string &first_column, int64_t first_id, const std::string &second_column, int64_t second_id);
 
 public:
   explicit SQLiteDatabase(const std::string &path);
   ~SQLiteDatabase() override;
   int initialize() override;
+  int update_version_if_recent(const std::string &collection,
+                               const std::string &key_column,
+                               const std::string &key_value,
+                               int64_t max_age_seconds,
+                               bool &updated) override;
 
   int64_t count_x(const std::string &c);
   std::vector<std::string> list_x_random(const std::string &collection, std::string keys);
@@ -62,7 +66,4 @@ public:
   int upsert_repo_with_version(std::vector<Repo> repos, enum request_type type) override;
   std::vector<std::string> list_repos_random() override;
   int64_t count_repo() override;
-
-  int upsert_following(int64_t upstream_user_id, int64_t downstream_user_id) override;
-  int upsert_starred(int64_t user_id, int64_t repo_id) override;
 };

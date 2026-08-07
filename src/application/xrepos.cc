@@ -87,7 +87,7 @@ int Request::startup_xrepos() {
               .host = "https://api.ossinsight.io",
               .path = "/v1/trends/repos/?period=past_week&language=" + ossinsight_language_query_value(language),
           };
-          int code = request(request_config, request_type_trend_repos, request_type_trend_repos, true);
+          int code = request(request_config, request_type_trend_repos, request_type_trend_repos);
           if (code != 0) {
             spdlog::error("request url: {} with error: {}", request_config.path, code);
           }
@@ -195,9 +195,6 @@ int Request::startup_xrepos() {
           RequestConfig request_config{
               .host = this->default_url_prefix,
               .path = "/users/" + parts[1] + "/starred?per_page=100",
-              .extra = {
-                  .user_id = std::stoll(parts[0]),
-              },
           };
           int code = request(request_config, request_type_starred, request_type_starred);
           if (code != 0) {
@@ -243,13 +240,9 @@ int Request::request_trending_repos(const nlohmann::json &content) {
       continue;
     }
 
-    RequestConfig request_config{
-        .host = this->default_url_prefix,
-        .path = "/repos/" + repo_name,
-    };
-    int code = request(request_config, request_type_config_repos, request_type_config_repos);
+    int code = request_repo_detail(repo_name, request_type_config_repos, request_type_config_repos);
     if (code != 0) {
-      spdlog::error("request url: {} with error: {}", request_config.path, code);
+      spdlog::error("request repo {} with error: {}", repo_name, code);
     }
     if (stopping) {
       break;
@@ -258,7 +251,7 @@ int Request::request_trending_repos(const nlohmann::json &content) {
   return EXIT_SUCCESS;
 }
 
-int Request::request_starred(nlohmann::json content, const ExtraData &extra) {
+int Request::request_starred(nlohmann::json content) {
   if (!content.is_array()) {
     nlohmann::json arr = nlohmann::json::array();
     arr.push_back(content);
@@ -267,9 +260,6 @@ int Request::request_starred(nlohmann::json content, const ExtraData &extra) {
   for (auto &&con : content) {
     Repo repo = repo_from_json(con);
     WRAP_FUNC(this->database->upsert_repo(repo))
-    if (extra.user_id != 0) {
-      WRAP_FUNC(this->database->upsert_starred(extra.user_id, repo.id))
-    }
   }
   return EXIT_SUCCESS;
 }

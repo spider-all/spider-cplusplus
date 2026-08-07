@@ -60,11 +60,7 @@ Request::~Request() {
 
 int Request::startup() {
   spdlog::info("spider is running...");
-  RequestConfig request_config{
-      .host = this->default_url_prefix,
-      .path = "/users/" + config.crawler_entry_username,
-  };
-  WRAP_FUNC(request(request_config, request_type_user, request_type_followers, true))
+  WRAP_FUNC(request_user_detail(config.crawler_entry_username, request_type_followers))
 
   if (stopping) {
     return EXIT_SUCCESS;
@@ -79,7 +75,49 @@ int Request::startup() {
   return EXIT_SUCCESS;
 }
 
-int Request::request(RequestConfig &request_config, enum request_type type, enum request_type type_from, bool skip_sleep) {
+int Request::request_user_detail(const std::string &login, enum request_type type_from) {
+  std::string user_login = login;
+  string_trim(user_login);
+  if (user_login.empty()) {
+    return EXIT_SUCCESS;
+  }
+
+  bool updated = false;
+  WRAP_FUNC(database->update_version_if_recent("users", "login", user_login, DETAIL_REFRESH_SKIP_SECONDS, updated))
+  if (updated) {
+    spdlog::info("skip user detail refresh within 12h: {}", user_login);
+    return EXIT_SUCCESS;
+  }
+
+  RequestConfig request_config{
+      .host = this->default_url_prefix,
+      .path = "/users/" + user_login,
+  };
+  return request(request_config, request_type_user, type_from);
+}
+
+int Request::request_repo_detail(const std::string &full_name, enum request_type type, enum request_type type_from) {
+  std::string repo_full_name = full_name;
+  string_trim(repo_full_name);
+  if (repo_full_name.empty()) {
+    return EXIT_SUCCESS;
+  }
+
+  bool updated = false;
+  WRAP_FUNC(database->update_version_if_recent("repos", "full_name", repo_full_name, DETAIL_REFRESH_SKIP_SECONDS, updated))
+  if (updated) {
+    spdlog::info("skip repo detail refresh within 12h: {}", repo_full_name);
+    return EXIT_SUCCESS;
+  }
+
+  RequestConfig request_config{
+      .host = this->default_url_prefix,
+      .path = "/repos/" + repo_full_name,
+  };
+  return request(request_config, type, type_from);
+}
+
+int Request::request(RequestConfig &request_config, enum request_type type, enum request_type type_from) {
   if (this->stopping) {
     return EXIT_SUCCESS;
   }
@@ -108,12 +146,10 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
     header_host.erase(0, std::string("https://").size());
   }
 
-  if (!skip_sleep) {
-    std::time_t now = std::time(0);
-    std::mt19937 gen{static_cast<std::uint32_t>(now)};
-    std::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
-    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
-  }
+  std::time_t now = std::time(0);
+  std::mt19937 gen{static_cast<std::uint32_t>(now)};
+  std::uniform_int_distribution<> sleep_random{0, static_cast<int>(config.crawler_sleep_each_request)};
+  std::this_thread::sleep_for(std::chrono::milliseconds(sleep_random(gen)));
 
   if (this->stopping) {
     return EXIT_SUCCESS;
@@ -252,7 +288,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
       switch (type) {
       case request_type_following:
       case request_type_followers:
-        code = request_followx(content, type, type_from, request_config.extra);
+        code = request_followx(content, type_from);
         if (code != 0) {
           spdlog::error("Request userinfo with error: {}", code);
         }
@@ -284,7 +320,7 @@ int Request::request(RequestConfig &request_config, enum request_type type, enum
         }
         break;
       case request_type_starred:
-        code = this->request_starred(content, request_config.extra);
+        code = this->request_starred(content);
         if (code != 0) {
           spdlog::error("Database with error: {}", code);
         }

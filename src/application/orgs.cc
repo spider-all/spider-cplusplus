@@ -70,11 +70,7 @@ int Request::startup_orgs() {
 
 int Request::request_orgs_members(const nlohmann::json &content, enum request_type type_from) {
   for (auto con : content) {
-    RequestConfig request_config{
-        .host = this->default_url_prefix,
-        .path = "/users/" + con["login"].get<std::string>(),
-    };
-    WRAP_FUNC(request(request_config, request_type_user, type_from))
+    WRAP_FUNC(request_user_detail(con["login"].get<std::string>(), type_from))
     if (this->stopping) {
       return EXIT_SUCCESS;
     }
@@ -85,9 +81,17 @@ int Request::request_orgs_members(const nlohmann::json &content, enum request_ty
 int Request::request_orgs(const nlohmann::json &content, enum request_type type_from) {
   std::vector<Org> orgs;
   for (auto con : content) {
+    std::string login = con["login"].get<std::string>();
+    bool updated = false;
+    WRAP_FUNC(this->database->update_version_if_recent("orgs", "login", login, DETAIL_REFRESH_SKIP_SECONDS, updated))
+    if (updated) {
+      spdlog::info("skip org refresh within 12h: {}", login);
+      continue;
+    }
+
     Org org{
         .id = con["id"].get<int64_t>(),
-        .login = con["login"].get<std::string>(),
+        .login = login,
         .node_id = con["node_id"].get<std::string>(),
         .description = con["description"].get<std::string>(),
         .followers = con.contains("followers") && !con["followers"].is_null()

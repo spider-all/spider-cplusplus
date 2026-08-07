@@ -19,10 +19,6 @@
 
 #pragma once
 
-typedef struct ExtraData {
-  int64_t user_id = 0;
-} ExtraData;
-
 typedef struct TrendingData {
   std::string seq;
   std::string spoken_language;
@@ -32,7 +28,6 @@ typedef struct TrendingData {
 typedef struct RequestConfig {
   std::string host;
   std::string path;
-  ExtraData extra;
   TrendingData trending;
   std::string response_type;
 } RequestConfig;
@@ -44,6 +39,8 @@ typedef struct RequestConfig {
 
 class Request : public Application {
 private:
+  static constexpr int64_t DETAIL_REFRESH_SKIP_SECONDS = 12 * 60 * 60;
+
   Config config;
   Database *database;
 
@@ -65,11 +62,13 @@ private:
   int request_orgs_members(const nlohmann::json &content, enum request_type type_from);
   int request_orgs(const nlohmann::json &content, enum request_type type_from);
   int request_user(nlohmann::json content, enum request_type type_from);
-  int request_followx(const nlohmann::json &content, enum request_type type, enum request_type type_from, const ExtraData &extra);
+  int request_followx(const nlohmann::json &content, enum request_type type_from);
   int request_repo_list(nlohmann::json content, enum request_type type_from);
-  int request_starred(nlohmann::json content, const ExtraData &extra);
+  int request_starred(nlohmann::json content);
   int request_events(const nlohmann::json &content);
   int request_trending_repos(const nlohmann::json &content);
+  int request_user_detail(const std::string &login, enum request_type type_from);
+  int request_repo_detail(const std::string &full_name, enum request_type type, enum request_type type_from);
 
 public:
   Request(Config, Database *);
@@ -77,6 +76,5 @@ public:
 
   int startup() override;
 
-  // skip_sleep skips the configured per-request sleep.
-  int request(RequestConfig &url, enum request_type type, enum request_type type_from, bool skip_sleep = false);
+  int request(RequestConfig &url, enum request_type type, enum request_type type_from);
 };

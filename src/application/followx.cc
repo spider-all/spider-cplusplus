@@ -18,9 +18,6 @@ int Request::startup_followx() {
           RequestConfig request_config{
               .host = this->default_url_prefix,
               .path = "/users/" + parts[1] + "/followers?per_page=100",
-              .extra = {
-                  .user_id = std::stoll(parts[0]),
-              },
           };
           int code = request(request_config, request_type_followers, request_type_followers);
           if (code != 0) {
@@ -52,9 +49,6 @@ int Request::startup_followx() {
           RequestConfig request_config{
               .host = this->default_url_prefix,
               .path = "/users/" + parts[1] + "/following?per_page=100",
-              .extra = {
-                  .user_id = std::stoll(parts[0]),
-              },
           };
           int code = request(request_config, request_type_following, request_type_following);
           if (code != 0) {
@@ -101,16 +95,9 @@ int Request::request_user(nlohmann::json content, enum request_type type_from) {
   return code;
 }
 
-int Request::request_followx(const nlohmann::json &content, enum request_type type, enum request_type type_from, const ExtraData &extra) {
+int Request::request_followx(const nlohmann::json &content, enum request_type type_from) {
   for (auto i : content) {
-    if (type == request_type_following && extra.user_id != 0) {
-      WRAP_FUNC(this->database->upsert_following(extra.user_id, i["id"].get<int64_t>()))
-    }
-    RequestConfig request_config{
-        .host = this->default_url_prefix,
-        .path = "/users/" + i["login"].get<std::string>(),
-    };
-    int code = request(request_config, request_type_user, type_from);
+    int code = request_user_detail(i["login"].get<std::string>(), type_from);
     if (code != 0) {
       spdlog::error("request userinfo with error: {}", code);
       return code;

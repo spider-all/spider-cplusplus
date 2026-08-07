@@ -56,11 +56,7 @@ int Request::request_events(const nlohmann::json &content) {
 
     // Extract actor (user) info
     if (!actor_login.empty()) {
-      RequestConfig user_config{
-          .host = this->default_url_prefix,
-          .path = "/users/" + actor_login,
-      };
-      int code = request(user_config, request_type_user, request_type_events);
+      int code = request_user_detail(actor_login, request_type_events);
       if (code != 0) {
         spdlog::error("request user {} from events with error: {}", actor_login, code);
       }
@@ -68,11 +64,7 @@ int Request::request_events(const nlohmann::json &content) {
 
     // For PushEvent, also extract repo info
     if (event_type == "PushEvent" && !repo_name.empty()) {
-      RequestConfig repo_config{
-          .host = this->default_url_prefix,
-          .path = "/repos/" + repo_name,
-      };
-      int code = request(repo_config, request_type_users_repos, request_type_events);
+      int code = request_repo_detail(repo_name, request_type_users_repos, request_type_events);
       if (code != 0) {
         spdlog::error("request repo {} from events with error: {}", repo_name, code);
       }

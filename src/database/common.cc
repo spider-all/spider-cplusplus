@@ -50,18 +50,33 @@ int SQLiteDatabase::update_data_version(const std::string &collection, const std
   return this->execute(sql);
 }
 
-int SQLiteDatabase::upsert_relation(const std::string &collection, const std::string &first_column, int64_t first_id, const std::string &second_column, int64_t second_id) {
-  int64_t now = this->current_timestamp();
-  int64_t version = this->initial_data_version(collection);
-  std::string sql = fmt::format(
-      "INSERT INTO {} ({}, {}, data_created_at, data_updated_at, data_version) "
-      "VALUES ({}, {}, {}, {}, {}) "
-      "ON CONFLICT({}, {}) DO UPDATE SET "
-      "data_updated_at = {}",
-      collection, first_column, second_column,
-      first_id, second_id, now, now, version,
-      first_column, second_column, now);
-  return this->execute(sql);
+int SQLiteDatabase::update_version_if_recent(const std::string &collection,
+                                             const std::string &key_column,
+                                             const std::string &key_value,
+                                             int64_t max_age_seconds,
+                                             bool &updated) {
+  updated = false;
+  try {
+    SQLite::Statement query(*this->db, fmt::format(
+                                           "SELECT data_updated_at FROM {} WHERE {} = '{}'",
+                                           collection, key_column, this->escape(key_value)));
+    if (!query.executeStep()) {
+      return EXIT_SUCCESS;
+    }
+
+    int64_t data_updated_at = query.getColumn(0).getInt64();
+    if (data_updated_at < this->current_timestamp() - max_age_seconds) {
+      return EXIT_SUCCESS;
+    }
+
+    int64_t version = this->min_data_version(collection) + 1;
+    WRAP_FUNC(this->update_data_version(collection, key_column, key_value, version))
+    updated = true;
+  } catch (const std::exception &e) {
+    spdlog::error("SQLite error: {}", e.what());
+    return SQL_EXEC_ERROR;
+  }
+  return EXIT_SUCCESS;
 }
 
 // list_x_random

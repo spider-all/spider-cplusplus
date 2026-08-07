@@ -22,25 +22,6 @@ int SQLiteDatabase::create_collections() {
       "data_created_at:int64;data_updated_at:int64;data_version:int64"))
 
   WRAP_FUNC(this->execute(
-      "CREATE TABLE IF NOT EXISTS user_following ("
-      "  upstream_user_id BIGINT,"
-      "  downstream_user_id BIGINT,"
-      "  data_created_at BIGINT,"
-      "  data_updated_at BIGINT,"
-      "  data_version BIGINT,"
-      "  PRIMARY KEY (upstream_user_id, downstream_user_id)"
-      ")"))
-  WRAP_FUNC(this->execute(
-      "CREATE TABLE IF NOT EXISTS repo_star ("
-      "  user_id BIGINT,"
-      "  repo_id BIGINT,"
-      "  data_created_at BIGINT,"
-      "  data_updated_at BIGINT,"
-      "  data_version BIGINT,"
-      "  PRIMARY KEY (user_id, repo_id)"
-      ")"))
-
-  WRAP_FUNC(this->execute(
       "CREATE INDEX IF NOT EXISTS users_data_version_index ON users (data_version)"))
   WRAP_FUNC(this->execute(
       "CREATE INDEX IF NOT EXISTS orgs_data_version_index ON orgs (data_version)"))
@@ -48,10 +29,6 @@ int SQLiteDatabase::create_collections() {
       "CREATE INDEX IF NOT EXISTS repos_data_version_index ON repos (data_version)"))
   WRAP_FUNC(this->execute(
       "CREATE INDEX IF NOT EXISTS repos_stargazers_count_index ON repos (stargazers_count)"))
-  WRAP_FUNC(this->execute(
-      "CREATE INDEX IF NOT EXISTS user_following_downstream_user_id_index ON user_following (downstream_user_id)"))
-  WRAP_FUNC(this->execute(
-      "CREATE INDEX IF NOT EXISTS repo_star_repo_id_index ON repo_star (repo_id)"))
 
   return EXIT_SUCCESS;
 }
